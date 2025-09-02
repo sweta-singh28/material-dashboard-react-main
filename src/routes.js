@@ -12,10 +12,14 @@ import Assignment from "layouts/student/assignment";
 import CourseDetails from "layouts/student/viewCourseDetails";
 //Admin Pages
 import AdminDashboard from "layouts/admin/dashboard";
-import ManageUser from "layouts/admin/manageUsers";
-import MonitorCourse from "layouts/admin/monitorCourse";
-import ApproveOrRejectCourse from "layouts/admin/approveOrRejectCourse";
+import TotalUsers from "layouts/admin/totalUsers";
+import TotalCourses from "layouts/admin/totalCourses";
+import PendingApprovals from "layouts/admin/PendingApprovals";
+import CourseDetail from "layouts/admin/courseDetails";
+import UserDetails from "layouts/admin/userDetails";
+import ActiveCourses from "layouts/admin/activeCourses";
 
+//Common pages
 import Tables from "layouts/tables";
 import Billing from "layouts/billing";
 import RTL from "layouts/rtl";
@@ -170,27 +174,52 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Manage Users",
-    key: "manageUsers",
+    name: "Total Users",
+    key: "totalUsers",
     icon: <Icon fontSize="small">people</Icon>,
-    route: "/manageUsers",
-    component: <ManageUser />,
+    route: "/admin/totalUsers",
+    component: <TotalUsers />,
   },
   {
     type: "collapse",
-    name: "Monitor Courses",
-    key: "monitorCourses",
+    name: "User Details",
+    key: "userDetails",
+    icon: <Icon fontSize="small">ID</Icon>,
+    route: "/userDetails/:id",
+    component: <UserDetails />,
+  },
+  {
+    type: "collapse",
+    name: " All Courses",
+    key: "totalCourses",
     icon: <Icon fontSize="small">school</Icon>,
-    route: "/monitorCourses",
-    component: <MonitorCourse />,
+    route: "/totalCourses",
+    component: <TotalCourses />,
   },
   {
     type: "collapse",
-    name: "Verify Course",
-    key: "approveOrRejectCourse",
+    name: "Approvals",
+    key: "pendingApprovals",
     icon: <Icon fontSize="small">check</Icon>,
-    route: "/approveOrRejectCourse",
-    component: <MonitorCourse />,
+    route: "/admin/pendingApprovals",
+    component: <PendingApprovals />,
+  },
+  {
+    type: "collapse",
+    name: "Course Details",
+    key: "courseDetails",
+    icon: <Icon fontSize="small">Description</Icon>,
+    route: "courseDetails",
+    component: <CourseDetails />,
+  },
+
+  {
+    type: "collapse",
+    name: "Active Courses",
+    key: "activeCourses",
+    icon: <Icon fontSize="small">active</Icon>,
+    route: "/admin/activeCourses",
+    component: <ActiveCourses />,
   },
 ];
 

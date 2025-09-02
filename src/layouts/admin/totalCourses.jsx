@@ -9,7 +9,7 @@ import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDSnackbar from "components/MDSnackbar";
 
-const MonitorCourses = () => {
+const AllCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,7 +73,7 @@ const MonitorCourses = () => {
       <MDBox mt={6} mb={3}>
         <MDBox p={2} display="flex" justifyContent="space-between" alignItems="center">
           <MDTypography variant="h5" fontWeight="medium">
-            Monitor Courses
+            All Courses
           </MDTypography>
         </MDBox>
 
@@ -134,4 +134,4 @@ const MonitorCourses = () => {
   );
 };
 
-export default MonitorCourses;
+export default AllCourses;
