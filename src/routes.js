@@ -5,7 +5,8 @@ import TeacherDashboard from "layouts/teacher/dashboard";
 import AddNewCourse from "layouts/teacher/addNewCourse";
 import UploadMaterials from "layouts/teacher/uploadMaterials";
 import ViewSubmissions from "layouts/teacher/viewSubmissions";
-import courseProgressDetails from "layouts/teacher/courseProgressDetails";
+import StudentDetails from "layouts/teacher/studentDetails";
+import StudentRegister from "layouts/teacher/studentRegister";
 //Student pages
 import StudentDashboard from "layouts/student/dashboard";
 import Assignment from "layouts/student/assignment";
@@ -62,11 +63,19 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Progress",
-    key: "courseProgressDetails",
-    icon: <Icon fontSize="small">Progress</Icon>,
-    route: "/courseProgressDetails",
-    component: <courseProgressDetails />,
+    name: "Student Register",
+    key: "studentRegister",
+    icon: <Icon fontSize="small">menu_book</Icon>,
+    route: "/student/register",
+    component: <StudentRegister />,
+  },
+  {
+    type: "collapse",
+    name: "Student Details",
+    key: "studentDetails",
+    icon: <Icon fontSize="small">Details</Icon>,
+    route: "/students/:id",
+    component: <StudentDetails />,
   },
   {
     type: "collapse",
@@ -97,7 +106,7 @@ const routes = [
     name: "Course Details",
     key: "student",
     icon: <Icon fontSize="small">subject</Icon>,
-    route: "/viewCourseDetails",
+    route: "/student/viewCourseDetails",
     component: <ViewCourseDetails />,
   },
   {
@@ -193,7 +202,7 @@ const routes = [
     name: " All Courses",
     key: "totalCourses",
     icon: <Icon fontSize="small">school</Icon>,
-    route: "/totalCourses",
+    route: "/admin/totalCourses",
     component: <TotalCourses />,
   },
   {

@@ -17,7 +17,6 @@ const courseData = [
     id: 1,
     title: "Introduction to Data Science",
     instructor: "Dr. Eleanor Vance",
-    submitted: "2024-01-15",
     description: "A comprehensive overview of data science...",
     status: "Pending",
   },
@@ -25,7 +24,6 @@ const courseData = [
     id: 2,
     title: "Advanced Machine Learning",
     instructor: "Prof. Samuel Harper",
-    submitted: "2024-02-20",
     description: "In-depth study of advanced machine le...",
     status: "Pending",
   },
@@ -33,7 +31,6 @@ const courseData = [
     id: 3,
     title: "Digital Marketing Strategies",
     instructor: "Ms. Olivia Bennett",
-    submitted: "2024-03-10",
     description: "Effective strategies for digital marketing...",
     status: "Pending",
   },
@@ -41,7 +38,6 @@ const courseData = [
     id: 4,
     title: "Financial Modeling",
     instructor: "Mr. Ethan Carter",
-    submitted: "2024-04-05",
     description: "Building and analyzing financial models.",
     status: "Pending",
   },
@@ -49,7 +45,6 @@ const courseData = [
     id: 5,
     title: "Creative Writing Workshop",
     instructor: "Ms. Sophia Reed",
-    submitted: "2024-05-12",
     description: "Enhance your creative writing skills.",
     status: "Pending",
   },
@@ -132,15 +127,6 @@ const PendingApprovals = () => {
                   p={2}
                   sx={{ textAlign: "left" }}
                 >
-                  SUBMITTED
-                </MDTypography>
-                <MDTypography
-                  component="th"
-                  variant="button"
-                  fontWeight="bold"
-                  p={2}
-                  sx={{ textAlign: "left" }}
-                >
                   DESCRIPTION
                 </MDTypography>
                 <MDTypography
@@ -166,9 +152,6 @@ const PendingApprovals = () => {
                   </MDTypography>
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.instructor}
-                  </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.submitted}
                   </MDTypography>
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.description}

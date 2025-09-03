@@ -4,13 +4,17 @@ import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Box from "@mui/material/Box";
 
 // icons
-import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -24,129 +28,258 @@ import Footer from "examples/Footer";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Dashboard() {
+function StudentDashboard() {
   const navigate = useNavigate();
 
-  // teacher-provided courses (sample data)
   const teacherCourses = [
-    { id: "c1", title: "Mathematics I", teacher: "Dr. Rao" },
-    { id: "c2", title: "Physics I", teacher: "Dr. Iyer" },
-    { id: "c3", title: "Chemistry", teacher: "Dr. Singh" },
-    { id: "c4", title: "English", teacher: "Ms. Patel" },
-    { id: "c5", title: "Computer Science", teacher: "Mr. Verma" },
-    { id: "c6", title: "Biology", teacher: "Dr. Gupta" },
+    {
+      id: "c1",
+      title: "Mathematics I",
+      teacher: "Dr. Rao",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=Math",
+    },
+    {
+      id: "c2",
+      title: "Physics I",
+      teacher: "Dr. Iyer",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=Phys",
+    },
+    {
+      id: "c3",
+      title: "Chemistry",
+      teacher: "Dr. Singh",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=Chem",
+    },
+    {
+      id: "c4",
+      title: "English",
+      teacher: "Ms. Patel",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=Eng",
+    },
+    {
+      id: "c5",
+      title: "Computer Science",
+      teacher: "Mr. Verma",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=CS",
+    },
+    {
+      id: "c6",
+      title: "Biology",
+      teacher: "Dr. Gupta",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=Bio",
+    },
   ];
 
-  const [enrolled, setEnrolled] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
   const [selected, setSelected] = useState("");
+  const [showCourseDetails, setShowCourseDetails] = useState(null);
 
-  const handleAddCourse = () => {
-    if (!selected) return;
-    if (enrolled.length >= 5) {
-      alert("You can only choose up to 5 courses");
-      return;
-    }
-    const course = teacherCourses.find((c) => c.id === selected);
-    if (enrolled.find((c) => c.id === course.id)) {
-      alert("Already enrolled in this course");
-      return;
-    }
-    setEnrolled([...enrolled, course]);
+  const handleOpenDetails = (courseId) => {
+    const course = teacherCourses.find((c) => c.id === courseId);
+    setShowCourseDetails(course);
+  };
+
+  const handleCloseDetails = () => {
+    setShowCourseDetails(null);
     setSelected("");
   };
 
-  const handleRemove = (id) => {
-    setEnrolled(enrolled.filter((c) => c.id !== id));
+  const handleRequestCourse = () => {
+    if (!showCourseDetails) return;
+    if (enrolledCourses.length + pendingRequests.length >= 5) {
+      alert("You can only request up to 5 courses in total.");
+      handleCloseDetails();
+      return;
+    }
+    const course = showCourseDetails;
+    if (
+      enrolledCourses.some((c) => c.id === course.id) ||
+      pendingRequests.some((c) => c.id === course.id)
+    ) {
+      alert("Already requested or enrolled in this course.");
+      handleCloseDetails();
+      return;
+    }
+    setPendingRequests([...pendingRequests, course]);
+    handleCloseDetails();
+  };
+
+  const handleApproveRequest = (id) => {
+    const approvedCourse = pendingRequests.find((c) => c.id === id);
+    setEnrolledCourses([...enrolledCourses, approvedCourse]);
+    setPendingRequests(pendingRequests.filter((c) => c.id !== id));
   };
 
   const handleView = (course) => {
     navigate("/student/viewCourseDetails", { state: { course } });
   };
 
+  const allSelectedCourseIds = [
+    ...enrolledCourses.map((c) => c.id),
+    ...pendingRequests.map((c) => c.id),
+  ];
+  const availableCourses = teacherCourses.filter((c) => !allSelectedCourseIds.includes(c.id));
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>
         <Grid container spacing={3}>
-          {/* Course Chooser */}
+          {/* Section 1: Enrolled Courses */}
+          <Grid item xs={12}>
+            <MDTypography variant="h5" gutterBottom>
+              Enrolled Courses
+            </MDTypography>
+            <Grid container spacing={3}>
+              {enrolledCourses.length === 0 ? (
+                <Grid item xs={12}>
+                  <MDTypography variant="body2">No courses enrolled yet.</MDTypography>
+                </Grid>
+              ) : (
+                enrolledCourses.map((course) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
+                    <Card
+                      onClick={() => handleView(course)}
+                      style={{
+                        padding: "16px",
+                        textAlign: "center",
+                        borderRadius: "12px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <MDTypography variant="h6">{course.title}</MDTypography>
+                      <MDTypography variant="body2" color="textSecondary" mb={2}>
+                        {course.teacher}
+                      </MDTypography>
+                    </Card>
+                  </Grid>
+                ))
+              )}
+            </Grid>
+          </Grid>
+
+          {/* Section 2: Choose a Course */}
           <Grid item xs={12} md={6}>
             <Card style={{ padding: "16px" }}>
               <MDTypography variant="h5" gutterBottom>
-                Choose a Course (Max 5)
+                Choose a Course (Max 5 Total)
               </MDTypography>
               <MDBox display="flex" gap={2} alignItems="center">
                 <Select
                   value={selected}
-                  onChange={(e) => setSelected(e.target.value)}
+                  onChange={(e) => {
+                    setSelected(e.target.value);
+                    if (e.target.value) {
+                      handleOpenDetails(e.target.value);
+                    }
+                  }}
                   displayEmpty
                   style={{ minWidth: 200 }}
                 >
                   <MenuItem value="">-- Select Course --</MenuItem>
-                  {teacherCourses
-                    .filter((c) => !enrolled.some((e) => e.id === c.id))
-                    .map((c) => (
-                      <MenuItem key={c.id} value={c.id}>
-                        {c.title} — {c.teacher}
-                      </MenuItem>
-                    ))}
+                  {availableCourses.map((c) => (
+                    <MenuItem key={c.id} value={c.id}>
+                      {c.title} — {c.teacher}
+                    </MenuItem>
+                  ))}
                 </Select>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<AddCircleIcon />}
-                  onClick={handleAddCourse}
-                  disabled={enrolled.length >= 5}
-                >
-                  Add
-                </Button>
               </MDBox>
               <Typography variant="caption" color="textSecondary">
-                Slots left: {5 - enrolled.length}
+                Slots left: {5 - (enrolledCourses.length + pendingRequests.length)}
               </Typography>
             </Card>
           </Grid>
 
-          {/* Enrolled Courses */}
+          {/* Section 3: Pending Requests with Thumbnail */}
           <Grid item xs={12}>
-            <Card style={{ padding: "16px" }}>
-              <MDTypography variant="h5" gutterBottom>
-                Enrolled Courses
-              </MDTypography>
-              {enrolled.length === 0 ? (
-                <MDTypography variant="body2">No courses enrolled yet.</MDTypography>
+            <MDTypography variant="h5" gutterBottom>
+              Pending Approval from Teacher
+            </MDTypography>
+            <Grid container spacing={3}>
+              {pendingRequests.length === 0 ? (
+                <Grid item xs={12}>
+                  <MDTypography variant="body2">No pending requests.</MDTypography>
+                </Grid>
               ) : (
-                enrolled.map((course) => (
-                  <MDBox
-                    key={course.id}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    p={1}
-                    mb={1}
-                    borderRadius="8px"
-                    style={{ backgroundColor: "#f9f9f9" }}
-                  >
-                    <MDTypography variant="body1">
-                      {course.title} — {course.teacher}
-                    </MDTypography>
-                    <MDBox>
-                      <IconButton color="primary" onClick={() => handleView(course)}>
-                        <VisibilityIcon />
-                      </IconButton>
-                      <IconButton color="error" onClick={() => handleRemove(course.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </MDBox>
-                  </MDBox>
+                pendingRequests.map((course) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
+                    <Card style={{ padding: "16px", borderRadius: "12px", textAlign: "center" }}>
+                      <MDBox display="flex" flexDirection="column" alignItems="center" mb={2}>
+                        {course.thumbnail && (
+                          <img
+                            src={course.thumbnail}
+                            alt={`${course.title} thumbnail`}
+                            style={{
+                              width: "80px",
+                              height: "80px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                              marginBottom: "8px",
+                            }}
+                          />
+                        )}
+                        <MDBox display="flex" alignItems="center" gap={1}>
+                          <AccessTimeIcon color="warning" />
+                          <MDTypography variant="h6">{course.title}</MDTypography>
+                        </MDBox>
+                        <MDTypography variant="body2" color="textSecondary">
+                          {course.teacher}
+                        </MDTypography>
+                      </MDBox>
+
+                      <MDBox display="flex" justifyContent="center" gap={1}>
+                        <Button
+                          variant="outlined"
+                          color="success"
+                          startIcon={<DoneAllIcon />}
+                          onClick={() => handleApproveRequest(course.id)}
+                        >
+                          Approve (Simulated)
+                        </Button>
+                      </MDBox>
+                    </Card>
+                  </Grid>
                 ))
               )}
-            </Card>
+            </Grid>
           </Grid>
         </Grid>
       </MDBox>
+
+      {/* Course Details Dialog */}
+      <Dialog open={!!showCourseDetails} onClose={handleCloseDetails}>
+        <DialogTitle>Course Details</DialogTitle>
+        <DialogContent>
+          {showCourseDetails && (
+            <Box>
+              <MDTypography variant="h6">Course: {showCourseDetails.title}</MDTypography>
+              <MDTypography variant="body1">Teacher: {showCourseDetails.teacher}</MDTypography>
+              <MDTypography variant="body2" mt={2}>
+                Please note: Requesting this course will add it to your pending requests. It will
+                only be officially enrolled after teacher approval.
+              </MDTypography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDetails} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleRequestCourse}
+            color="primary"
+            variant="contained"
+            startIcon={<AddCircleIcon />}
+          >
+            Request
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Footer />
     </DashboardLayout>
   );
 }
 
-export default Dashboard;
+export default StudentDashboard;

@@ -54,7 +54,11 @@ const TotalUsers = () => {
     return initialUsers;
   });
 
-  const [filterRole, setFilterRole] = useState("All");
+  // If navigation passed a filterRole in location.state, use it as the initial filter.
+  const [filterRole, setFilterRole] = useState(() => {
+    const fromNav = location.state?.filterRole;
+    return fromNav ?? "All";
+  });
 
   // Refresh list if user was removed from UserDetails page
   useEffect(() => {

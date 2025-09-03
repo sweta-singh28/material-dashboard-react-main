@@ -118,6 +118,23 @@ const AdminDashboard = () => {
   const userColors = ["#3f51b5", "#ff7043"];
   const courseColors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336"];
 
+  // Navigate to total users; if role passed, map to singular form used in TotalUsers filter
+  const handleUserBarClick = (entryRole) => {
+    // map "Students" -> "Student", "Teachers" -> "Teacher"
+    const mapRole =
+      entryRole === "Students" ? "Student" : entryRole === "Teachers" ? "Teacher" : null;
+    if (mapRole) {
+      navigate("/admin/totalUsers", { state: { filterRole: mapRole } });
+    } else {
+      navigate("/admin/totalUsers");
+    }
+  };
+
+  // Navigate to total courses (no filter). Entire Courses Overview card will be clickable.
+  const handleCoursesCardClick = () => {
+    navigate("/admin/totalCourses");
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -184,7 +201,12 @@ const AdminDashboard = () => {
                     <Legend />
                     <Bar dataKey="count" radius={[10, 10, 0, 0]}>
                       {userData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={userColors[index % userColors.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={userColors[index % userColors.length]}
+                          cursor="pointer"
+                          onClick={() => handleUserBarClick(entry.role)}
+                        />
                       ))}
                     </Bar>
                   </BarChart>
@@ -194,7 +216,17 @@ const AdminDashboard = () => {
           </Grid>
 
           <Grid item xs={12} lg={6}>
-            <Card sx={{ height: "100%", boxShadow: 3 }}>
+            {/* Entire card is clickable and navigates to total courses */}
+            <Card
+              onClick={handleCoursesCardClick}
+              sx={{
+                height: "100%",
+                boxShadow: 3,
+                cursor: "pointer",
+                transition: "transform 0.15s, box-shadow 0.15s",
+                "&:hover": { transform: "translateY(-4px)", boxShadow: 6 },
+              }}
+            >
               <ChartCardHeader
                 title="Courses Overview"
                 description="Number of courses by subject"
