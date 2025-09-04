@@ -227,36 +227,11 @@ const PendingApprovals = () => {
           </MDBox>
         </MDBox>
 
-        {/* Rejection Reason Section */}
-        <MDBox p={3} border="1px solid #e0e0e0" borderRadius="8px" shadow="sm">
-          <MDTypography variant="h6" mb={1}>
-            Rejection Reason
-          </MDTypography>
-          <MDTypography variant="body2" color="text" mb={2}>
-            Provide a reason for rejecting a course. This will be sent to the instructor.
-          </MDTypography>
-          <MDInput
-            multiline
-            rows={5}
-            placeholder="e.g., Course content overlaps with an existing course..."
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            fullWidth
-            sx={{ mb: 2 }}
-          />
-          <MDButton
-            variant="gradient"
-            color="info"
-            onClick={() => handleRejectWithReason(1)} // Example: Rejecting course with ID 1
-            disabled={!rejectionReason}
-          >
-            Submit Reason
-          </MDButton>
-        </MDBox>
+        {/* NOTE: Rejection Reason container moved into the Details Modal as requested */}
       </MDBox>
       <Footer />
 
-      {/* NEW: Details Modal Form */}
+      {/* NEW: Details Modal Form (now includes Rejection Reason + Approve/Reject actions) */}
       <Dialog open={openDetails} onClose={handleCloseDetails} fullWidth maxWidth="sm">
         <DialogTitle>Course Details</DialogTitle>
         <DialogContent dividers>
@@ -274,6 +249,7 @@ const PendingApprovals = () => {
                   mb: 2,
                 }}
               />
+
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <MDTypography variant="caption" color="text">
@@ -300,6 +276,25 @@ const PendingApprovals = () => {
                     sx={{ mt: 0.5 }}
                   />
                 </Grid>
+
+                {/* Rejection reason moved here */}
+                <Grid item xs={12}>
+                  <MDTypography variant="caption" color="text">
+                    Rejection Reason
+                  </MDTypography>
+                  <MDTypography variant="body2" color="text" mb={1} sx={{ display: "block" }}>
+                    Provide a reason for rejecting a course. This will be sent to the instructor.
+                  </MDTypography>
+                  <MDInput
+                    multiline
+                    rows={4}
+                    placeholder="e.g., Course content overlaps with an existing course..."
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    fullWidth
+                    sx={{ mt: 0.5 }}
+                  />
+                </Grid>
               </Grid>
             </MDBox>
           )}
@@ -307,6 +302,26 @@ const PendingApprovals = () => {
         <DialogActions>
           <MDButton onClick={handleCloseDetails} color="dark" variant="text">
             Close
+          </MDButton>
+
+          <MDButton
+            size="small"
+            variant="gradient"
+            color="error"
+            onClick={() => selectedCourse && handleRejectWithReason(selectedCourse.id)}
+            disabled={!rejectionReason}
+            sx={{ mr: 1 }}
+          >
+            Reject
+          </MDButton>
+
+          <MDButton
+            size="small"
+            variant="gradient"
+            color="success"
+            onClick={() => selectedCourse && handleAction(selectedCourse.id, "approve")}
+          >
+            Approve
           </MDButton>
         </DialogActions>
       </Dialog>

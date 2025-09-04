@@ -1,5 +1,6 @@
 // ActiveCourses.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // <-- added
 
 // Material Dashboard 2 React components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -39,6 +40,12 @@ const activeCourseData = [
 
 const ActiveCourses = () => {
   const [activeCourses] = useState(activeCourseData);
+  const navigate = useNavigate(); // <-- added
+
+  const handleRowClick = (course) => {
+    // navigate to CourseDetails and pass the course object via state
+    navigate("/courseDetails", { state: { course } });
+  };
 
   return (
     <DashboardLayout>
@@ -117,8 +124,17 @@ const ActiveCourses = () => {
                 <MDBox
                   component="tr"
                   key={course.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleRowClick(course)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") handleRowClick(course);
+                  }}
                   sx={{
                     "&:not(:last-child)": { borderBottom: "1px solid #e0e0e0" },
+                    cursor: "pointer",
+                    transition: "background-color 120ms ease",
+                    "&:hover": { backgroundColor: "#f5f5f5" },
                   }}
                 >
                   <MDTypography component="td" variant="body2" p={2}>

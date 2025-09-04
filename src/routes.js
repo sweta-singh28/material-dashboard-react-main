@@ -35,6 +35,7 @@ import Teacher from "layouts/teacher/dashboard";
 import Student from "layouts/student/dashboard";
 import Admin from "layouts/admin/dashboard";
 import ViewCourseDetails from "layouts/student/viewCourseDetails";
+import { FaBookOpen } from "react-icons/fa";
 
 const routes = [
   {
@@ -226,7 +227,7 @@ const routes = [
     type: "collapse",
     name: "Active Courses",
     key: "activeCourses",
-    icon: <Icon fontSize="small">active</Icon>,
+    icon: <FaBookOpen size={18} />,
     route: "/admin/activeCourses",
     component: <ActiveCourses />,
   },
