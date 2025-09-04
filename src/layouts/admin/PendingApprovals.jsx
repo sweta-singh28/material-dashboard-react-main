@@ -11,6 +11,13 @@ import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
 
+// MUI
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Grid from "@mui/material/Grid";
+
 // Data
 const courseData = [
   {
@@ -19,6 +26,7 @@ const courseData = [
     instructor: "Dr. Eleanor Vance",
     description: "A comprehensive overview of data science...",
     status: "Pending",
+    thumbnail: "https://picsum.photos/seed/course1/240/140",
   },
   {
     id: 2,
@@ -26,6 +34,7 @@ const courseData = [
     instructor: "Prof. Samuel Harper",
     description: "In-depth study of advanced machine le...",
     status: "Pending",
+    thumbnail: "https://picsum.photos/seed/course2/240/140",
   },
   {
     id: 3,
@@ -33,6 +42,7 @@ const courseData = [
     instructor: "Ms. Olivia Bennett",
     description: "Effective strategies for digital marketing...",
     status: "Pending",
+    thumbnail: "https://picsum.photos/seed/course3/240/140",
   },
   {
     id: 4,
@@ -40,6 +50,7 @@ const courseData = [
     instructor: "Mr. Ethan Carter",
     description: "Building and analyzing financial models.",
     status: "Pending",
+    thumbnail: "https://picsum.photos/seed/course4/240/140",
   },
   {
     id: 5,
@@ -47,6 +58,7 @@ const courseData = [
     instructor: "Ms. Sophia Reed",
     description: "Enhance your creative writing skills.",
     status: "Pending",
+    thumbnail: "https://picsum.photos/seed/course5/240/140",
   },
 ];
 
@@ -54,6 +66,10 @@ const PendingApprovals = () => {
   const navigate = useNavigate();
   const [rejectionReason, setRejectionReason] = useState("");
   const [pendingCourses, setPendingCourses] = useState(courseData);
+
+  // NEW: details modal state
+  const [openDetails, setOpenDetails] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const handleAction = (courseId, action) => {
     const updatedStatus = action === "approve" ? "Approved" : "Rejected";
@@ -69,6 +85,16 @@ const PendingApprovals = () => {
     console.log(`Course ${courseId} rejected with reason: ${rejectionReason}`);
     handleAction(courseId, "reject");
     setRejectionReason("");
+  };
+
+  // NEW: open/close details
+  const handleOpenDetails = (course) => {
+    setSelectedCourse(course);
+    setOpenDetails(true);
+  };
+  const handleCloseDetails = () => {
+    setOpenDetails(false);
+    setSelectedCourse(null);
   };
 
   return (
@@ -161,7 +187,7 @@ const PendingApprovals = () => {
                       size="small"
                       variant="text"
                       color="dark"
-                      onClick={() => navigate("/courseDetails", { state: { course } })}
+                      onClick={() => handleOpenDetails(course)} // CHANGED: open modal
                       sx={{ mr: 1 }}
                     >
                       Details
@@ -229,6 +255,61 @@ const PendingApprovals = () => {
         </MDBox>
       </MDBox>
       <Footer />
+
+      {/* NEW: Details Modal Form */}
+      <Dialog open={openDetails} onClose={handleCloseDetails} fullWidth maxWidth="sm">
+        <DialogTitle>Course Details</DialogTitle>
+        <DialogContent dividers>
+          {selectedCourse && (
+            <MDBox>
+              <MDBox
+                component="img"
+                src={selectedCourse.thumbnail || "https://picsum.photos/seed/fallback/240/140"}
+                alt={`${selectedCourse.title} thumbnail`}
+                sx={{
+                  width: "100%",
+                  height: 180,
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  mb: 2,
+                }}
+              />
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <MDTypography variant="caption" color="text">
+                    Course Name
+                  </MDTypography>
+                  <MDInput value={selectedCourse.title} disabled fullWidth sx={{ mt: 0.5 }} />
+                </Grid>
+                <Grid item xs={12}>
+                  <MDTypography variant="caption" color="text">
+                    Instructor
+                  </MDTypography>
+                  <MDInput value={selectedCourse.instructor} disabled fullWidth sx={{ mt: 0.5 }} />
+                </Grid>
+                <Grid item xs={12}>
+                  <MDTypography variant="caption" color="text">
+                    Description
+                  </MDTypography>
+                  <MDInput
+                    multiline
+                    rows={4}
+                    value={selectedCourse.description}
+                    disabled
+                    fullWidth
+                    sx={{ mt: 0.5 }}
+                  />
+                </Grid>
+              </Grid>
+            </MDBox>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={handleCloseDetails} color="dark" variant="text">
+            Close
+          </MDButton>
+        </DialogActions>
+      </Dialog>
     </DashboardLayout>
   );
 };

@@ -1,3 +1,4 @@
+// AllCourses.jsx (updated)
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -70,8 +71,9 @@ const AllCourses = () => {
     }
   }, [location.state, location.pathname, navigate]);
 
+  // changed to route to CourseDetails with course state
   const handleView = (course) => {
-    navigate("/approveOrRejectCourse", { state: { course } });
+    navigate("/courseDetails", { state: { course } });
   };
 
   return (
@@ -110,6 +112,11 @@ const AllCourses = () => {
                       Status
                     </MDTypography>
                   </TableCell>
+                  <TableCell>
+                    <MDTypography variant="button" fontWeight="bold">
+                      Actions
+                    </MDTypography>
+                  </TableCell>
                 </TableRow>
               </TableHead>
 
@@ -138,6 +145,18 @@ const AllCourses = () => {
                         color={course.status === "Active" ? "success" : "default"}
                         sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
                       />
+                    </TableCell>
+
+                    {/* NEW: Details button that navigates to CourseDetails */}
+                    <TableCell>
+                      <MDButton
+                        size="small"
+                        variant="text"
+                        color="dark"
+                        onClick={() => handleView(course)}
+                      >
+                        Details
+                      </MDButton>
                     </TableCell>
                   </TableRow>
                 ))}

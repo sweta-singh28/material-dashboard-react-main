@@ -1,6 +1,15 @@
-// @mui material components
+// AddNewCourse.jsx
+import React, { useState } from "react";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import Chip from "@mui/material/Chip";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -13,6 +22,50 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 function AddNewCourse() {
+  const [courseName, setCourseName] = useState("");
+  const [description, setDescription] = useState("");
+  const [teacherInfo, setTeacherInfo] = useState("");
+  const [thumbnail, setThumbnail] = useState(null);
+
+  // list of created courses
+  const [courses, setCourses] = useState([]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setThumbnail(file);
+  };
+
+  const handleCreate = () => {
+    if (!courseName.trim() || !description.trim() || !teacherInfo.trim()) return;
+
+    const newCourse = {
+      id: courses.length + 1,
+      name: courseName,
+      description,
+      teacher: teacherInfo,
+      thumbnail: thumbnail ? thumbnail.name : "N/A",
+      status: "Pending", // always pending until admin approves
+    };
+
+    setCourses([...courses, newCourse]);
+
+    // reset form
+    setCourseName("");
+    setDescription("");
+    setTeacherInfo("");
+    setThumbnail(null);
+  };
+
+  const handleCancel = () => {
+    setCourseName("");
+    setDescription("");
+    setTeacherInfo("");
+    setThumbnail(null);
+  };
+
+  const chipColor = (status) =>
+    status === "Approved" ? "success" : status === "Rejected" ? "error" : "warning";
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -26,7 +79,13 @@ function AddNewCourse() {
 
               {/* Course Name */}
               <MDBox mb={2}>
-                <TextField fullWidth label="Course Name" variant="outlined" />
+                <TextField
+                  fullWidth
+                  label="Course Name"
+                  variant="outlined"
+                  value={courseName}
+                  onChange={(e) => setCourseName(e.target.value)}
+                />
               </MDBox>
 
               {/* Course Description */}
@@ -37,6 +96,8 @@ function AddNewCourse() {
                   rows={4}
                   label="Course Description"
                   variant="outlined"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </MDBox>
 
@@ -47,6 +108,8 @@ function AddNewCourse() {
                   label="Teacher's Information"
                   variant="outlined"
                   placeholder="Enter your name, qualification, experience"
+                  value={teacherInfo}
+                  onChange={(e) => setTeacherInfo(e.target.value)}
                 />
               </MDBox>
 
@@ -59,19 +122,74 @@ function AddNewCourse() {
                   type="file"
                   accept="image/*"
                   style={{ display: "block", marginTop: "8px" }}
+                  onChange={handleFileChange}
                 />
+                {thumbnail && (
+                  <MDTypography variant="caption" color="text" sx={{ display: "block", mt: 1 }}>
+                    Selected: {thumbnail.name}
+                  </MDTypography>
+                )}
               </MDBox>
 
               {/* Action Buttons */}
               <MDBox mt={3} display="flex" justifyContent="flex-end" gap={2}>
-                <MDButton variant="outlined" color="secondary">
+                <MDButton variant="outlined" color="secondary" onClick={handleCancel}>
                   Cancel
                 </MDButton>
-                <MDButton variant="gradient" color="info">
+                <MDButton variant="gradient" color="info" onClick={handleCreate}>
                   Create Course
                 </MDButton>
               </MDBox>
             </MDBox>
+
+            {/* Table of created courses */}
+            {courses.length > 0 && (
+              <MDBox mt={4}>
+                <MDTypography variant="h5" gutterBottom>
+                  📑 Your Submitted Courses
+                </MDTypography>
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>
+                          <b>Course Name</b>
+                        </TableCell>
+                        <TableCell>
+                          <b>Description</b>
+                        </TableCell>
+                        <TableCell>
+                          <b>Teacher</b>
+                        </TableCell>
+                        <TableCell>
+                          <b>Thumbnail</b>
+                        </TableCell>
+                        <TableCell>
+                          <b>Status</b>
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {courses.map((course) => (
+                        <TableRow key={course.id}>
+                          <TableCell>{course.name}</TableCell>
+                          <TableCell>{course.description}</TableCell>
+                          <TableCell>{course.teacher}</TableCell>
+                          <TableCell>{course.thumbnail}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={course.status}
+                              size="small"
+                              color={chipColor(course.status)}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MDBox>
+            )}
           </Grid>
         </Grid>
       </MDBox>

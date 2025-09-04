@@ -99,15 +99,6 @@ const ActiveCourses = () => {
                   p={2}
                   sx={{ textAlign: "left" }}
                 >
-                  STARTED
-                </MDTypography>
-                <MDTypography
-                  component="th"
-                  variant="button"
-                  fontWeight="bold"
-                  p={2}
-                  sx={{ textAlign: "left" }}
-                >
                   DESCRIPTION
                 </MDTypography>
                 <MDTypography
@@ -135,9 +126,6 @@ const ActiveCourses = () => {
                   </MDTypography>
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.instructor}
-                  </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.started}
                   </MDTypography>
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.description}
