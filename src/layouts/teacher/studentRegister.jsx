@@ -58,27 +58,19 @@ function Students() {
                           Email
                         </MDTypography>
                       </TableCell>
-                      <TableCell align="right">
-                        <MDTypography variant="button" fontWeight="bold">
-                          Action
-                        </MDTypography>
-                      </TableCell>
+                      {/* Action column removed as requested */}
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {students.map((student, index) => (
-                      <TableRow key={index}>
+                      <TableRow
+                        key={index}
+                        hover
+                        sx={{ cursor: "pointer" }}
+                        onClick={() => navigate(`/students/${index}`)}
+                      >
                         <TableCell>{student.name}</TableCell>
                         <TableCell>{student.email}</TableCell>
-                        <TableCell align="right">
-                          <Button
-                            variant="text"
-                            color="primary"
-                            onClick={() => navigate(`/students/${index}`)}
-                          >
-                            View Details →
-                          </Button>
-                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

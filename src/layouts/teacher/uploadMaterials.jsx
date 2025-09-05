@@ -20,13 +20,11 @@ function UploadMaterials() {
 
   const handleAssignmentSubmit = (e) => {
     e.preventDefault();
-    // TODO: wire to backend
     console.log("Assignment submitted");
   };
 
   const handleNotesSubmit = (e) => {
     e.preventDefault();
-    // TODO: wire to backend
     console.log("Notes submitted");
   };
 
@@ -71,9 +69,16 @@ function UploadMaterials() {
                 <MDBox mt={1} component="form" role="form" onSubmit={handleAssignmentSubmit}>
                   <MDBox mb={2}>
                     <MDTypography variant="button" fontWeight="medium">
+                      Subject
+                    </MDTypography>
+                    <MDInput fullWidth placeholder="Enter subject name" required />
+                  </MDBox>
+
+                  <MDBox mb={2}>
+                    <MDTypography variant="button" fontWeight="medium">
                       Assignment Title
                     </MDTypography>
-                    <MDInput fullWidth placeholder="Enter assignment title" />
+                    <MDInput fullWidth placeholder="Enter assignment title" required />
                   </MDBox>
 
                   <MDBox mb={2}>
@@ -92,7 +97,7 @@ function UploadMaterials() {
                     <MDTypography variant="button" fontWeight="medium">
                       Deadline
                     </MDTypography>
-                    <MDInput fullWidth type="date" InputLabelProps={{ shrink: true }} />
+                    <MDInput fullWidth type="date" InputLabelProps={{ shrink: true }} required />
                   </MDBox>
 
                   <MDBox mt={3} display="flex" justifyContent="flex-end" gap={12 / 6}>
@@ -114,6 +119,13 @@ function UploadMaterials() {
               {/* Notes Form */}
               {activeTab === "notes" && (
                 <MDBox mt={1} component="form" role="form" onSubmit={handleNotesSubmit}>
+                  <MDBox mb={2}>
+                    <MDTypography variant="button" fontWeight="medium">
+                      Subject
+                    </MDTypography>
+                    <MDInput fullWidth placeholder="Enter subject name" required />
+                  </MDBox>
+
                   <MDBox mb={2}>
                     <MDTypography variant="button" fontWeight="medium">
                       Upload Notes

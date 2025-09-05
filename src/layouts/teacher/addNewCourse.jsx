@@ -27,12 +27,23 @@ function AddNewCourse() {
   const [teacherInfo, setTeacherInfo] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
 
+  // NEW fields
+  const [expectations, setExpectations] = useState("");
+  const [prerequisites, setPrerequisites] = useState("");
+  const [syllabus, setSyllabus] = useState(null); // pdf file
+
   // list of created courses
   const [courses, setCourses] = useState([]);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
     setThumbnail(file);
+  };
+
+  // handler for syllabus pdf
+  const handleSyllabusChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setSyllabus(file);
   };
 
   const handleCreate = () => {
@@ -44,16 +55,23 @@ function AddNewCourse() {
       description,
       teacher: teacherInfo,
       thumbnail: thumbnail ? thumbnail.name : "N/A",
+      // NEW properties
+      expectations,
+      prerequisites,
+      syllabus: syllabus ? syllabus.name : "N/A",
       status: "Pending", // always pending until admin approves
     };
 
     setCourses([...courses, newCourse]);
 
-    // reset form
+    // reset form (including new fields)
     setCourseName("");
     setDescription("");
     setTeacherInfo("");
     setThumbnail(null);
+    setExpectations("");
+    setPrerequisites("");
+    setSyllabus(null);
   };
 
   const handleCancel = () => {
@@ -61,6 +79,10 @@ function AddNewCourse() {
     setDescription("");
     setTeacherInfo("");
     setThumbnail(null);
+    // reset new fields too
+    setExpectations("");
+    setPrerequisites("");
+    setSyllabus(null);
   };
 
   const chipColor = (status) =>
@@ -113,6 +135,34 @@ function AddNewCourse() {
                 />
               </MDBox>
 
+              {/* New: Course Expectations */}
+              <MDBox mb={2}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="Course Expectations"
+                  variant="outlined"
+                  placeholder="What students will learn / outcomes"
+                  value={expectations}
+                  onChange={(e) => setExpectations(e.target.value)}
+                />
+              </MDBox>
+
+              {/* New: Course Prerequisites */}
+              <MDBox mb={2}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={2}
+                  label="Course Prerequisites"
+                  variant="outlined"
+                  placeholder="Required knowledge or tools"
+                  value={prerequisites}
+                  onChange={(e) => setPrerequisites(e.target.value)}
+                />
+              </MDBox>
+
               {/* Thumbnail Upload */}
               <MDBox mb={2}>
                 <MDTypography variant="button" fontWeight="medium">
@@ -127,6 +177,24 @@ function AddNewCourse() {
                 {thumbnail && (
                   <MDTypography variant="caption" color="text" sx={{ display: "block", mt: 1 }}>
                     Selected: {thumbnail.name}
+                  </MDTypography>
+                )}
+              </MDBox>
+
+              {/* New: Syllabus PDF upload */}
+              <MDBox mb={2}>
+                <MDTypography variant="button" fontWeight="medium">
+                  Upload Expected Syllabus (PDF)
+                </MDTypography>
+                <input
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  style={{ display: "block", marginTop: "8px" }}
+                  onChange={handleSyllabusChange}
+                />
+                {syllabus && (
+                  <MDTypography variant="caption" color="text" sx={{ display: "block", mt: 1 }}>
+                    Selected: {syllabus.name}
                   </MDTypography>
                 )}
               </MDBox>
@@ -164,6 +232,18 @@ function AddNewCourse() {
                         <TableCell>
                           <b>Thumbnail</b>
                         </TableCell>
+
+                        {/* NEW columns */}
+                        <TableCell>
+                          <b>Expectations</b>
+                        </TableCell>
+                        <TableCell>
+                          <b>Prerequisites</b>
+                        </TableCell>
+                        <TableCell>
+                          <b>Syllabus (PDF)</b>
+                        </TableCell>
+
                         <TableCell>
                           <b>Status</b>
                         </TableCell>
@@ -176,6 +256,12 @@ function AddNewCourse() {
                           <TableCell>{course.description}</TableCell>
                           <TableCell>{course.teacher}</TableCell>
                           <TableCell>{course.thumbnail}</TableCell>
+
+                          {/* NEW values */}
+                          <TableCell>{course.expectations || "-"}</TableCell>
+                          <TableCell>{course.prerequisites || "-"}</TableCell>
+                          <TableCell>{course.syllabus}</TableCell>
+
                           <TableCell>
                             <Chip
                               label={course.status}

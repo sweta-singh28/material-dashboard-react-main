@@ -300,10 +300,29 @@ export default function AssignmentsPage() {
               ) : (
                 approvedAssignments.map((a) => {
                   const course = courses.find((c) => c.id === a.courseId);
+                  const canOpen = !!a.studentFileUrl;
                   return (
                     <Grid item xs={12} sm={6} md={4} key={a.id}>
                       <Card
-                        style={{ padding: "16px", borderRadius: "12px", background: "#f0fff4" }}
+                        onClick={() => {
+                          if (canOpen) {
+                            window.open(a.studentFileUrl, "_blank", "noopener,noreferrer");
+                          }
+                        }}
+                        role={canOpen ? "button" : undefined}
+                        tabIndex={canOpen ? 0 : -1}
+                        onKeyDown={(e) => {
+                          if ((e.key === "Enter" || e.key === " ") && canOpen) {
+                            window.open(a.studentFileUrl, "_blank", "noopener,noreferrer");
+                          }
+                        }}
+                        style={{
+                          padding: "16px",
+                          borderRadius: "12px",
+                          background: "#f0fff4",
+                          cursor: canOpen ? "pointer" : "default",
+                        }}
+                        title={canOpen ? "Click to view submitted PDF" : undefined}
                       >
                         <MDTypography variant="h6">{a.title}</MDTypography>
                         <MDTypography variant="body2" color="textSecondary">
@@ -314,9 +333,11 @@ export default function AssignmentsPage() {
                         </MDTypography>
 
                         <MDBox mt={2} display="flex" justifyContent="center">
-                          <IconButton color="primary">
-                            <VisibilityIcon />
-                          </IconButton>
+                          <Typography variant="caption" color="textSecondary">
+                            {canOpen
+                              ? "Click anywhere on the card to view the submitted PDF"
+                              : "No submitted file URL available"}
+                          </Typography>
                         </MDBox>
                       </Card>
                     </Grid>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid";
@@ -31,7 +31,7 @@ import {
 // ---------------- StatCard Component ----------------
 const StatCard = ({ icon, color, title, value, onClick }) => (
   <Card
-    onClick={onClick} // make the entire card clickable
+    onClick={onClick}
     sx={{
       p: 2,
       display: "flex",
@@ -102,25 +102,72 @@ ChartCardHeader.propTypes = {
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  const userData = [
-    { role: "Students", count: 120 },
-    { role: "Teachers", count: 25 },
+  // State to hold counts
+  const [userData, setUserData] = useState([]);
+  const [courseData, setCourseData] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [activeCourses, setActiveCourses] = useState(0);
+  const [pendingApprovals, setPendingApprovals] = useState(0);
+
+  // Mock lists (simulate DB data)
+  const studentsList = [
+    { id: 1, name: "John" },
+    { id: 2, name: "Alice" },
+    { id: 3, name: "Raj" },
+    // ...more
   ];
 
-  const courseData = [
-    { subject: "Math", count: 10 },
-    { subject: "Science", count: 8 },
-    { subject: "English", count: 6 },
-    { subject: "History", count: 5 },
-    { subject: "Computer", count: 3 },
+  const teachersList = [
+    { id: 1, name: "Mr. Smith" },
+    { id: 2, name: "Mrs. Patel" },
+    // ...more
   ];
+
+  const coursesList = [
+    { id: 1, subject: "Math", status: "active" },
+    { id: 2, subject: "Science", status: "active" },
+    { id: 3, subject: "English", status: "active" },
+    { id: 4, subject: "History", status: "inactive" },
+    { id: 5, subject: "Computer", status: "pending" },
+    // ...more
+  ];
+
+  useEffect(() => {
+    // Count users
+    const studentCount = studentsList.length;
+    const teacherCount = teachersList.length;
+
+    setUserData([
+      { role: "Students", count: studentCount },
+      { role: "Teachers", count: teacherCount },
+    ]);
+
+    setTotalUsers(studentCount + teacherCount);
+
+    // Count courses
+    const subjectCounts = {};
+    coursesList.forEach((course) => {
+      subjectCounts[course.subject] = (subjectCounts[course.subject] || 0) + 1;
+    });
+
+    const formattedCourseData = Object.entries(subjectCounts).map(([subject, count]) => ({
+      subject,
+      count,
+    }));
+
+    setCourseData(formattedCourseData);
+
+    // Active courses
+    setActiveCourses(coursesList.filter((c) => c.status === "active").length);
+
+    // Pending approvals
+    setPendingApprovals(coursesList.filter((c) => c.status === "pending").length);
+  }, []);
 
   const userColors = ["#3f51b5", "#ff7043"];
   const courseColors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336"];
 
-  // Navigate to total users; if role passed, map to singular form used in TotalUsers filter
   const handleUserBarClick = (entryRole) => {
-    // map "Students" -> "Student", "Teachers" -> "Teacher"
     const mapRole =
       entryRole === "Students" ? "Student" : entryRole === "Teachers" ? "Teacher" : null;
     if (mapRole) {
@@ -130,7 +177,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Navigate to total courses (no filter). Entire Courses Overview card will be clickable.
   const handleCoursesCardClick = () => {
     navigate("/admin/totalCourses");
   };
@@ -153,7 +199,7 @@ const AdminDashboard = () => {
               icon={<PeopleAltIcon />}
               color="#3f51b5"
               title="Total Users"
-              value="1,250"
+              value={totalUsers}
               onClick={() => navigate("/admin/totalUsers")}
             />
           </Grid>
@@ -163,7 +209,7 @@ const AdminDashboard = () => {
               icon={<MenuBookIcon />}
               color="#4caf50"
               title="Active Courses"
-              value="32"
+              value={activeCourses}
               onClick={() => navigate("/admin/activeCourses")}
             />
           </Grid>
@@ -173,7 +219,7 @@ const AdminDashboard = () => {
               icon={<AssignmentTurnedInIcon />}
               color="#ffc107"
               title="Pending Approvals"
-              value="5"
+              value={pendingApprovals}
               onClick={() => navigate("/admin/pendingApprovals")}
             />
           </Grid>
@@ -216,7 +262,6 @@ const AdminDashboard = () => {
           </Grid>
 
           <Grid item xs={12} lg={6}>
-            {/* Entire card is clickable and navigates to total courses */}
             <Card
               onClick={handleCoursesCardClick}
               sx={{

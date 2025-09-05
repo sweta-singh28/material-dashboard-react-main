@@ -1,11 +1,9 @@
+// TeacherDashboard.jsx
+
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -20,7 +18,7 @@ import Footer from "examples/Footer";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // React
-import { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 function TeacherDashboard() {
@@ -40,20 +38,6 @@ function TeacherDashboard() {
     course: c.name,
     students: c.students,
   }));
-
-  // Modal state
-  const [open, setOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null);
-
-  const handleOpen = (course) => {
-    setSelectedCourse(course);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setSelectedCourse(null);
-    setOpen(false);
-  };
 
   return (
     <DashboardLayout>
@@ -121,7 +105,8 @@ function TeacherDashboard() {
                         boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
                       },
                     }}
-                    onClick={() => handleOpen(course)}
+                    // navigate to subject details page when card is clicked
+                    onClick={() => navigate(`/teacher/subjectDetails/${course.id}`)}
                   >
                     <MDTypography variant="h6" gutterBottom>
                       {course.name}
@@ -153,51 +138,6 @@ function TeacherDashboard() {
           </Grid>
         </Grid>
       </MDBox>
-
-      {/* Modal for Course Details */}
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>{selectedCourse?.name} - Course Details</DialogTitle>
-        <DialogContent dividers>
-          {selectedCourse && (
-            <MDBox
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              p={2}
-              sx={{
-                border: "1px solid #eee",
-                borderRadius: "12px",
-                background: "#fafafa",
-              }}
-            >
-              {/* Left side - Students */}
-              <MDTypography variant="body1" display="flex" alignItems="center" gap={1}>
-                👥 {selectedCourse.students} Students
-              </MDTypography>
-
-              {/* Right side - Pending Badge */}
-              <MDBox
-                sx={{
-                  background: "#fce4ec",
-                  color: "#c62828",
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: "12px",
-                  fontSize: "0.85rem",
-                  fontWeight: 500,
-                }}
-              >
-                {selectedCourse.pending} Pending
-              </MDBox>
-            </MDBox>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="secondary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <Footer />
     </DashboardLayout>

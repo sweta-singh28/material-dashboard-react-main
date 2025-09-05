@@ -7,6 +7,7 @@ import UploadMaterials from "layouts/teacher/uploadMaterials";
 import ViewSubmissions from "layouts/teacher/viewSubmissions";
 import StudentDetails from "layouts/teacher/studentDetails";
 import StudentRegister from "layouts/teacher/studentRegister";
+import SubjectDetails from "layouts/teacher/subjectDetails";
 //Student pages
 import StudentDashboard from "layouts/student/dashboard";
 import Assignment from "layouts/student/assignment";
@@ -36,6 +37,7 @@ import Student from "layouts/student/dashboard";
 import Admin from "layouts/admin/dashboard";
 import ViewCourseDetails from "layouts/student/viewCourseDetails";
 import { FaBookOpen } from "react-icons/fa";
+import { Subject } from "@mui/icons-material";
 
 const routes = [
   {
@@ -53,6 +55,14 @@ const routes = [
     icon: <Icon fontSize="small">school</Icon>,
     route: "/teacher",
     component: <Teacher />,
+  },
+  {
+    type: "collapse",
+    name: "Course Details",
+    key: "SubjectDetails",
+    icon: <Icon fontSize="small">subject</Icon>,
+    route: "/teacher/subjectDetails/:id",
+    component: <SubjectDetails />,
   },
   {
     type: "collapse",

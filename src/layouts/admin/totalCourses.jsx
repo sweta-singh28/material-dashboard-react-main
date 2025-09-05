@@ -1,4 +1,3 @@
-// AllCourses.jsx (updated)
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -8,7 +7,6 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDButton from "components/MDButton";
 import MDSnackbar from "components/MDSnackbar";
 
 import Table from "@mui/material/Table";
@@ -97,24 +95,22 @@ const AllCourses = () => {
                       Course
                     </MDTypography>
                   </TableCell>
+
                   <TableCell>
                     <MDTypography variant="button" fontWeight="bold">
                       Instructor
                     </MDTypography>
                   </TableCell>
+
                   <TableCell>
                     <MDTypography variant="button" fontWeight="bold">
                       Students
                     </MDTypography>
                   </TableCell>
+
                   <TableCell>
                     <MDTypography variant="button" fontWeight="bold">
                       Status
-                    </MDTypography>
-                  </TableCell>
-                  <TableCell>
-                    <MDTypography variant="button" fontWeight="bold">
-                      Actions
                     </MDTypography>
                   </TableCell>
                 </TableRow>
@@ -122,41 +118,43 @@ const AllCourses = () => {
 
               <TableBody>
                 {courses.map((course) => (
-                  <TableRow key={course.id} hover>
-                    <TableCell>
+                  // Entire row is clickable and navigates to CourseDetails
+                  <TableRow
+                    key={course.id}
+                    hover
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => handleView(course)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") handleView(course);
+                    }}
+                  >
+                    <TableCell sx={{ verticalAlign: "middle", py: 1 }}>
                       <MDTypography variant="button" fontWeight="medium">
                         {course.title}
                       </MDTypography>
                     </TableCell>
-                    <TableCell>
+
+                    <TableCell sx={{ verticalAlign: "middle", py: 1 }}>
                       <MDTypography variant="caption" color="text">
                         {course.instructor}
                       </MDTypography>
                     </TableCell>
-                    <TableCell>
+
+                    <TableCell sx={{ verticalAlign: "middle", py: 1 }}>
                       <MDTypography variant="caption" color="text">
                         {course.students}
                       </MDTypography>
                     </TableCell>
-                    <TableCell>
+
+                    <TableCell sx={{ verticalAlign: "middle", py: 1 }}>
                       <Chip
                         label={course.status}
                         size="small"
                         color={course.status === "Active" ? "success" : "default"}
                         sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
                       />
-                    </TableCell>
-
-                    {/* NEW: Details button that navigates to CourseDetails */}
-                    <TableCell>
-                      <MDButton
-                        size="small"
-                        variant="text"
-                        color="dark"
-                        onClick={() => handleView(course)}
-                      >
-                        Details
-                      </MDButton>
                     </TableCell>
                   </TableRow>
                 ))}

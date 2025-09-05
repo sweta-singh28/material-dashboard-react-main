@@ -1,9 +1,9 @@
+// TotalUsers.jsx
 import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDButton from "components/MDButton";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -17,10 +17,6 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
-
-// Icons
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -43,7 +39,6 @@ const TotalUsers = () => {
     try {
       if (stored) {
         const parsedStored = JSON.parse(stored);
-        // Check if the stored data is a non-empty array
         if (Array.isArray(parsedStored) && parsedStored.length > 0) {
           return parsedStored;
         }
@@ -54,28 +49,19 @@ const TotalUsers = () => {
     return initialUsers;
   });
 
-  // If navigation passed a filterRole in location.state, use it as the initial filter.
   const [filterRole, setFilterRole] = useState(() => {
     const fromNav = location.state?.filterRole;
     return fromNav ?? "All";
   });
 
-  // Refresh list if user was removed from UserDetails page
   useEffect(() => {
     if (location.state?.removedUserId) {
       const updated = users.filter((u) => u.id !== location.state.removedUserId);
       setUsers(updated);
       localStorage.setItem("users", JSON.stringify(updated));
-      // Clear the state so it doesn't trigger again
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, users]);
-
-  const handleRemove = (id) => {
-    const updated = users.filter((user) => user.id !== id);
-    setUsers(updated);
-    localStorage.setItem("users", JSON.stringify(updated));
-  };
+  }, [location.state]);
 
   const handleChange = (event) => {
     setFilterRole(event.target.value);
@@ -145,42 +131,32 @@ const TotalUsers = () => {
                       <TableCell>Name</TableCell>
                       <TableCell>Role</TableCell>
                       <TableCell>Email</TableCell>
-                      <TableCell align="center">Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {filteredUsers.length > 0 ? (
                       filteredUsers.map((user) => (
-                        <TableRow key={user.id} hover>
+                        <TableRow
+                          key={user.id}
+                          hover
+                          sx={{ cursor: "pointer" }}
+                          onClick={() => navigate(`/userDetails/${user.id}`, { state: { user } })}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              navigate(`/userDetails/${user.id}`, { state: { user } });
+                            }
+                          }}
+                        >
                           <TableCell>{user.name}</TableCell>
                           <TableCell>{user.role}</TableCell>
                           <TableCell>{user.email}</TableCell>
-                          <TableCell align="center">
-                            <MDButton
-                              variant="text"
-                              color="dark"
-                              startIcon={<VisibilityIcon />}
-                              sx={{ mr: 1 }}
-                              onClick={() =>
-                                navigate(`/userDetails/${user.id}`, { state: { user } })
-                              }
-                            >
-                              View
-                            </MDButton>
-                            <MDButton
-                              variant="text"
-                              color="error"
-                              startIcon={<DeleteIcon />}
-                              onClick={() => handleRemove(user.id)}
-                            >
-                              Remove
-                            </MDButton>
-                          </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={4} align="center">
+                        <TableCell colSpan={3} align="center">
                           No users found.
                         </TableCell>
                       </TableRow>

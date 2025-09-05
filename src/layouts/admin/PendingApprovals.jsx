@@ -85,6 +85,8 @@ const PendingApprovals = () => {
     console.log(`Course ${courseId} rejected with reason: ${rejectionReason}`);
     handleAction(courseId, "reject");
     setRejectionReason("");
+    // close modal after action if you prefer:
+    // setOpenDetails(false);
   };
 
   // NEW: open/close details
@@ -155,23 +157,26 @@ const PendingApprovals = () => {
                 >
                   DESCRIPTION
                 </MDTypography>
-                <MDTypography
-                  component="th"
-                  variant="button"
-                  fontWeight="bold"
-                  p={2}
-                  sx={{ textAlign: "right" }}
-                >
-                  ACTIONS
-                </MDTypography>
+                {/* ACTIONS column removed (now in modal) */}
               </MDBox>
             </MDBox>
+
             <MDBox component="tbody">
               {pendingCourses.map((course) => (
                 <MDBox
                   component="tr"
                   key={course.id}
-                  sx={{ "&:not(:last-child)": { borderBottom: "1px solid #e0e0e0" } }}
+                  sx={{
+                    "&:not(:last-child)": { borderBottom: "1px solid #e0e0e0" },
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#fafafa" },
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleOpenDetails(course)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") handleOpenDetails(course);
+                  }}
                 >
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.title}
@@ -182,38 +187,13 @@ const PendingApprovals = () => {
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.description}
                   </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2} sx={{ textAlign: "right" }}>
-                    <MDButton
-                      size="small"
-                      variant="text"
-                      color="dark"
-                      onClick={() => handleOpenDetails(course)} // CHANGED: open modal
-                      sx={{ mr: 1 }}
-                    >
-                      Details
-                    </MDButton>
-                    <MDButton
-                      size="small"
-                      variant="text"
-                      color="error"
-                      onClick={() => handleAction(course.id, "reject")}
-                      sx={{ mr: 1 }}
-                    >
-                      Reject
-                    </MDButton>
-                    <MDButton
-                      size="small"
-                      variant="text"
-                      color="success"
-                      onClick={() => handleAction(course.id, "approve")}
-                    >
-                      Approve
-                    </MDButton>
-                  </MDTypography>
+
+                  {/* Removed action buttons from the row — details/approve/reject are in the modal */}
                 </MDBox>
               ))}
             </MDBox>
           </MDBox>
+
           <MDBox display="flex" justifyContent="flex-end" alignItems="center" mt={2} gap={1}>
             <MDTypography variant="caption" color="text">
               Showing 1 to {pendingCourses.length} of {pendingCourses.length} results

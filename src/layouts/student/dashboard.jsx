@@ -14,7 +14,6 @@ import Box from "@mui/material/Box";
 // icons
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -70,7 +69,22 @@ function StudentDashboard() {
     },
   ];
 
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  // Pre-filled enrolled courses for better UI
+  const [enrolledCourses, setEnrolledCourses] = useState([
+    {
+      id: "c1",
+      title: "Mathematics I",
+      teacher: "Dr. Rao",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=Math",
+    },
+    {
+      id: "c2",
+      title: "Physics I",
+      teacher: "Dr. Iyer",
+      thumbnail: "https://via.placeholder.com/80x80.png?text=Phys",
+    },
+  ]);
+
   const [pendingRequests, setPendingRequests] = useState([]);
   const [selected, setSelected] = useState("");
   const [showCourseDetails, setShowCourseDetails] = useState(null);
@@ -103,12 +117,6 @@ function StudentDashboard() {
     }
     setPendingRequests([...pendingRequests, course]);
     handleCloseDetails();
-  };
-
-  const handleApproveRequest = (id) => {
-    const approvedCourse = pendingRequests.find((c) => c.id === id);
-    setEnrolledCourses([...enrolledCourses, approvedCourse]);
-    setPendingRequests(pendingRequests.filter((c) => c.id !== id));
   };
 
   const handleView = (course) => {
@@ -146,10 +154,25 @@ function StudentDashboard() {
                         textAlign: "center",
                         borderRadius: "12px",
                         cursor: "pointer",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        transition: "transform 0.2s",
                       }}
                     >
+                      {course.thumbnail && (
+                        <img
+                          src={course.thumbnail}
+                          alt={`${course.title} thumbnail`}
+                          style={{
+                            width: "80px",
+                            height: "80px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                            marginBottom: "10px",
+                          }}
+                        />
+                      )}
                       <MDTypography variant="h6">{course.title}</MDTypography>
-                      <MDTypography variant="body2" color="textSecondary" mb={2}>
+                      <MDTypography variant="body2" color="textSecondary">
                         {course.teacher}
                       </MDTypography>
                     </Card>
@@ -161,21 +184,19 @@ function StudentDashboard() {
 
           {/* Section 2: Choose a Course */}
           <Grid item xs={12} md={6}>
-            <Card style={{ padding: "16px" }}>
+            <Card style={{ padding: "16px", borderRadius: "12px" }}>
               <MDTypography variant="h5" gutterBottom>
                 Choose a Course (Max 5 Total)
               </MDTypography>
-              <MDBox display="flex" gap={2} alignItems="center">
+              <MDBox display="flex" gap={2} alignItems="center" mb={1}>
                 <Select
                   value={selected}
                   onChange={(e) => {
                     setSelected(e.target.value);
-                    if (e.target.value) {
-                      handleOpenDetails(e.target.value);
-                    }
+                    if (e.target.value) handleOpenDetails(e.target.value);
                   }}
                   displayEmpty
-                  style={{ minWidth: 200 }}
+                  style={{ minWidth: 220 }}
                 >
                   <MenuItem value="">-- Select Course --</MenuItem>
                   {availableCourses.map((c) => (
@@ -191,7 +212,7 @@ function StudentDashboard() {
             </Card>
           </Grid>
 
-          {/* Section 3: Pending Requests with Thumbnail */}
+          {/* Section 3: Pending Requests (No Approve Button) */}
           <Grid item xs={12}>
             <MDTypography variant="h5" gutterBottom>
               Pending Approval from Teacher
@@ -204,8 +225,15 @@ function StudentDashboard() {
               ) : (
                 pendingRequests.map((course) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
-                    <Card style={{ padding: "16px", borderRadius: "12px", textAlign: "center" }}>
-                      <MDBox display="flex" flexDirection="column" alignItems="center" mb={2}>
+                    <Card
+                      style={{
+                        padding: "16px",
+                        borderRadius: "12px",
+                        textAlign: "center",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <MDBox display="flex" flexDirection="column" alignItems="center" mb={1}>
                         {course.thumbnail && (
                           <img
                             src={course.thumbnail}
@@ -227,17 +255,9 @@ function StudentDashboard() {
                           {course.teacher}
                         </MDTypography>
                       </MDBox>
-
-                      <MDBox display="flex" justifyContent="center" gap={1}>
-                        <Button
-                          variant="outlined"
-                          color="success"
-                          startIcon={<DoneAllIcon />}
-                          onClick={() => handleApproveRequest(course.id)}
-                        >
-                          Approve (Simulated)
-                        </Button>
-                      </MDBox>
+                      <MDTypography variant="caption" color="textSecondary">
+                        Waiting for teacher approval...
+                      </MDTypography>
                     </Card>
                   </Grid>
                 ))
