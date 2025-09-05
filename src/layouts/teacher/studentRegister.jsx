@@ -24,13 +24,13 @@ import { useNavigate } from "react-router-dom";
 function Students() {
   const navigate = useNavigate();
 
-  // Dummy student data
+  // Dummy student data with roll numbers
   const students = [
-    { name: "Sophia Clark", email: "sophia@example.com" },
-    { name: "Ethan Miller", email: "ethan@example.com" },
-    { name: "Olivia Davis", email: "olivia@example.com" },
-    { name: "Liam Wilson", email: "liam@example.com" },
-    { name: "Ava Martinez", email: "ava@example.com" },
+    { roll: "101", name: "Sophia Clark", email: "sophia@example.com" },
+    { roll: "102", name: "Ethan Miller", email: "ethan@example.com" },
+    { roll: "103", name: "Olivia Davis", email: "olivia@example.com" },
+    { roll: "104", name: "Liam Wilson", email: "liam@example.com" },
+    { roll: "105", name: "Ava Martinez", email: "ava@example.com" },
   ];
 
   return (
@@ -48,6 +48,11 @@ function Students() {
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell>
+                        <MDTypography variant="button" fontWeight="bold">
+                          Roll No.
+                        </MDTypography>
+                      </TableCell>
                       <TableCell>
                         <MDTypography variant="button" fontWeight="bold">
                           Name
@@ -69,6 +74,7 @@ function Students() {
                         sx={{ cursor: "pointer" }}
                         onClick={() => navigate(`/students/${index}`)}
                       >
+                        <TableCell>{student.roll}</TableCell>
                         <TableCell>{student.name}</TableCell>
                         <TableCell>{student.email}</TableCell>
                       </TableRow>

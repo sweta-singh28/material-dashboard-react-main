@@ -65,6 +65,7 @@ const courseData = [
 const PendingApprovals = () => {
   const navigate = useNavigate();
   const [rejectionReason, setRejectionReason] = useState("");
+  const [courseCode, setCourseCode] = useState("");
   const [pendingCourses, setPendingCourses] = useState(courseData);
 
   // NEW: details modal state
@@ -79,24 +80,30 @@ const PendingApprovals = () => {
       )
     );
     console.log(`Course ${courseId} was ${updatedStatus}.`);
+    if (action === "approve" && selectedCourse) {
+      console.log(`Assigned course code: ${courseCode}`);
+    }
   };
 
   const handleRejectWithReason = (courseId) => {
     console.log(`Course ${courseId} rejected with reason: ${rejectionReason}`);
     handleAction(courseId, "reject");
     setRejectionReason("");
-    // close modal after action if you prefer:
-    // setOpenDetails(false);
+    setCourseCode("");
   };
 
   // NEW: open/close details
   const handleOpenDetails = (course) => {
     setSelectedCourse(course);
     setOpenDetails(true);
+    setCourseCode(""); // reset course code when opening modal
+    setRejectionReason(""); // reset rejection reason
   };
   const handleCloseDetails = () => {
     setOpenDetails(false);
     setSelectedCourse(null);
+    setCourseCode(""); // reset course code
+    setRejectionReason(""); // reset rejection reason
   };
 
   return (
@@ -187,7 +194,6 @@ const PendingApprovals = () => {
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.description}
                   </MDTypography>
-
                   {/* Removed action buttons from the row — details/approve/reject are in the modal */}
                 </MDBox>
               ))}
@@ -207,11 +213,11 @@ const PendingApprovals = () => {
           </MDBox>
         </MDBox>
 
-        {/* NOTE: Rejection Reason container moved into the Details Modal as requested */}
+        {/* NOTE: Rejection Reason and Course Code container inside the Details Modal */}
       </MDBox>
       <Footer />
 
-      {/* NEW: Details Modal Form (now includes Rejection Reason + Approve/Reject actions) */}
+      {/* NEW: Details Modal Form */}
       <Dialog open={openDetails} onClose={handleCloseDetails} fullWidth maxWidth="sm">
         <DialogTitle>Course Details</DialogTitle>
         <DialogContent dividers>
@@ -257,7 +263,21 @@ const PendingApprovals = () => {
                   />
                 </Grid>
 
-                {/* Rejection reason moved here */}
+                {/* NEW: Assign Course Code */}
+                <Grid item xs={12}>
+                  <MDTypography variant="caption" color="text">
+                    Assign Course Code
+                  </MDTypography>
+                  <MDInput
+                    placeholder="Enter course code..."
+                    value={courseCode}
+                    onChange={(e) => setCourseCode(e.target.value)}
+                    fullWidth
+                    sx={{ mt: 0.5 }}
+                  />
+                </Grid>
+
+                {/* Rejection reason */}
                 <Grid item xs={12}>
                   <MDTypography variant="caption" color="text">
                     Rejection Reason

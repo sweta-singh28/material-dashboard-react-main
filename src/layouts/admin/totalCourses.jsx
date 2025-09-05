@@ -29,6 +29,7 @@ const AllCourses = () => {
       instructor: "Bob Martin",
       students: 45,
       status: "Active",
+      courseCode: "RB101",
       description: "Introductory React course covering components, props, state and hooks.",
     },
     {
@@ -37,6 +38,7 @@ const AllCourses = () => {
       instructor: "Alice Johnson",
       students: 30,
       status: "Completed",
+      courseCode: "NJS201",
       description: "Deep dive into NodeJS internals, streams, clustering and performance tuning.",
     },
     {
@@ -45,6 +47,7 @@ const AllCourses = () => {
       instructor: "Charlie Gupta",
       students: 60,
       status: "Active",
+      courseCode: "CSS101",
       description: "Learn modern CSS: Flexbox, Grid, responsive layouts and animations.",
     },
   ]);
@@ -69,7 +72,7 @@ const AllCourses = () => {
     }
   }, [location.state, location.pathname, navigate]);
 
-  // changed to route to CourseDetails with course state
+  // Changed to route to CourseDetails with course state
   const handleView = (course) => {
     navigate("/courseDetails", { state: { course } });
   };
@@ -105,6 +108,13 @@ const AllCourses = () => {
                   <TableCell>
                     <MDTypography variant="button" fontWeight="bold">
                       Students
+                    </MDTypography>
+                  </TableCell>
+
+                  {/* NEW: Course Code column */}
+                  <TableCell>
+                    <MDTypography variant="button" fontWeight="bold">
+                      Course Code
                     </MDTypography>
                   </TableCell>
 
@@ -145,6 +155,13 @@ const AllCourses = () => {
                     <TableCell sx={{ verticalAlign: "middle", py: 1 }}>
                       <MDTypography variant="caption" color="text">
                         {course.students}
+                      </MDTypography>
+                    </TableCell>
+
+                    {/* NEW: Course Code */}
+                    <TableCell sx={{ verticalAlign: "middle", py: 1 }}>
+                      <MDTypography variant="caption" color="text">
+                        {course.courseCode || "-"}
                       </MDTypography>
                     </TableCell>
 

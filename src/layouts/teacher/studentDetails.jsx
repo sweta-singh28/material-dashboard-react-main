@@ -29,16 +29,22 @@ function StudentDetails() {
   const { id } = useParams(); // Student ID from route
   const navigate = useNavigate();
 
-  // Dummy student data
+  // Dummy student data with rollNo added
   const students = [
-    { name: "Sophia Clark", email: "sophia@example.com", enrolled: 4, pending: 1 },
-    { name: "Ethan Miller", email: "ethan@example.com", enrolled: 3, pending: 2 },
-    { name: "Olivia Davis", email: "olivia@example.com", enrolled: 5, pending: 0 },
-    { name: "Liam Wilson", email: "liam@example.com", enrolled: 2, pending: 1 },
-    { name: "Ava Martinez", email: "ava@example.com", enrolled: 6, pending: 0 },
+    { name: "Sophia Clark", email: "sophia@example.com", rollNo: "R101", enrolled: 4, pending: 1 },
+    { name: "Ethan Miller", email: "ethan@example.com", rollNo: "R102", enrolled: 3, pending: 2 },
+    { name: "Olivia Davis", email: "olivia@example.com", rollNo: "R103", enrolled: 5, pending: 0 },
+    { name: "Liam Wilson", email: "liam@example.com", rollNo: "R104", enrolled: 2, pending: 1 },
+    { name: "Ava Martinez", email: "ava@example.com", rollNo: "R105", enrolled: 6, pending: 0 },
   ];
 
-  const student = students[id] || { name: "Unknown", email: "-", enrolled: 0, pending: 0 };
+  const student = students[id] || {
+    name: "Unknown",
+    email: "-",
+    rollNo: "-",
+    enrolled: 0,
+    pending: 0,
+  };
 
   // generate a simple avatar URL based on email; will fallback to initials if image fails to load
   const photoUrl =
@@ -132,6 +138,15 @@ function StudentDetails() {
                 </MDBox>
               </MDBox>
 
+              {/* Roll Number */}
+              <MDBox mb={2}>
+                <MDTypography variant="h6">Roll No:</MDTypography>
+                <MDTypography variant="body1" color="text">
+                  {student.rollNo}
+                </MDTypography>
+              </MDBox>
+
+              {/* Courses Enrolled */}
               <MDBox mb={2}>
                 <MDTypography variant="h6">Courses Enrolled:</MDTypography>
                 <MDTypography variant="body1" color="text">
@@ -139,6 +154,7 @@ function StudentDetails() {
                 </MDTypography>
               </MDBox>
 
+              {/* Pending Requests */}
               <MDBox mb={2}>
                 <MDTypography variant="h6">Pending Requests:</MDTypography>
                 <MDTypography variant="body1" color="error">

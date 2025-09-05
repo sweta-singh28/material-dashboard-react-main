@@ -1,15 +1,11 @@
+import React from "react"; // Added to fix React is not defined
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Chip from "@mui/material/Chip";
+import TextField from "@mui/material/TextField";
+import Collapse from "@mui/material/Collapse";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -30,6 +26,9 @@ function SubjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [openUpdateForm, setOpenUpdateForm] = React.useState(false);
+  const [updateText, setUpdateText] = React.useState("");
 
   // Dummy courses data
   const courses = [
@@ -57,7 +56,6 @@ function SubjectDetails() {
     students: [],
   };
 
-  // use course from navigate state if present, else fallback to index
   const parsedId = id ? Number(id) : null;
   const courseFromParams = parsedId && courses[parsedId - 1] ? courses[parsedId - 1] : undefined;
   const course = location.state?.course || courseFromParams || defaultCourse;
@@ -70,24 +68,12 @@ function SubjectDetails() {
     { week: "Week 4", completion: 60 },
   ];
 
-  // Dummy assignments/resources
-  const resources = [
-    { title: "Assignment 1", status: "Published" },
-    { title: "Assignment 2", status: "Pending" },
-    { title: "Lecture Notes - Week 1", status: "Uploaded" },
-  ];
-
-  const getStatusChip = (status) => {
-    switch (status) {
-      case "Published":
-        return <Chip label="Published" color="success" size="small" />;
-      case "Pending":
-        return <Chip label="Pending" color="warning" size="small" />;
-      case "Uploaded":
-        return <Chip label="Uploaded" color="info" size="small" />;
-      default:
-        return <Chip label={status} size="small" />;
-    }
+  const handleUpdateSubmit = (e) => {
+    e.preventDefault();
+    console.log("Updated course info:", updateText);
+    setUpdateText("");
+    setOpenUpdateForm(false);
+    // API call to save the update can be added here
   };
 
   return (
@@ -114,16 +100,6 @@ function SubjectDetails() {
               </MDBox>
 
               <MDBox mb={2}>
-                <MDTypography variant="h6">Credits:</MDTypography>
-                <MDTypography variant="body1">{course.credits}</MDTypography>
-              </MDBox>
-
-              <MDBox mb={2}>
-                <MDTypography variant="h6">Semester:</MDTypography>
-                <MDTypography variant="body1">{course.semester}</MDTypography>
-              </MDBox>
-
-              <MDBox mb={2}>
                 <MDTypography variant="h6">Enrolled Students:</MDTypography>
                 <MDTypography variant="body1">
                   {course.students?.length
@@ -137,7 +113,7 @@ function SubjectDetails() {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => navigate("/teacher/allCourses")}
+                  onClick={() => navigate(-1)}
                   sx={{ borderRadius: "12px", textTransform: "none" }}
                 >
                   ← Back to Courses
@@ -165,35 +141,46 @@ function SubjectDetails() {
             </Card>
           </Grid>
 
-          {/* Resources / Assignments */}
+          {/* Teacher Update Section */}
           <Grid item xs={12} md={10} lg={8}>
             <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
               <MDTypography variant="h5" fontWeight="bold" gutterBottom>
-                📑 Resources & Assignments
+                ✏️ Update About Course
               </MDTypography>
               <Divider sx={{ my: 2 }} />
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>
-                        <strong>Title</strong>
-                      </TableCell>
-                      <TableCell align="right">
-                        <strong>Status</strong>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {resources.map((row, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{row.title}</TableCell>
-                        <TableCell align="right">{getStatusChip(row.status)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ borderRadius: "12px", textTransform: "none", mb: 2 }}
+                onClick={() => setOpenUpdateForm(!openUpdateForm)}
+              >
+                Update About Course
+              </Button>
+
+              <Collapse in={openUpdateForm}>
+                <form onSubmit={handleUpdateSubmit}>
+                  <MDBox display="flex" flexDirection="column" gap={2} mt={2}>
+                    <TextField
+                      label="Write updates about assignments / notes"
+                      multiline
+                      rows={4}
+                      variant="outlined"
+                      value={updateText}
+                      onChange={(e) => setUpdateText(e.target.value)}
+                      fullWidth
+                    />
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="success"
+                      sx={{ borderRadius: "12px", textTransform: "none" }}
+                    >
+                      Submit Update
+                    </Button>
+                  </MDBox>
+                </form>
+              </Collapse>
             </Card>
           </Grid>
         </Grid>

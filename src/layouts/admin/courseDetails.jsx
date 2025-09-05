@@ -60,6 +60,15 @@ const CourseDetails = () => {
                   </MDTypography>{" "}
                   {course.instructor}
                 </MDTypography>
+
+                {/* NEW: Course Code */}
+                <MDTypography variant="body2" color="text" mb={2}>
+                  <MDTypography component="span" fontWeight="bold">
+                    Course Code:
+                  </MDTypography>{" "}
+                  {course.courseCode || "-"}
+                </MDTypography>
+
                 <MDTypography variant="body2" color="text" mb={2}>
                   <MDTypography component="span" fontWeight="bold">
                     Submitted:
