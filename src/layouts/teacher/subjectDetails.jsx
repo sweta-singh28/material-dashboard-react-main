@@ -6,6 +6,12 @@ import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Collapse from "@mui/material/Collapse";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -73,7 +79,11 @@ function SubjectDetails() {
     console.log("Updated course info:", updateText);
     setUpdateText("");
     setOpenUpdateForm(false);
-    // API call to save the update can be added here
+  };
+
+  // Navigate to student details
+  const handleStudentClick = (index) => {
+    navigate(`/students/${index}`, { state: { studentName: course.students[index] } });
   };
 
   return (
@@ -101,11 +111,33 @@ function SubjectDetails() {
 
               <MDBox mb={2}>
                 <MDTypography variant="h6">Enrolled Students:</MDTypography>
-                <MDTypography variant="body1">
-                  {course.students?.length
-                    ? course.students.join(", ")
-                    : "No students enrolled yet"}
-                </MDTypography>
+                {course.students?.length ? (
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>#</TableCell>
+                          <TableCell>Student Name</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {course.students.map((student, index) => (
+                          <TableRow
+                            key={index}
+                            hover
+                            sx={{ cursor: "pointer" }}
+                            onClick={() => handleStudentClick(index)}
+                          >
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{student}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <MDTypography variant="body1">No students enrolled yet</MDTypography>
+                )}
               </MDBox>
 
               {/* Back Button */}

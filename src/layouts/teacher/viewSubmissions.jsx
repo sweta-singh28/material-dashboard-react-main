@@ -144,7 +144,15 @@ function ViewSubmissions() {
                     {sub.subject}
                   </MDTypography>
                   <MDTypography variant="body2" flex={1} color="info">
-                    {sub.file}
+                    <a
+                      href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: "underline", color: "#1a73e8", cursor: "pointer" }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {sub.file}
+                    </a>
                   </MDTypography>
                   <MDTypography
                     variant="body2"

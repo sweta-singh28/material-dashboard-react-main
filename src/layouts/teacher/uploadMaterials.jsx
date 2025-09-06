@@ -3,12 +3,14 @@ import { useState } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import MenuItem from "@mui/material/MenuItem"; // Added for dropdown
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
+import MDSelect from "components/MDInput"; // We'll use MDInput with select props
 
 // Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -17,6 +19,10 @@ import Footer from "examples/Footer";
 
 function UploadMaterials() {
   const [activeTab, setActiveTab] = useState(null); // "assignment" | "notes" | null
+  const [selectedAssignmentSubject, setSelectedAssignmentSubject] = useState("");
+  const [selectedNotesSubject, setSelectedNotesSubject] = useState("");
+
+  const courses = ["Mathematics", "Physics", "Chemistry", "Computer Science", "Biology"];
 
   const handleAssignmentSubmit = (e) => {
     e.preventDefault();
@@ -71,7 +77,19 @@ function UploadMaterials() {
                     <MDTypography variant="button" fontWeight="medium">
                       Subject
                     </MDTypography>
-                    <MDInput fullWidth placeholder="Enter subject name" required />
+                    <MDInput
+                      select
+                      fullWidth
+                      value={selectedAssignmentSubject}
+                      onChange={(e) => setSelectedAssignmentSubject(e.target.value)}
+                      required
+                    >
+                      {courses.map((course) => (
+                        <MenuItem key={course} value={course}>
+                          {course}
+                        </MenuItem>
+                      ))}
+                    </MDInput>
                   </MDBox>
 
                   <MDBox mb={2}>
@@ -123,7 +141,19 @@ function UploadMaterials() {
                     <MDTypography variant="button" fontWeight="medium">
                       Subject
                     </MDTypography>
-                    <MDInput fullWidth placeholder="Enter subject name" required />
+                    <MDInput
+                      select
+                      fullWidth
+                      value={selectedNotesSubject}
+                      onChange={(e) => setSelectedNotesSubject(e.target.value)}
+                      required
+                    >
+                      {courses.map((course) => (
+                        <MenuItem key={course} value={course}>
+                          {course}
+                        </MenuItem>
+                      ))}
+                    </MDInput>
                   </MDBox>
 
                   <MDBox mb={2}>
