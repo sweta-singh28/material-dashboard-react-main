@@ -261,48 +261,7 @@ const AdminDashboard = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} lg={6}>
-            <Card
-              onClick={handleCoursesCardClick}
-              sx={{
-                height: "100%",
-                boxShadow: 3,
-                cursor: "pointer",
-                transition: "transform 0.15s, box-shadow 0.15s",
-                "&:hover": { transform: "translateY(-4px)", boxShadow: 6 },
-              }}
-            >
-              <ChartCardHeader
-                title="Courses Overview"
-                description="Number of courses by subject"
-              />
-              <MDBox p={2} height="350px">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={courseData} barSize={40}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis dataKey="subject" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#fff",
-                        borderRadius: "10px",
-                        boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="count" radius={[10, 10, 0, 0]}>
-                      {courseData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={courseColors[index % courseColors.length]}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </MDBox>
-            </Card>
-          </Grid>
+          {/* Courses Overview graph removed as requested */}
         </Grid>
       </MDBox>
       <Footer />

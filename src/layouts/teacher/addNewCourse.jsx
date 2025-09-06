@@ -30,7 +30,7 @@ function AddNewCourse() {
   // NEW fields
   const [expectations, setExpectations] = useState("");
   const [prerequisites, setPrerequisites] = useState("");
-  const [syllabus, setSyllabus] = useState(null); // pdf file
+  const [syllabus, setSyllabus] = useState(""); // now text input instead of pdf
 
   // list of created courses
   const [courses, setCourses] = useState([]);
@@ -38,12 +38,6 @@ function AddNewCourse() {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
     setThumbnail(file);
-  };
-
-  // handler for syllabus pdf
-  const handleSyllabusChange = (e) => {
-    const file = e.target.files?.[0] || null;
-    setSyllabus(file);
   };
 
   const handleCreate = () => {
@@ -58,7 +52,7 @@ function AddNewCourse() {
       // NEW properties
       expectations,
       prerequisites,
-      syllabus: syllabus ? syllabus.name : "N/A",
+      syllabus: syllabus || "N/A", // now stores text topics
       status: "Pending", // always pending until admin approves
     };
 
@@ -71,7 +65,7 @@ function AddNewCourse() {
     setThumbnail(null);
     setExpectations("");
     setPrerequisites("");
-    setSyllabus(null);
+    setSyllabus("");
   };
 
   const handleCancel = () => {
@@ -82,7 +76,7 @@ function AddNewCourse() {
     // reset new fields too
     setExpectations("");
     setPrerequisites("");
-    setSyllabus(null);
+    setSyllabus("");
   };
 
   const chipColor = (status) =>
@@ -181,22 +175,21 @@ function AddNewCourse() {
                 )}
               </MDBox>
 
-              {/* New: Syllabus PDF upload */}
+              {/* New: Syllabus Topics */}
               <MDBox mb={2}>
-                <MDTypography variant="button" fontWeight="medium">
-                  Upload Expected Syllabus (PDF)
-                </MDTypography>
-                <input
-                  type="file"
-                  accept="application/pdf,.pdf"
-                  style={{ display: "block", marginTop: "8px" }}
-                  onChange={handleSyllabusChange}
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="Course Syllabus"
+                  variant="outlined"
+                  placeholder="Add topics separated by commas"
+                  value={syllabus}
+                  onChange={(e) => setSyllabus(e.target.value)}
                 />
-                {syllabus && (
-                  <MDTypography variant="caption" color="text" sx={{ display: "block", mt: 1 }}>
-                    Selected: {syllabus.name}
-                  </MDTypography>
-                )}
+                <MDTypography variant="caption" color="text" sx={{ display: "block", mt: 1 }}>
+                  *Add topics separated by commas
+                </MDTypography>
               </MDBox>
 
               {/* Action Buttons */}
@@ -241,7 +234,7 @@ function AddNewCourse() {
                           <b>Prerequisites</b>
                         </TableCell>
                         <TableCell>
-                          <b>Syllabus (PDF)</b>
+                          <b>Syllabus (Topics)</b>
                         </TableCell>
 
                         <TableCell>

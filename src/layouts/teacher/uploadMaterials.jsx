@@ -1,16 +1,16 @@
 // React
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom"; // Import useLocation
 
 // @mui material components
 import Grid from "@mui/material/Grid";
-import MenuItem from "@mui/material/MenuItem"; // Added for dropdown
+import MenuItem from "@mui/material/MenuItem";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
-import MDSelect from "components/MDInput"; // We'll use MDInput with select props
 
 // Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -18,11 +18,25 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 function UploadMaterials() {
-  const [activeTab, setActiveTab] = useState(null); // "assignment" | "notes" | null
+  const location = useLocation();
+  const { course, type } = location.state || {};
+
+  const [activeTab, setActiveTab] = useState(null);
   const [selectedAssignmentSubject, setSelectedAssignmentSubject] = useState("");
   const [selectedNotesSubject, setSelectedNotesSubject] = useState("");
 
   const courses = ["Mathematics", "Physics", "Chemistry", "Computer Science", "Biology"];
+
+  useEffect(() => {
+    if (course && type) {
+      setActiveTab(type);
+      if (type === "assignment") {
+        setSelectedAssignmentSubject(course.name);
+      } else if (type === "notes") {
+        setSelectedNotesSubject(course.name);
+      }
+    }
+  }, [course, type]);
 
   const handleAssignmentSubmit = (e) => {
     e.preventDefault();
@@ -84,9 +98,9 @@ function UploadMaterials() {
                       onChange={(e) => setSelectedAssignmentSubject(e.target.value)}
                       required
                     >
-                      {courses.map((course) => (
-                        <MenuItem key={course} value={course}>
-                          {course}
+                      {courses.map((courseItem) => (
+                        <MenuItem key={courseItem} value={courseItem}>
+                          {courseItem}
                         </MenuItem>
                       ))}
                     </MDInput>
@@ -148,9 +162,9 @@ function UploadMaterials() {
                       onChange={(e) => setSelectedNotesSubject(e.target.value)}
                       required
                     >
-                      {courses.map((course) => (
-                        <MenuItem key={course} value={course}>
-                          {course}
+                      {courses.map((courseItem) => (
+                        <MenuItem key={courseItem} value={courseItem}>
+                          {courseItem}
                         </MenuItem>
                       ))}
                     </MDInput>

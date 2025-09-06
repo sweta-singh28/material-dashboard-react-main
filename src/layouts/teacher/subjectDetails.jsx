@@ -1,4 +1,4 @@
-import React from "react"; // Added to fix React is not defined
+import React from "react";
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -86,6 +86,16 @@ function SubjectDetails() {
     navigate(`/students/${index}`, { state: { studentName: course.students[index] } });
   };
 
+  // Navigate to upload materials with type 'assignment'
+  const handleAddAssignment = () => {
+    navigate("/uploadMaterials", { state: { course, type: "assignment" } });
+  };
+
+  // Navigate to upload materials with type 'notes'
+  const handleAddNotes = () => {
+    navigate("/uploadMaterials", { state: { course, type: "notes" } });
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -140,8 +150,31 @@ function SubjectDetails() {
                 )}
               </MDBox>
 
-              {/* Back Button */}
-              <MDBox mt={3} display="flex" justifyContent="flex-end">
+              {/* Add Assignment & Notes Buttons */}
+              <MDBox
+                mt={3}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                gap={2}
+              >
+                <Button
+                  variant="contained"
+                  color="info"
+                  onClick={handleAddAssignment}
+                  sx={{ borderRadius: "12px", textTransform: "none" }}
+                >
+                  ➕ Add Assignment
+                </Button>
+                <Button
+                  variant="contained"
+                  color="info"
+                  onClick={handleAddNotes}
+                  sx={{ borderRadius: "12px", textTransform: "none" }}
+                >
+                  📝 Add Notes
+                </Button>
+
                 <Button
                   variant="contained"
                   color="primary"

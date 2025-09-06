@@ -84,11 +84,13 @@ const UserDetails = () => {
   const extractCourseLists = (userObj) => {
     const current = [];
     const completed = [];
+    const rejected = [];
     const role = (userObj.role || "").toLowerCase();
 
     const _classifyArrayByStatus = (arr) => {
       const cur = [];
       const comp = [];
+      const rej = [];
       const currentStatuses = new Set([
         "ongoing",
         "in-progress",
@@ -98,12 +100,14 @@ const UserDetails = () => {
         "enrolled",
       ]);
       const completedStatuses = new Set(["completed", "finished", "done"]);
+      const rejectedStatuses = new Set(["rejected", "failed", "cancelled"]);
 
       arr.forEach((c) => {
         if (c && typeof c === "object" && c.status) {
           const s = String(c.status).toLowerCase();
           if (currentStatuses.has(s)) cur.push(c);
           else if (completedStatuses.has(s)) comp.push(c);
+          else if (rejectedStatuses.has(s)) rej.push(c);
           else cur.push(c); // unknown status -> treat as current
         } else {
           // no status provided -> treat as current
@@ -111,19 +115,21 @@ const UserDetails = () => {
         }
       });
 
-      return { cur, comp };
+      return { cur, comp, rej };
     };
 
     // Teacher-specific keys
     if (role === "teacher") {
       if (Array.isArray(userObj.currentlyTeaching)) current.push(...userObj.currentlyTeaching);
       if (Array.isArray(userObj.completedTeaching)) completed.push(...userObj.completedTeaching);
+      if (Array.isArray(userObj.rejectedTeaching)) rejected.push(...userObj.rejectedTeaching);
 
       if (Array.isArray(userObj.teachingCourses)) {
-        const { cur, comp } = _classifyArrayByStatus(userObj.teachingCourses);
+        const { cur, comp, rej } = _classifyArrayByStatus(userObj.teachingCourses);
         // avoid duplicates
         current.push(...cur.filter((c) => !current.includes(c)));
         completed.push(...comp.filter((c) => !completed.includes(c)));
+        rejected.push(...rej.filter((c) => !rejected.includes(c)));
       }
     }
 
@@ -132,25 +138,33 @@ const UserDetails = () => {
       if (Array.isArray(userObj.currentlyEnrolled)) current.push(...userObj.currentlyEnrolled);
       if (Array.isArray(userObj.completedEnrolled)) completed.push(...userObj.completedEnrolled);
       if (Array.isArray(userObj.completedCourses)) completed.push(...userObj.completedCourses);
+      if (Array.isArray(userObj.rejectedCourses)) rejected.push(...userObj.rejectedCourses);
+      if (Array.isArray(userObj.rejectedEnrolled)) rejected.push(...userObj.rejectedEnrolled);
 
       if (Array.isArray(userObj.enrolledCourses)) {
-        const { cur, comp } = _classifyArrayByStatus(userObj.enrolledCourses);
+        const { cur, comp, rej } = _classifyArrayByStatus(userObj.enrolledCourses);
         current.push(...cur.filter((c) => !current.includes(c)));
         completed.push(...comp.filter((c) => !completed.includes(c)));
+        rejected.push(...rej.filter((c) => !rejected.includes(c)));
       }
     }
 
     // Generic fallback: user.courses
     if (Array.isArray(userObj.courses)) {
-      const { cur, comp } = _classifyArrayByStatus(userObj.courses);
+      const { cur, comp, rej } = _classifyArrayByStatus(userObj.courses);
       current.push(...cur.filter((c) => !current.includes(c)));
       completed.push(...comp.filter((c) => !completed.includes(c)));
+      rejected.push(...rej.filter((c) => !rejected.includes(c)));
     }
 
-    return { current, completed };
+    return { current, completed, rejected };
   };
 
-  const { current: currentCourses, completed: completedCourses } = extractCourseLists(user);
+  const {
+    current: currentCourses,
+    completed: completedCourses,
+    rejected: rejectedCourses,
+  } = extractCourseLists(user);
 
   // helper to safely pick course fields
   const getCourseField = (course, keys = []) => {
@@ -219,7 +233,7 @@ const UserDetails = () => {
         </TableContainer>
       </MDBox>
 
-      <MDBox>
+      <MDBox mb={3}>
         <MDTypography variant="h6" mb={1}>
           Completed Courses
         </MDTypography>
@@ -242,6 +256,40 @@ const UserDetails = () => {
                       {getCourseField(c, ["code", "courseCode", "course_id", "id"])}
                     </TableCell>
                     <TableCell>{getCourseField(c, ["grade", "score", "result"])}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3}>None</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </MDBox>
+
+      <MDBox>
+        <MDTypography variant="h6" mb={1}>
+          Rejected Courses
+        </MDTypography>
+        <TableContainer component={Paper} elevation={0}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Course Name</TableCell>
+                <TableCell>Course Code</TableCell>
+                <TableCell>Reason</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rejectedCourses && rejectedCourses.length > 0 ? (
+                rejectedCourses.map((c, i) => (
+                  <TableRow key={`stud-rej-${i}`}>
+                    <TableCell>{formatCourseTitle(c)}</TableCell>
+                    <TableCell>
+                      {getCourseField(c, ["code", "courseCode", "course_id", "id"])}
+                    </TableCell>
+                    <TableCell>{getCourseField(c, ["reason", "rejectionReason"])}</TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -295,7 +343,7 @@ const UserDetails = () => {
         </TableContainer>
       </MDBox>
 
-      <MDBox>
+      <MDBox mb={3}>
         <MDTypography variant="h6" mb={1}>
           Completed Courses
         </MDTypography>
@@ -320,6 +368,40 @@ const UserDetails = () => {
                     <TableCell>
                       {getCourseField(c, ["year", "completedYear", "yearCompleted"])}
                     </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3}>None</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </MDBox>
+
+      <MDBox>
+        <MDTypography variant="h6" mb={1}>
+          Rejected Courses
+        </MDTypography>
+        <TableContainer component={Paper} elevation={0}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Course Name</TableCell>
+                <TableCell>Course Code</TableCell>
+                <TableCell>Reason</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rejectedCourses && rejectedCourses.length > 0 ? (
+                rejectedCourses.map((c, i) => (
+                  <TableRow key={`teach-rej-${i}`}>
+                    <TableCell>{formatCourseTitle(c)}</TableCell>
+                    <TableCell>
+                      {getCourseField(c, ["code", "courseCode", "course_id", "id"])}
+                    </TableCell>
+                    <TableCell>{getCourseField(c, ["reason", "rejectionReason"])}</TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -461,6 +543,33 @@ const UserDetails = () => {
                               </TableCell>
                               <TableCell>
                                 {getCourseField(c, ["grade", "year", "completedYear"])}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={3}>None</TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  <MDTypography variant="h6" mb={1} mt={3}>
+                    Rejected Courses
+                  </MDTypography>
+                  <TableContainer component={Paper} elevation={0}>
+                    <Table size="small">
+                      <TableBody>
+                        {rejectedCourses && rejectedCourses.length > 0 ? (
+                          rejectedCourses.map((c, i) => (
+                            <TableRow key={`gen-rej-${i}`}>
+                              <TableCell>{formatCourseTitle(c)}</TableCell>
+                              <TableCell>
+                                {getCourseField(c, ["code", "courseCode", "course_id", "id"])}
+                              </TableCell>
+                              <TableCell>
+                                {getCourseField(c, ["reason", "rejectionReason"])}
                               </TableCell>
                             </TableRow>
                           ))
