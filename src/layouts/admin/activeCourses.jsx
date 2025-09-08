@@ -1,6 +1,6 @@
 // ActiveCourses.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // <-- added
+import { useNavigate } from "react-router-dom";
 
 // Material Dashboard 2 React components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -9,6 +9,9 @@ import Footer from "examples/Footer";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
+
+// Global search context
+import { useSearch } from "context";
 
 // Sample Active Courses Data
 const activeCourseData = [
@@ -40,12 +43,19 @@ const activeCourseData = [
 
 const ActiveCourses = () => {
   const [activeCourses] = useState(activeCourseData);
-  const navigate = useNavigate(); // <-- added
+  const navigate = useNavigate();
+  const { search } = useSearch(); // Global search filter
 
   const handleRowClick = (course) => {
-    // navigate to CourseDetails and pass the course object via state
     navigate("/courseDetails", { state: { course } });
   };
+
+  // Filtered courses based on search
+  const filteredCourses = activeCourses.filter(
+    (course) =>
+      course.title.toLowerCase().includes(search.toLowerCase()) ||
+      course.instructor.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -58,7 +68,7 @@ const ActiveCourses = () => {
           <MDTypography variant="body2" color="text">
             Manage all courses currently active. There are{" "}
             <MDTypography component="span" fontWeight="bold">
-              {activeCourses.length}
+              {filteredCourses.length}
             </MDTypography>{" "}
             active courses.
           </MDTypography>
@@ -120,48 +130,62 @@ const ActiveCourses = () => {
               </MDBox>
             </MDBox>
             <MDBox component="tbody">
-              {activeCourses.map((course) => (
-                <MDBox
-                  component="tr"
-                  key={course.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => handleRowClick(course)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") handleRowClick(course);
-                  }}
-                  sx={{
-                    "&:not(:last-child)": { borderBottom: "1px solid #e0e0e0" },
-                    cursor: "pointer",
-                    transition: "background-color 120ms ease",
-                    "&:hover": { backgroundColor: "#f5f5f5" },
-                  }}
-                >
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.title}
-                  </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.instructor}
-                  </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.description}
-                  </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2} sx={{ textAlign: "right" }}>
-                    <MDTypography
-                      variant="button"
-                      fontWeight="bold"
-                      sx={{ color: "green", textTransform: "uppercase" }}
-                    >
-                      ACTIVE
+              {filteredCourses.length > 0 ? (
+                filteredCourses.map((course) => (
+                  <MDBox
+                    component="tr"
+                    key={course.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleRowClick(course)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") handleRowClick(course);
+                    }}
+                    sx={{
+                      "&:not(:last-child)": { borderBottom: "1px solid #e0e0e0" },
+                      cursor: "pointer",
+                      transition: "background-color 120ms ease",
+                      "&:hover": { backgroundColor: "#f5f5f5" },
+                    }}
+                  >
+                    <MDTypography component="td" variant="body2" p={2}>
+                      {course.title}
                     </MDTypography>
+                    <MDTypography component="td" variant="body2" p={2}>
+                      {course.instructor}
+                    </MDTypography>
+                    <MDTypography component="td" variant="body2" p={2}>
+                      {course.description}
+                    </MDTypography>
+                    <MDTypography component="td" variant="body2" p={2} sx={{ textAlign: "right" }}>
+                      <MDTypography
+                        variant="button"
+                        fontWeight="bold"
+                        sx={{ color: "green", textTransform: "uppercase" }}
+                      >
+                        ACTIVE
+                      </MDTypography>
+                    </MDTypography>
+                  </MDBox>
+                ))
+              ) : (
+                <MDBox component="tr">
+                  <MDTypography
+                    component="td"
+                    colSpan={4}
+                    p={2}
+                    sx={{ textAlign: "center", fontStyle: "italic", color: "text.secondary" }}
+                  >
+                    No courses found
                   </MDTypography>
                 </MDBox>
-              ))}
+              )}
             </MDBox>
           </MDBox>
+
           <MDBox display="flex" justifyContent="flex-end" alignItems="center" mt={2} gap={1}>
             <MDTypography variant="caption" color="text">
-              Showing 1 to {activeCourses.length} of {activeCourses.length} results
+              Showing 1 to {filteredCourses.length} of {filteredCourses.length} results
             </MDTypography>
             <MDButton size="small" variant="text" color="dark">
               Previous

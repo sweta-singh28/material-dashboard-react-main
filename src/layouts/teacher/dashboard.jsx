@@ -21,8 +21,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+// Context
+import { useSearch } from "context";
+
 function TeacherDashboard() {
   const navigate = useNavigate();
+  const { search } = useSearch();
 
   // Dummy course data
   const courses = [
@@ -33,7 +37,12 @@ function TeacherDashboard() {
     { id: 5, name: "Art History", students: 70, pending: 2 },
   ];
 
-  // Chart data
+  // Search filter ONLY for course cards
+  const filteredCourses = courses.filter((course) =>
+    course.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Chart data (always shows all courses, not filtered)
   const chartData = courses.map((c) => ({
     course: c.name,
     students: c.students,
@@ -91,7 +100,7 @@ function TeacherDashboard() {
               Your Courses
             </MDTypography>
             <Grid container spacing={2}>
-              {courses.map((course) => (
+              {filteredCourses.map((course) => (
                 <Grid item xs={12} sm={6} md={4} key={course.id}>
                   <Card
                     sx={{
@@ -105,7 +114,6 @@ function TeacherDashboard() {
                         boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
                       },
                     }}
-                    // navigate to subject details page when card is clicked
                     onClick={() => navigate(`/teacher/subjectDetails/${course.id}`)}
                   >
                     <MDTypography variant="h6" gutterBottom>

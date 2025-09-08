@@ -18,9 +18,15 @@ import TableRow from "@mui/material/TableRow";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
 
+// Context for global search
+import { useMaterialUIController } from "context";
+
 const AllCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [controller] = useMaterialUIController();
+  const { search } = controller; // global search
 
   const [courses, setCourses] = useState([
     {
@@ -77,6 +83,13 @@ const AllCourses = () => {
     navigate("/courseDetails", { state: { course } });
   };
 
+  // Apply global search filter
+  const filteredCourses = courses.filter((course) =>
+    Object.values(course).some((value) =>
+      String(value).toLowerCase().includes(search.toLowerCase())
+    )
+  );
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -127,8 +140,7 @@ const AllCourses = () => {
               </TableHead>
 
               <TableBody>
-                {courses.map((course) => (
-                  // Entire row is clickable and navigates to CourseDetails
+                {filteredCourses.map((course) => (
                   <TableRow
                     key={course.id}
                     hover
@@ -158,7 +170,6 @@ const AllCourses = () => {
                       </MDTypography>
                     </TableCell>
 
-                    {/* NEW: Course Code */}
                     <TableCell sx={{ verticalAlign: "middle", py: 1 }}>
                       <MDTypography variant="caption" color="text">
                         {course.courseCode || "-"}

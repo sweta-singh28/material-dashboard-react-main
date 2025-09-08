@@ -21,8 +21,13 @@ import Footer from "examples/Footer";
 // React Router
 import { useNavigate } from "react-router-dom";
 
+// Context for search
+import { useMaterialUIController } from "context";
+
 function Students() {
   const navigate = useNavigate();
+  const [controller] = useMaterialUIController();
+  const { search } = controller;
 
   // Dummy student data with roll numbers
   const students = [
@@ -32,6 +37,13 @@ function Students() {
     { roll: "104", name: "Liam Wilson", email: "liam@example.com" },
     { roll: "105", name: "Ava Martinez", email: "ava@example.com" },
   ];
+
+  // Apply search filter
+  const filteredStudents = students.filter((student) =>
+    Object.values(student).some((value) =>
+      String(value).toLowerCase().includes(search.toLowerCase())
+    )
+  );
 
   return (
     <DashboardLayout>
@@ -67,7 +79,7 @@ function Students() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {students.map((student, index) => (
+                    {filteredStudents.map((student, index) => (
                       <TableRow
                         key={index}
                         hover

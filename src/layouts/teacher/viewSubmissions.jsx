@@ -1,3 +1,5 @@
+// ViewSubmissions.jsx
+
 // React
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,8 +17,12 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
+// Global search context
+import { useSearch } from "context";
+
 function ViewSubmissions() {
   const navigate = useNavigate();
+  const { search } = useSearch(); // Global search
 
   // Dummy submissions
   const [submissions, setSubmissions] = useState([
@@ -56,7 +62,7 @@ function ViewSubmissions() {
     );
   };
 
-  // Mark function (just toggles between Marked/Unmarked)
+  // Mark function (toggles between Marked/Unmarked)
   const handleMark = (id) => {
     setSubmissions((prev) =>
       prev.map((sub) =>
@@ -67,8 +73,17 @@ function ViewSubmissions() {
 
   // Navigate to student details
   const handleStudentClick = (id) => {
-    navigate(`/students/${id}`); // ✅ corrected according to routes.js
+    navigate(`/students/${id}`);
   };
+
+  // Apply global search to submissions
+  const filteredSubmissions = submissions.filter(
+    (sub) =>
+      sub.studentName.toLowerCase().includes(search.toLowerCase()) ||
+      sub.rollNo.toLowerCase().includes(search.toLowerCase()) ||
+      sub.title.toLowerCase().includes(search.toLowerCase()) ||
+      sub.subject.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -114,74 +129,80 @@ function ViewSubmissions() {
               </MDBox>
 
               {/* Submissions List */}
-              {submissions.map((sub) => (
-                <MDBox
-                  key={sub.id}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  p={2}
-                  mb={1}
-                  borderRadius="md"
-                  bgColor="#f9f9f9"
-                >
-                  <MDTypography variant="body2" flex={1}>
-                    {sub.rollNo}
-                  </MDTypography>
-                  <MDTypography
-                    variant="body2"
-                    flex={1}
-                    color="info"
-                    sx={{ cursor: "pointer", textDecoration: "underline" }}
-                    onClick={() => handleStudentClick(sub.id)}
+              {filteredSubmissions.length === 0 ? (
+                <MDTypography variant="body2" color="textSecondary" align="center" py={3}>
+                  No submissions found.
+                </MDTypography>
+              ) : (
+                filteredSubmissions.map((sub) => (
+                  <MDBox
+                    key={sub.id}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    p={2}
+                    mb={1}
+                    borderRadius="md"
+                    bgColor="#f9f9f9"
                   >
-                    {sub.studentName}
-                  </MDTypography>
-                  <MDTypography variant="body2" flex={1}>
-                    {sub.title}
-                  </MDTypography>
-                  <MDTypography variant="body2" flex={1}>
-                    {sub.subject}
-                  </MDTypography>
-                  <MDTypography variant="body2" flex={1} color="info">
-                    <a
-                      href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ textDecoration: "underline", color: "#1a73e8", cursor: "pointer" }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {sub.file}
-                    </a>
-                  </MDTypography>
-                  <MDTypography
-                    variant="body2"
-                    flex={1}
-                    color={sub.status === "Approved" ? "success" : "warning"}
-                  >
-                    {sub.status}
-                  </MDTypography>
-                  <MDBox display="flex" gap={1} flex={1}>
-                    <MDButton
-                      variant="outlined"
+                    <MDTypography variant="body2" flex={1}>
+                      {sub.rollNo}
+                    </MDTypography>
+                    <MDTypography
+                      variant="body2"
+                      flex={1}
                       color="info"
-                      size="small"
-                      onClick={() => handleMark(sub.id)}
+                      sx={{ cursor: "pointer", textDecoration: "underline" }}
+                      onClick={() => handleStudentClick(sub.id)}
                     >
-                      Mark
-                    </MDButton>
-                    <MDButton
-                      variant="gradient"
-                      color="success"
-                      size="small"
-                      onClick={() => handleApprove(sub.id)}
-                      disabled={sub.status === "Approved"}
+                      {sub.studentName}
+                    </MDTypography>
+                    <MDTypography variant="body2" flex={1}>
+                      {sub.title}
+                    </MDTypography>
+                    <MDTypography variant="body2" flex={1}>
+                      {sub.subject}
+                    </MDTypography>
+                    <MDTypography variant="body2" flex={1} color="info">
+                      <a
+                        href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: "underline", color: "#1a73e8", cursor: "pointer" }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {sub.file}
+                      </a>
+                    </MDTypography>
+                    <MDTypography
+                      variant="body2"
+                      flex={1}
+                      color={sub.status === "Approved" ? "success" : "warning"}
                     >
-                      Approve
-                    </MDButton>
+                      {sub.status}
+                    </MDTypography>
+                    <MDBox display="flex" gap={1} flex={1}>
+                      <MDButton
+                        variant="outlined"
+                        color="info"
+                        size="small"
+                        onClick={() => handleMark(sub.id)}
+                      >
+                        Mark
+                      </MDButton>
+                      <MDButton
+                        variant="gradient"
+                        color="success"
+                        size="small"
+                        onClick={() => handleApprove(sub.id)}
+                        disabled={sub.status === "Approved"}
+                      >
+                        Approve
+                      </MDButton>
+                    </MDBox>
                   </MDBox>
-                </MDBox>
-              ))}
+                ))
+              )}
             </MDBox>
           </Grid>
         </Grid>

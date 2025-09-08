@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// AdminDashboard.jsx
+import React from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid";
@@ -27,6 +28,9 @@ import {
   Legend,
   Cell,
 } from "recharts";
+
+// Global search context
+import { useSearch } from "context";
 
 // ---------------- StatCard Component ----------------
 const StatCard = ({ icon, color, title, value, onClick }) => (
@@ -101,68 +105,27 @@ ChartCardHeader.propTypes = {
 // ---------------- AdminDashboard Component ----------------
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { search } = useSearch(); // Global search (can be used later for filtering)
 
-  // State to hold counts
-  const [userData, setUserData] = useState([]);
-  const [courseData, setCourseData] = useState([]);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [activeCourses, setActiveCourses] = useState(0);
-  const [pendingApprovals, setPendingApprovals] = useState(0);
-
-  // Mock lists (simulate DB data)
-  const studentsList = [
-    { id: 1, name: "John" },
-    { id: 2, name: "Alice" },
-    { id: 3, name: "Raj" },
-    // ...more
-  ];
-
-  const teachersList = [
-    { id: 1, name: "Mr. Smith" },
-    { id: 2, name: "Mrs. Patel" },
-    // ...more
-  ];
-
-  const coursesList = [
-    { id: 1, subject: "Math", status: "active" },
-    { id: 2, subject: "Science", status: "active" },
-    { id: 3, subject: "English", status: "active" },
-    { id: 4, subject: "History", status: "inactive" },
-    { id: 5, subject: "Computer", status: "pending" },
-    // ...more
-  ];
-
-  useEffect(() => {
-    // Count users
-    const studentCount = studentsList.length;
-    const teacherCount = teachersList.length;
-
-    setUserData([
-      { role: "Students", count: studentCount },
-      { role: "Teachers", count: teacherCount },
-    ]);
-
-    setTotalUsers(studentCount + teacherCount);
-
-    // Count courses
-    const subjectCounts = {};
-    coursesList.forEach((course) => {
-      subjectCounts[course.subject] = (subjectCounts[course.subject] || 0) + 1;
-    });
-
-    const formattedCourseData = Object.entries(subjectCounts).map(([subject, count]) => ({
-      subject,
-      count,
-    }));
-
-    setCourseData(formattedCourseData);
-
-    // Active courses
-    setActiveCourses(coursesList.filter((c) => c.status === "active").length);
-
-    // Pending approvals
-    setPendingApprovals(coursesList.filter((c) => c.status === "pending").length);
-  }, []);
+  // ---------------- Dynamic JSON ----------------
+  const dashboardData = {
+    stats: {
+      totalUsers: 10,
+      activeCourses: 5,
+      pendingApprovals: 2,
+    },
+    users: [
+      { role: "Students", count: 7 },
+      { role: "Teachers", count: 3 },
+    ],
+    courses: [
+      { subject: "Math", count: 2 },
+      { subject: "Science", count: 1 },
+      { subject: "English", count: 1 },
+      { subject: "History", count: 1 },
+    ],
+  };
+  // --------------------------------------------------
 
   const userColors = ["#3f51b5", "#ff7043"];
   const courseColors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336"];
@@ -175,10 +138,6 @@ const AdminDashboard = () => {
     } else {
       navigate("/admin/totalUsers");
     }
-  };
-
-  const handleCoursesCardClick = () => {
-    navigate("/admin/totalCourses");
   };
 
   return (
@@ -199,7 +158,7 @@ const AdminDashboard = () => {
               icon={<PeopleAltIcon />}
               color="#3f51b5"
               title="Total Users"
-              value={totalUsers}
+              value={dashboardData.stats.totalUsers}
               onClick={() => navigate("/admin/totalUsers")}
             />
           </Grid>
@@ -209,7 +168,7 @@ const AdminDashboard = () => {
               icon={<MenuBookIcon />}
               color="#4caf50"
               title="Active Courses"
-              value={activeCourses}
+              value={dashboardData.stats.activeCourses}
               onClick={() => navigate("/admin/activeCourses")}
             />
           </Grid>
@@ -219,12 +178,12 @@ const AdminDashboard = () => {
               icon={<AssignmentTurnedInIcon />}
               color="#ffc107"
               title="Pending Approvals"
-              value={pendingApprovals}
+              value={dashboardData.stats.pendingApprovals}
               onClick={() => navigate("/admin/pendingApprovals")}
             />
           </Grid>
 
-          {/* Graphs */}
+          {/* User Enrollment Graph */}
           <Grid item xs={12} lg={6}>
             <Card sx={{ height: "100%", boxShadow: 3 }}>
               <ChartCardHeader
@@ -233,7 +192,7 @@ const AdminDashboard = () => {
               />
               <MDBox p={2} height="350px">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={userData} barSize={50}>
+                  <BarChart data={dashboardData.users} barSize={50}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                     <XAxis dataKey="role" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} />
@@ -246,7 +205,7 @@ const AdminDashboard = () => {
                     />
                     <Legend />
                     <Bar dataKey="count" radius={[10, 10, 0, 0]}>
-                      {userData.map((entry, index) => (
+                      {dashboardData.users.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={userColors[index % userColors.length]}
@@ -260,8 +219,6 @@ const AdminDashboard = () => {
               </MDBox>
             </Card>
           </Grid>
-
-          {/* Courses Overview graph removed as requested */}
         </Grid>
       </MDBox>
       <Footer />

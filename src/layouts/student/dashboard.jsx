@@ -26,9 +26,12 @@ import Footer from "examples/Footer";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMaterialUIController } from "context";
 
 function StudentDashboard() {
   const navigate = useNavigate();
+  const [controller] = useMaterialUIController();
+  const { search } = controller;
 
   const teacherCourses = [
     {
@@ -127,7 +130,27 @@ function StudentDashboard() {
     ...enrolledCourses.map((c) => c.id),
     ...pendingRequests.map((c) => c.id),
   ];
-  const availableCourses = teacherCourses.filter((c) => !allSelectedCourseIds.includes(c.id));
+
+  // 🔍 Apply global search filter
+  const filteredEnrolled = enrolledCourses.filter(
+    (c) =>
+      c.title.toLowerCase().includes(search.toLowerCase()) ||
+      c.teacher.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredPending = pendingRequests.filter(
+    (c) =>
+      c.title.toLowerCase().includes(search.toLowerCase()) ||
+      c.teacher.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const availableCourses = teacherCourses
+    .filter((c) => !allSelectedCourseIds.includes(c.id))
+    .filter(
+      (c) =>
+        c.title.toLowerCase().includes(search.toLowerCase()) ||
+        c.teacher.toLowerCase().includes(search.toLowerCase())
+    );
 
   return (
     <DashboardLayout>
@@ -140,12 +163,12 @@ function StudentDashboard() {
               Enrolled Courses
             </MDTypography>
             <Grid container spacing={3}>
-              {enrolledCourses.length === 0 ? (
+              {filteredEnrolled.length === 0 ? (
                 <Grid item xs={12}>
                   <MDTypography variant="body2">No courses enrolled yet.</MDTypography>
                 </Grid>
               ) : (
-                enrolledCourses.map((course) => (
+                filteredEnrolled.map((course) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
                     <Card
                       onClick={() => handleView(course)}
@@ -212,18 +235,18 @@ function StudentDashboard() {
             </Card>
           </Grid>
 
-          {/* Section 3: Pending Requests (No Approve Button) */}
+          {/* Section 3: Pending Requests */}
           <Grid item xs={12}>
             <MDTypography variant="h5" gutterBottom>
               Pending Approval from Teacher
             </MDTypography>
             <Grid container spacing={3}>
-              {pendingRequests.length === 0 ? (
+              {filteredPending.length === 0 ? (
                 <Grid item xs={12}>
                   <MDTypography variant="body2">No pending requests.</MDTypography>
                 </Grid>
               ) : (
-                pendingRequests.map((course) => (
+                filteredPending.map((course) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
                     <Card
                       style={{

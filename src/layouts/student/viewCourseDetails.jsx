@@ -19,10 +19,13 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import { useLocation } from "react-router-dom";
+import { useMaterialUIController } from "context";
 
 function ViewCourseDetails() {
   const location = useLocation();
   const course = location.state?.course;
+  const [controller] = useMaterialUIController();
+  const { search } = controller;
 
   // dummy course data with more details
   const dummyCourse = {
@@ -71,6 +74,15 @@ function ViewCourseDetails() {
   const handleNoteClick = (url) => {
     window.open(url, "_blank");
   };
+
+  // 🔍 Apply search filter for syllabus + notes (fixed with optional chaining)
+  const filteredSyllabus = (displayedCourse.syllabus || []).filter((topic) =>
+    topic.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredNotes = (notes || []).filter((note) =>
+    note.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -122,7 +134,7 @@ function ViewCourseDetails() {
               </MDTypography>
               <Divider sx={{ my: 1 }} />
               <List>
-                {(displayedCourse.syllabus || []).map((topic, index) => (
+                {(filteredSyllabus || []).map((topic, index) => (
                   <ListItem key={index} disablePadding>
                     <ListItemText primary={`• ${topic}`} />
                   </ListItem>
@@ -157,7 +169,7 @@ function ViewCourseDetails() {
               </MDTypography>
               <Divider sx={{ my: 1 }} />
               <List>
-                {notes.map((note) => (
+                {filteredNotes.map((note) => (
                   <ListItem button key={note.id} onClick={() => handleNoteClick(note.url)}>
                     <ListItemIcon>
                       <InsertDriveFileIcon color="info" />

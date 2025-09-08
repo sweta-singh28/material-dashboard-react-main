@@ -1,4 +1,3 @@
-// TotalUsers.jsx
 import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -20,6 +19,9 @@ import InputLabel from "@mui/material/InputLabel";
 
 import { useNavigate, useLocation } from "react-router-dom";
 
+// Context for global search
+import { useMaterialUIController } from "context";
+
 // Dummy Users
 const initialUsers = [
   { id: 1, name: "Sophia Clark", email: "sophia.clark@email.com", role: "Teacher" },
@@ -33,6 +35,8 @@ const initialUsers = [
 const TotalUsers = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [controller] = useMaterialUIController();
+  const { search } = controller; // global search
 
   const [users, setUsers] = useState(() => {
     const stored = localStorage.getItem("users");
@@ -61,15 +65,20 @@ const TotalUsers = () => {
       localStorage.setItem("users", JSON.stringify(updated));
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.state, users]);
 
   const handleChange = (event) => {
     setFilterRole(event.target.value);
   };
 
-  const filteredUsers = users.filter(
-    filterRole === "All" ? () => true : (user) => user.role === filterRole
-  );
+  // Apply both role filter and global search
+  const filteredUsers = users
+    .filter(filterRole === "All" ? () => true : (user) => user.role === filterRole)
+    .filter((user) =>
+      Object.values(user).some((value) =>
+        String(value).toLowerCase().includes(search.toLowerCase())
+      )
+    );
 
   return (
     <DashboardLayout>

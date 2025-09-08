@@ -48,7 +48,7 @@ const UserDetails = () => {
         <DashboardNavbar />
         <MDBox mt={6} mb={3} textAlign="center">
           <MDTypography variant="h6">No user details available.</MDTypography>
-          <MDButton variant="gradient" color="info" onClick={() => navigate("/totalUsers")}>
+          <MDButton variant="gradient" color="info" onClick={() => navigate("/admin/totalUsers")}>
             Back to Total Users page
           </MDButton>
         </MDBox>

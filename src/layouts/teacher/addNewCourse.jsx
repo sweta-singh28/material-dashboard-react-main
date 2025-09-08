@@ -21,7 +21,11 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
+// Search context
+import { useSearch } from "context";
+
 function AddNewCourse() {
+  const { search } = useSearch(); // get global search
   const [courseName, setCourseName] = useState("");
   const [description, setDescription] = useState("");
   const [teacherInfo, setTeacherInfo] = useState("");
@@ -49,16 +53,15 @@ function AddNewCourse() {
       description,
       teacher: teacherInfo,
       thumbnail: thumbnail ? thumbnail.name : "N/A",
-      // NEW properties
       expectations,
       prerequisites,
-      syllabus: syllabus || "N/A", // now stores text topics
-      status: "Pending", // always pending until admin approves
+      syllabus: syllabus || "N/A",
+      status: "Pending",
     };
 
     setCourses([...courses, newCourse]);
 
-    // reset form (including new fields)
+    // reset form
     setCourseName("");
     setDescription("");
     setTeacherInfo("");
@@ -73,7 +76,6 @@ function AddNewCourse() {
     setDescription("");
     setTeacherInfo("");
     setThumbnail(null);
-    // reset new fields too
     setExpectations("");
     setPrerequisites("");
     setSyllabus("");
@@ -81,6 +83,11 @@ function AddNewCourse() {
 
   const chipColor = (status) =>
     status === "Approved" ? "success" : status === "Rejected" ? "error" : "warning";
+
+  // Filter courses based on global search
+  const filteredCourses = courses.filter((course) =>
+    course.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -129,7 +136,7 @@ function AddNewCourse() {
                 />
               </MDBox>
 
-              {/* New: Course Expectations */}
+              {/* Course Expectations */}
               <MDBox mb={2}>
                 <TextField
                   fullWidth
@@ -143,7 +150,7 @@ function AddNewCourse() {
                 />
               </MDBox>
 
-              {/* New: Course Prerequisites */}
+              {/* Course Prerequisites */}
               <MDBox mb={2}>
                 <TextField
                   fullWidth
@@ -175,7 +182,7 @@ function AddNewCourse() {
                 )}
               </MDBox>
 
-              {/* New: Syllabus Topics */}
+              {/* Syllabus Topics */}
               <MDBox mb={2}>
                 <TextField
                   fullWidth
@@ -203,8 +210,8 @@ function AddNewCourse() {
               </MDBox>
             </MDBox>
 
-            {/* Table of created courses */}
-            {courses.length > 0 && (
+            {/* Table of submitted courses (filtered by global search) */}
+            {filteredCourses.length > 0 && (
               <MDBox mt={4}>
                 <MDTypography variant="h5" gutterBottom>
                   📑 Your Submitted Courses
@@ -225,8 +232,6 @@ function AddNewCourse() {
                         <TableCell>
                           <b>Thumbnail</b>
                         </TableCell>
-
-                        {/* NEW columns */}
                         <TableCell>
                           <b>Expectations</b>
                         </TableCell>
@@ -236,25 +241,21 @@ function AddNewCourse() {
                         <TableCell>
                           <b>Syllabus (Topics)</b>
                         </TableCell>
-
                         <TableCell>
                           <b>Status</b>
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {courses.map((course) => (
+                      {filteredCourses.map((course) => (
                         <TableRow key={course.id}>
                           <TableCell>{course.name}</TableCell>
                           <TableCell>{course.description}</TableCell>
                           <TableCell>{course.teacher}</TableCell>
                           <TableCell>{course.thumbnail}</TableCell>
-
-                          {/* NEW values */}
                           <TableCell>{course.expectations || "-"}</TableCell>
                           <TableCell>{course.prerequisites || "-"}</TableCell>
                           <TableCell>{course.syllabus}</TableCell>
-
                           <TableCell>
                             <Chip
                               label={course.status}

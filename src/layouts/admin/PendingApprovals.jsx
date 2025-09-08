@@ -18,6 +18,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Grid from "@mui/material/Grid";
 
+// Context for global search
+import { useMaterialUIController } from "context";
+
 // Data
 const courseData = [
   {
@@ -64,6 +67,9 @@ const courseData = [
 
 const PendingApprovals = () => {
   const navigate = useNavigate();
+  const [controller] = useMaterialUIController();
+  const { search } = controller; // global search
+
   const [rejectionReason, setRejectionReason] = useState("");
   const [courseCode, setCourseCode] = useState("");
   const [pendingCourses, setPendingCourses] = useState(courseData);
@@ -71,6 +77,13 @@ const PendingApprovals = () => {
   // NEW: details modal state
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+
+  // Apply global search filter
+  const filteredCourses = pendingCourses.filter((course) =>
+    Object.values(course).some((value) =>
+      String(value).toLowerCase().includes(search.toLowerCase())
+    )
+  );
 
   const handleAction = (courseId, action) => {
     const updatedStatus = action === "approve" ? "Approved" : "Rejected";
@@ -92,18 +105,17 @@ const PendingApprovals = () => {
     setCourseCode("");
   };
 
-  // NEW: open/close details
   const handleOpenDetails = (course) => {
     setSelectedCourse(course);
     setOpenDetails(true);
-    setCourseCode(""); // reset course code when opening modal
-    setRejectionReason(""); // reset rejection reason
+    setCourseCode("");
+    setRejectionReason("");
   };
   const handleCloseDetails = () => {
     setOpenDetails(false);
     setSelectedCourse(null);
-    setCourseCode(""); // reset course code
-    setRejectionReason(""); // reset rejection reason
+    setCourseCode("");
+    setRejectionReason("");
   };
 
   return (
@@ -117,7 +129,7 @@ const PendingApprovals = () => {
           <MDTypography variant="body2" color="text">
             Review and manage courses awaiting approval. There are{" "}
             <MDTypography component="span" fontWeight="bold">
-              {pendingCourses.length}
+              {filteredCourses.length}
             </MDTypography>{" "}
             courses in the queue.
           </MDTypography>
@@ -164,12 +176,11 @@ const PendingApprovals = () => {
                 >
                   DESCRIPTION
                 </MDTypography>
-                {/* ACTIONS column removed (now in modal) */}
               </MDBox>
             </MDBox>
 
             <MDBox component="tbody">
-              {pendingCourses.map((course) => (
+              {filteredCourses.map((course) => (
                 <MDBox
                   component="tr"
                   key={course.id}
@@ -194,7 +205,6 @@ const PendingApprovals = () => {
                   <MDTypography component="td" variant="body2" p={2}>
                     {course.description}
                   </MDTypography>
-                  {/* Removed action buttons from the row — details/approve/reject are in the modal */}
                 </MDBox>
               ))}
             </MDBox>
@@ -202,7 +212,7 @@ const PendingApprovals = () => {
 
           <MDBox display="flex" justifyContent="flex-end" alignItems="center" mt={2} gap={1}>
             <MDTypography variant="caption" color="text">
-              Showing 1 to {pendingCourses.length} of {pendingCourses.length} results
+              Showing 1 to {filteredCourses.length} of {filteredCourses.length} results
             </MDTypography>
             <MDButton size="small" variant="text" color="dark">
               Previous
@@ -212,12 +222,10 @@ const PendingApprovals = () => {
             </MDButton>
           </MDBox>
         </MDBox>
-
-        {/* NOTE: Rejection Reason and Course Code container inside the Details Modal */}
       </MDBox>
       <Footer />
 
-      {/* NEW: Details Modal Form */}
+      {/* Details Modal Form */}
       <Dialog open={openDetails} onClose={handleCloseDetails} fullWidth maxWidth="sm">
         <DialogTitle>Course Details</DialogTitle>
         <DialogContent dividers>
@@ -227,13 +235,7 @@ const PendingApprovals = () => {
                 component="img"
                 src={selectedCourse.thumbnail || "https://picsum.photos/seed/fallback/240/140"}
                 alt={`${selectedCourse.title} thumbnail`}
-                sx={{
-                  width: "100%",
-                  height: 180,
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                  mb: 2,
-                }}
+                sx={{ width: "100%", height: 180, objectFit: "cover", borderRadius: "8px", mb: 2 }}
               />
 
               <Grid container spacing={2}>
@@ -262,8 +264,6 @@ const PendingApprovals = () => {
                     sx={{ mt: 0.5 }}
                   />
                 </Grid>
-
-                {/* NEW: Assign Course Code */}
                 <Grid item xs={12}>
                   <MDTypography variant="caption" color="text">
                     Assign Course Code
@@ -276,8 +276,6 @@ const PendingApprovals = () => {
                     sx={{ mt: 0.5 }}
                   />
                 </Grid>
-
-                {/* Rejection reason */}
                 <Grid item xs={12}>
                   <MDTypography variant="caption" color="text">
                     Rejection Reason

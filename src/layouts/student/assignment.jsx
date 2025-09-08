@@ -18,12 +18,16 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
+// Global search hook from context (already added to your context)
+import { useSearch } from "context";
+
 function createDummyPdfUrl(text) {
   const blob = new Blob([text], { type: "application/pdf" });
   return URL.createObjectURL(blob);
 }
 
 export default function AssignmentsPage() {
+  const { search } = useSearch();
   const createdUrlsRef = useRef([]);
 
   const courses = [
@@ -80,6 +84,7 @@ export default function AssignmentsPage() {
 
   useEffect(() => {
     return () => {
+      // revoke any created object URLs on unmount
       createdUrlsRef.current.forEach((u) => {
         try {
           URL.revokeObjectURL(u);
@@ -114,6 +119,26 @@ export default function AssignmentsPage() {
     ]);
   };
 
+  // -- SEARCH: only add filtering, do not change other logic/UI --
+  const q = (search || "").toString().trim().toLowerCase();
+
+  const filterBySearch = (list) => {
+    if (!q) return list;
+    return list.filter((a) => {
+      const courseTitle = courses.find((c) => c.id === a.courseId)?.title || "";
+      return (
+        (a.title && a.title.toLowerCase().includes(q)) ||
+        (courseTitle && courseTitle.toLowerCase().includes(q)) ||
+        (a.teacherFileName && a.teacherFileName.toLowerCase().includes(q)) ||
+        (a.studentFileName && a.studentFileName.toLowerCase().includes(q))
+      );
+    });
+  };
+
+  const filteredPending = filterBySearch(pendingAssignments);
+  const filteredSubmitted = filterBySearch(submittedAssignments);
+  const filteredApproved = filterBySearch(approvedAssignments);
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -126,12 +151,12 @@ export default function AssignmentsPage() {
             </MDTypography>
 
             <Grid container spacing={3}>
-              {pendingAssignments.length === 0 ? (
+              {filteredPending.length === 0 ? (
                 <Grid item xs={12}>
                   <MDTypography>No pending assignments 🎉</MDTypography>
                 </Grid>
               ) : (
-                pendingAssignments.map((a) => {
+                filteredPending.map((a) => {
                   const course = courses.find((c) => c.id === a.courseId);
                   return (
                     <Grid item xs={12} sm={6} md={4} key={a.id}>
@@ -222,12 +247,12 @@ export default function AssignmentsPage() {
               Submitted Assignments (Pending Approval)
             </MDTypography>
             <Grid container spacing={3}>
-              {submittedAssignments.length === 0 ? (
+              {filteredSubmitted.length === 0 ? (
                 <Grid item xs={12}>
                   <MDTypography>No submitted assignments yet.</MDTypography>
                 </Grid>
               ) : (
-                submittedAssignments.map((a) => {
+                filteredSubmitted.map((a) => {
                   const course = courses.find((c) => c.id === a.courseId);
                   return (
                     <Grid item xs={12} sm={6} md={4} key={a.id}>
@@ -293,12 +318,12 @@ export default function AssignmentsPage() {
               Approved Assignments
             </MDTypography>
             <Grid container spacing={3}>
-              {approvedAssignments.length === 0 ? (
+              {filteredApproved.length === 0 ? (
                 <Grid item xs={12}>
                   <MDTypography>No approved assignments yet.</MDTypography>
                 </Grid>
               ) : (
-                approvedAssignments.map((a) => {
+                filteredApproved.map((a) => {
                   const course = courses.find((c) => c.id === a.courseId);
                   const canOpen = !!a.studentFileUrl;
                   return (
