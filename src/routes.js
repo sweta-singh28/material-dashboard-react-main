@@ -42,14 +42,6 @@ import { Subject } from "@mui/icons-material";
 const routes = [
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
-    icon: <Icon fontSize="small">dashboard</Icon>,
-    route: "/dashboard",
-    component: <Dashboard />,
-  },
-  {
-    type: "collapse",
     name: "Teacher",
     key: "teacher",
     icon: <Icon fontSize="small">school</Icon>,
@@ -77,7 +69,7 @@ const routes = [
     name: "Student Register",
     key: "studentRegister",
     icon: <Icon fontSize="small">menu_book</Icon>,
-    route: "/student/register",
+    route: "teacher/studentRegister",
     component: <StudentRegister />,
   },
   {
@@ -90,7 +82,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "   Upload Materials",
+    name: "Upload Materials",
     key: "uploadMaterials",
     icon: <Icon fontSize="small">upload</Icon>,
     route: "/uploadMaterials",
@@ -115,7 +107,7 @@ const routes = [
   {
     type: "collapse",
     name: "Course Details",
-    key: "student",
+    key: "viewCourseDetails",
     icon: <Icon fontSize="small">subject</Icon>,
     route: "/student/viewCourseDetails",
     component: <ViewCourseDetails />,
@@ -123,34 +115,10 @@ const routes = [
   {
     type: "collapse",
     name: "Assignment",
-    key: "student",
+    key: "assignment",
     icon: <Icon fontSize="small">task</Icon>,
     route: "/assignment",
     component: <Assignment />,
-  },
-  {
-    type: "collapse",
-    name: "Tables",
-    key: "tables",
-    icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/tables",
-    component: <Tables />,
-  },
-  {
-    type: "collapse",
-    name: "Billing",
-    key: "billing",
-    icon: <Icon fontSize="small">receipt_long</Icon>,
-    route: "/billing",
-    component: <Billing />,
-  },
-  {
-    type: "collapse",
-    name: "RTL",
-    key: "rtl",
-    icon: <Icon fontSize="small">format_textdirection_r_to_l</Icon>,
-    route: "/rtl",
-    component: <RTL />,
   },
   {
     type: "collapse",
@@ -229,7 +197,7 @@ const routes = [
     name: "Course Details",
     key: "courseDetails",
     icon: <Icon fontSize="small">Description</Icon>,
-    route: "courseDetails",
+    route: "/courseDetails",
     component: <CourseDetails />,
   },
 
