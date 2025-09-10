@@ -107,37 +107,219 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { search } = useSearch(); // Global search (can be used later for filtering)
 
-  // ---------------- Dynamic JSON ----------------
-  const dashboardData = {
-    stats: {
-      totalUsers: 10,
-      activeCourses: 5,
-      pendingApprovals: 2,
-    },
-    users: [
-      { role: "Students", count: 7 },
-      { role: "Teachers", count: 3 },
+  // ---------------- Dynamic JSON (matches your DB schema) ----------------
+  // Replace `dbJson` later with an API response matching the same schema
+  const dbJson = {
+    Users: [
+      {
+        email: "alice.student@example.com",
+        password: "hashed_pw_1",
+        create_time: "2025-01-10T09:30:00Z",
+        first_name: "Alice",
+        last_name: "Mistry",
+        user_id: "u_1",
+        user_role: "Student",
+        user_picture: null,
+        qualifications: "High School",
+      },
+      {
+        email: "bob.student@example.com",
+        password: "hashed_pw_2",
+        create_time: "2025-02-14T11:20:00Z",
+        first_name: "Bob",
+        last_name: "Sharma",
+        user_id: "u_2",
+        user_role: "Student",
+        user_picture: null,
+        qualifications: "High School",
+      },
+      {
+        email: "charlie.teacher@example.com",
+        password: "hashed_pw_3",
+        create_time: "2024-12-01T08:00:00Z",
+        first_name: "Charlie",
+        last_name: "Khan",
+        user_id: "u_3",
+        user_role: "Teacher",
+        user_picture: null,
+        qualifications: "M.Ed",
+      },
+      {
+        email: "diana.teacher@example.com",
+        password: "hashed_pw_4",
+        create_time: "2024-11-05T10:45:00Z",
+        first_name: "Diana",
+        last_name: "Verma",
+        user_id: "u_4",
+        user_role: "Teacher",
+        user_picture: null,
+        qualifications: "PhD",
+      },
+      {
+        email: "eve.student@example.com",
+        password: "hashed_pw_5",
+        create_time: "2025-03-05T14:10:00Z",
+        first_name: "Eve",
+        last_name: "Singh",
+        user_id: "u_5",
+        user_role: "Student",
+        user_picture: null,
+        qualifications: "High School",
+      },
+      // add more users if needed
     ],
-    courses: [
-      { subject: "Math", count: 2 },
-      { subject: "Science", count: 1 },
-      { subject: "English", count: 1 },
-      { subject: "History", count: 1 },
+    Courses: [
+      {
+        idCourses: "c_1",
+        course_name: "Math 101",
+        course_pre_requisites: "[]",
+        course_syllabus: JSON.stringify({ chapters: ["Algebra", "Geometry"] }),
+        course_code: "MATH101",
+        course_status: "active",
+        course_description: "Basic mathematics",
+        course_thumbnail: null,
+        course_current_completed: JSON.stringify([]),
+        course_active_students: JSON.stringify(["u_1", "u_2"]),
+        course_pending_students: JSON.stringify([]),
+        teachers_user_id: "u_3",
+      },
+      {
+        idCourses: "c_2",
+        course_name: "Science Basics",
+        course_pre_requisites: "[]",
+        course_syllabus: JSON.stringify({ chapters: ["Physics", "Chemistry"] }),
+        course_code: "SCI101",
+        course_status: "active",
+        course_description: "Intro to science",
+        course_thumbnail: null,
+        course_current_completed: JSON.stringify([]),
+        course_active_students: JSON.stringify(["u_5"]),
+        course_pending_students: JSON.stringify(["u_2"]),
+        teachers_user_id: "u_4",
+      },
+      {
+        idCourses: "c_3",
+        course_name: "English Literature",
+        course_pre_requisites: "[]",
+        course_syllabus: JSON.stringify({ chapters: ["Poetry", "Prose"] }),
+        course_code: "ENG101",
+        course_status: "inactive",
+        course_description: "English studies",
+        course_thumbnail: null,
+        course_current_completed: JSON.stringify([]),
+        course_active_students: JSON.stringify([]),
+        course_pending_students: JSON.stringify([]),
+        teachers_user_id: "u_4",
+      },
+    ],
+    Assignment_Notes: [
+      {
+        AN_id: "a_1",
+        AN_link: "https://example.com/assignments/a_1.pdf",
+        AN_title: "Math Assignment 1",
+        AssignmentOrNotes: 1, // 1 => assignment, 0 => notes (per your DB)
+        AssignmentDeadline: "2025-04-30T23:59:00Z",
+        creation_date: "2025-04-01T08:00:00Z",
+        Users_user_id: "u_3",
+        Courses_idCourses: "c_1",
+      },
+      {
+        AN_id: "a_2",
+        AN_link: "https://example.com/notes/n_1.pdf",
+        AN_title: "Science Notes Week 1",
+        AssignmentOrNotes: 0,
+        AssignmentDeadline: null,
+        creation_date: "2025-03-20T10:00:00Z",
+        Users_user_id: "u_4",
+        Courses_idCourses: "c_2",
+      },
+    ],
+    SubmittedAssignments: [
+      {
+        submission_id: "s_1",
+        submission_link: "https://example.com/submissions/s_1.pdf",
+        submission_time: "2025-04-15T12:00:00Z",
+        approval: "pending",
+        Assignment_Notes_AN_id: "a_1",
+        Users_user_id: "u_1",
+      },
+      {
+        submission_id: "s_2",
+        submission_link: "https://example.com/submissions/s_2.pdf",
+        submission_time: "2025-04-16T13:30:00Z",
+        approval: "approved",
+        Assignment_Notes_AN_id: "a_1",
+        Users_user_id: "u_2",
+      },
     ],
   };
-  // --------------------------------------------------
+  // -----------------------------------------------------------------------
 
-  const userColors = ["#3f51b5", "#ff7043"];
+  // ---------- derive dashboard-friendly aggregates from dbJson ----------
+  const totalUsers = Array.isArray(dbJson.Users) ? dbJson.Users.length : 0;
+
+  const activeCourses = Array.isArray(dbJson.Courses)
+    ? dbJson.Courses.filter((c) => c.course_status === "active").length
+    : 0;
+
+  const pendingApprovals = Array.isArray(dbJson.SubmittedAssignments)
+    ? dbJson.SubmittedAssignments.filter((s) => String(s.approval).toLowerCase() === "pending")
+        .length
+    : 0;
+
+  // Users breakdown for chart (Students vs Teachers)
+  const userRoleCounts = {};
+  if (Array.isArray(dbJson.Users)) {
+    dbJson.Users.forEach((u) => {
+      const role = u.user_role || "Unknown";
+      userRoleCounts[role] = (userRoleCounts[role] || 0) + 1;
+    });
+  }
+  const usersChartData = Object.keys(userRoleCounts).map((role) => ({
+    role,
+    count: userRoleCounts[role],
+  }));
+
+  // Courses breakdown (derive a subject from the course_name first token, e.g., "Math 101" -> "Math")
+  const courseSubjectCounts = {};
+  if (Array.isArray(dbJson.Courses)) {
+    dbJson.Courses.forEach((c) => {
+      const name = c.course_name || "";
+      const subject = (name.split(" ")[0] || "Other").trim();
+      courseSubjectCounts[subject] = (courseSubjectCounts[subject] || 0) + 1;
+    });
+  }
+  const coursesChartData = Object.keys(courseSubjectCounts).map((subject) => ({
+    subject,
+    count: courseSubjectCounts[subject],
+  }));
+  // ---------------------------------------------------------------------
+
+  const userColors = ["#3f51b5", "#ff7043", "#4caf50", "#2196f3"];
   const courseColors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336"];
 
   const handleUserBarClick = (entryRole) => {
     const mapRole =
-      entryRole === "Students" ? "Student" : entryRole === "Teachers" ? "Teacher" : null;
+      entryRole === "Students" ? "Student" : entryRole === "Teachers" ? "Teacher" : entryRole;
+    // Keep navigation consistent with your existing routing patterns
     if (mapRole) {
       navigate("/admin/totalUsers", { state: { filterRole: mapRole } });
     } else {
       navigate("/admin/totalUsers");
     }
+  };
+
+  // Build a small object similar to your old `dashboardData` to reuse the UI without changing other code
+  const dashboardData = {
+    stats: {
+      totalUsers,
+      activeCourses,
+      pendingApprovals,
+    },
+    users: usersChartData,
+    courses: coursesChartData,
+    // Keep full payload available if some other page wants to inspect original tables
+    dbJson,
   };
 
   return (

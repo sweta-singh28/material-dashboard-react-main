@@ -30,12 +30,14 @@ export default function AssignmentsPage() {
   const { search } = useSearch();
   const createdUrlsRef = useRef([]);
 
+  // courses (kept same as your original)
   const courses = [
     { id: "c1", title: "Mathematics I" },
     { id: "c2", title: "Physics I" },
     { id: "c3", title: "Computer Science" },
   ];
 
+  // ---------- pendingAssignments: same shape as your original code ----------
   const [pendingAssignments, setPendingAssignments] = useState(() => {
     const a1Url = createDummyPdfUrl("Algebra Homework PDF content");
     const a2Url = createDummyPdfUrl("Mechanics Worksheet PDF content");
@@ -70,6 +72,7 @@ export default function AssignmentsPage() {
     ];
   });
 
+  // submitted and approved states kept in the same shapes your UI expects
   const [submittedAssignments, setSubmittedAssignments] = useState([]);
 
   const [approvedAssignments, setApprovedAssignments] = useState([
@@ -79,12 +82,13 @@ export default function AssignmentsPage() {
       title: "Calculus Homework",
       submitted: "2025-08-30",
       studentFileName: "Calculus_Submission.pdf",
+      // note: no studentFileUrl here (same as your original initial data)
     },
   ]);
 
   useEffect(() => {
     return () => {
-      // revoke any created object URLs on unmount
+      // revoke created object URLs on unmount
       createdUrlsRef.current.forEach((u) => {
         try {
           URL.revokeObjectURL(u);
@@ -93,13 +97,16 @@ export default function AssignmentsPage() {
     };
   }, []);
 
+  // ------------------- Keep submission logic IDENTICAL -------------------
   const handleSubmitAssignmentWithFile = (assignment, file) => {
     if (!file) return;
     const fileUrl = URL.createObjectURL(file);
     createdUrlsRef.current.push(fileUrl);
 
+    // remove from pending (same as original)
     setPendingAssignments((prev) => prev.filter((a) => a.id !== assignment.id));
 
+    // add to submitted (same shape as original)
     setSubmittedAssignments((prev) => [
       ...prev,
       {
@@ -111,6 +118,7 @@ export default function AssignmentsPage() {
     ]);
   };
 
+  // ------------------- Keep approve logic IDENTICAL -------------------
   const handleApproveAssignment = (assignment) => {
     setSubmittedAssignments((prev) => prev.filter((a) => a.id !== assignment.id));
     setApprovedAssignments((prev) => [

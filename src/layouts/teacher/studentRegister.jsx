@@ -7,7 +7,6 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Button from "@mui/material/Button";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -29,17 +28,42 @@ function Students() {
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
-  // Dummy student data with roll numbers
-  const students = [
-    { roll: "101", name: "Sophia Clark", email: "sophia@example.com" },
-    { roll: "102", name: "Ethan Miller", email: "ethan@example.com" },
-    { roll: "103", name: "Olivia Davis", email: "olivia@example.com" },
-    { roll: "104", name: "Liam Wilson", email: "liam@example.com" },
-    { roll: "105", name: "Ava Martinez", email: "ava@example.com" },
+  // Hardcoded JSON data (later replace with API call)
+  const studentsData = [
+    {
+      user_id: "S101",
+      full_name: "Sophia Clark",
+      email: "sophia@example.com",
+      roll_no: "R101",
+    },
+    {
+      user_id: "S102",
+      full_name: "Ethan Miller",
+      email: "ethan@example.com",
+      roll_no: "R102",
+    },
+    {
+      user_id: "S103",
+      full_name: "Olivia Davis",
+      email: "olivia@example.com",
+      roll_no: "R103",
+    },
+    {
+      user_id: "S104",
+      full_name: "Liam Wilson",
+      email: "liam@example.com",
+      roll_no: "R104",
+    },
+    {
+      user_id: "S105",
+      full_name: "Ava Martinez",
+      email: "ava@example.com",
+      roll_no: "R105",
+    },
   ];
 
   // Apply search filter
-  const filteredStudents = students.filter((student) =>
+  const filteredStudents = studentsData.filter((student) =>
     Object.values(student).some((value) =>
       String(value).toLowerCase().includes(search.toLowerCase())
     )
@@ -75,19 +99,18 @@ function Students() {
                           Email
                         </MDTypography>
                       </TableCell>
-                      {/* Action column removed as requested */}
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredStudents.map((student, index) => (
+                    {filteredStudents.map((student) => (
                       <TableRow
-                        key={index}
+                        key={student.user_id}
                         hover
                         sx={{ cursor: "pointer" }}
-                        onClick={() => navigate(`/students/${index}`)}
+                        onClick={() => navigate(`/students/${student.user_id}`)}
                       >
-                        <TableCell>{student.roll}</TableCell>
-                        <TableCell>{student.name}</TableCell>
+                        <TableCell>{student.roll_no}</TableCell>
+                        <TableCell>{student.full_name}</TableCell>
                         <TableCell>{student.email}</TableCell>
                       </TableRow>
                     ))}

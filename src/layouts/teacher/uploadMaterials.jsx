@@ -1,6 +1,6 @@
 // React
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom"; // Import useLocation
+import { useLocation } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -25,7 +25,14 @@ function UploadMaterials() {
   const [selectedAssignmentSubject, setSelectedAssignmentSubject] = useState("");
   const [selectedNotesSubject, setSelectedNotesSubject] = useState("");
 
-  const courses = ["Mathematics", "Physics", "Chemistry", "Computer Science", "Biology"];
+  // Hardcoded JSON (replace later with API response)
+  const courses = [
+    { course_name: "Mathematics" },
+    { course_name: "Physics" },
+    { course_name: "Chemistry" },
+    { course_name: "Computer Science" },
+    { course_name: "Biology" },
+  ];
 
   useEffect(() => {
     if (course && type) {
@@ -77,7 +84,7 @@ function UploadMaterials() {
                 </MDButton>
               </MDBox>
 
-              {/* Helper text when nothing selected */}
+              {/* Helper text */}
               {!activeTab && (
                 <MDTypography variant="button" color="text">
                   Select <strong>Assignment</strong> or <strong>Notes</strong> to continue.
@@ -98,9 +105,9 @@ function UploadMaterials() {
                       onChange={(e) => setSelectedAssignmentSubject(e.target.value)}
                       required
                     >
-                      {courses.map((courseItem) => (
-                        <MenuItem key={courseItem} value={courseItem}>
-                          {courseItem}
+                      {courses.map((c) => (
+                        <MenuItem key={c.course_name} value={c.course_name}>
+                          {c.course_name}
                         </MenuItem>
                       ))}
                     </MDInput>
@@ -132,7 +139,7 @@ function UploadMaterials() {
                     <MDInput fullWidth type="date" InputLabelProps={{ shrink: true }} required />
                   </MDBox>
 
-                  <MDBox mt={3} display="flex" justifyContent="flex-end" gap={12 / 6}>
+                  <MDBox mt={3} display="flex" justifyContent="flex-end" gap={2}>
                     <MDButton
                       variant="outlined"
                       color="secondary"
@@ -162,9 +169,9 @@ function UploadMaterials() {
                       onChange={(e) => setSelectedNotesSubject(e.target.value)}
                       required
                     >
-                      {courses.map((courseItem) => (
-                        <MenuItem key={courseItem} value={courseItem}>
-                          {courseItem}
+                      {courses.map((c) => (
+                        <MenuItem key={c.course_name} value={c.course_name}>
+                          {c.course_name}
                         </MenuItem>
                       ))}
                     </MDInput>
@@ -182,7 +189,7 @@ function UploadMaterials() {
                     />
                   </MDBox>
 
-                  <MDBox mt={3} display="flex" justifyContent="flex-end" gap={12 / 6}>
+                  <MDBox mt={3} display="flex" justifyContent="flex-end" gap={2}>
                     <MDButton
                       variant="outlined"
                       color="secondary"

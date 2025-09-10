@@ -23,65 +23,90 @@ import { useMaterialUIController } from "context";
 
 function ViewCourseDetails() {
   const location = useLocation();
-  const course = location.state?.course;
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
-  // dummy course data with more details
-  const dummyCourse = {
-    id: 1,
-    title: "Introduction to Computer Science",
-    teacher: "Dr. Alan Turing",
-    description:
-      "This foundational course provides a comprehensive introduction to the principles of computer science. Students will learn about programming fundamentals, data structures, algorithms, and computational thinking.",
-    expectations:
-      "Students are expected to attend lectures, complete weekly assignments, and participate in discussions.",
-    prerequisites:
-      "Basic knowledge of mathematics and logic is recommended. No prior programming experience is required.",
-    syllabus: [
-      "Week 1: Introduction to Programming",
-      "Week 2: Data Types and Variables",
-      "Week 3: Control Structures (if/else, loops)",
-      "Week 4: Functions and Modules",
-      "Week 5: Introduction to Data Structures (Arrays, Lists)",
-      "Week 6: Algorithms and Complexity",
+  // ✅ Static JSON (Mimicking Database Schema)
+  const dummyData = {
+    Courses: {
+      idCourses: "course-123",
+      course_name: "Introduction to Computer Science",
+      course_pre_requisites: "Basic knowledge of mathematics and logic is recommended",
+      course_syllabus: [
+        "Week 1: Introduction to Programming",
+        "Week 2: Data Types and Variables",
+        "Week 3: Control Structures (if/else, loops)",
+        "Week 4: Functions and Modules",
+        "Week 5: Introduction to Data Structures (Arrays, Lists)",
+        "Week 6: Algorithms and Complexity",
+      ],
+      course_code: "CS101",
+      course_status: "Active",
+      course_description:
+        "This foundational course provides a comprehensive introduction to the principles of computer science. Students will learn about programming fundamentals, data structures, algorithms, and computational thinking.",
+      course_thumbnail: "https://picsum.photos/800/200?random=123",
+      course_current_completed: 95,
+      course_active_students: ["user-001", "user-002"],
+      course_pending_students: ["user-003"],
+      teachers_user_id: "teacher-123",
+    },
+    Users: {
+      user_id: "teacher-123",
+      first_name: "Alan",
+      last_name: "Turing",
+      email: "alan.turing@example.com",
+      user_role: "teacher",
+    },
+    Assignment_Notes: [
+      {
+        AN_id: "note-001",
+        AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        AN_title: "Lecture 1 - Introduction.pdf",
+        AssignmentOrNotes: 0,
+        AssignmentDeadline: null,
+        creation_date: "2025-09-10T08:00:00Z",
+        Users_user_id: "teacher-123",
+        Courses_idCourses: "course-123",
+      },
+      {
+        AN_id: "note-002",
+        AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        AN_title: "Lecture 2 - Advanced Concepts.pdf",
+        AssignmentOrNotes: 0,
+        AssignmentDeadline: null,
+        creation_date: "2025-09-11T08:00:00Z",
+        Users_user_id: "teacher-123",
+        Courses_idCourses: "course-123",
+      },
+      {
+        AN_id: "note-003",
+        AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        AN_title: "Practice Questions.pdf",
+        AssignmentOrNotes: 0,
+        AssignmentDeadline: null,
+        creation_date: "2025-09-12T08:00:00Z",
+        Users_user_id: "teacher-123",
+        Courses_idCourses: "course-123",
+      },
     ],
-    progressPercentage: 95,
   };
 
-  // Use the dummy data if no course is passed via state
-  const displayedCourse = course || dummyCourse;
-
-  // Dummy uploaded notes
-  const notes = [
-    {
-      id: 1,
-      title: "Lecture 1 - Introduction.pdf",
-      url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    },
-    {
-      id: 2,
-      title: "Lecture 2 - Advanced Concepts.pdf",
-      url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    },
-    {
-      id: 3,
-      title: "Practice Questions.pdf",
-      url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    },
-  ];
+  // If course data comes from navigation, override dummy JSON
+  const displayedCourse = location.state?.course || dummyData.Courses;
+  const displayedTeacher = dummyData.Users;
+  const displayedNotes = dummyData.Assignment_Notes;
 
   const handleNoteClick = (url) => {
     window.open(url, "_blank");
   };
 
-  // 🔍 Apply search filter for syllabus + notes (fixed with optional chaining)
-  const filteredSyllabus = (displayedCourse.syllabus || []).filter((topic) =>
+  // 🔍 Apply search filter
+  const filteredSyllabus = (displayedCourse.course_syllabus || []).filter((topic) =>
     topic.toLowerCase().includes(search.toLowerCase())
   );
 
-  const filteredNotes = (notes || []).filter((note) =>
-    note.title.toLowerCase().includes(search.toLowerCase())
+  const filteredNotes = (displayedNotes || []).filter((note) =>
+    note.AN_title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -94,13 +119,14 @@ function ViewCourseDetails() {
             {/* Course Details */}
             <Card style={{ padding: "16px", marginBottom: "24px" }}>
               <MDTypography variant="h4" fontWeight="bold" gutterBottom>
-                {displayedCourse.title}
+                {displayedCourse.course_name}
               </MDTypography>
               <MDTypography variant="subtitle2" color="textSecondary" gutterBottom>
-                Instructor: <strong>{displayedCourse.teacher}</strong>
+                Instructor:{" "}
+                <strong>{`${displayedTeacher.first_name} ${displayedTeacher.last_name}`}</strong>
               </MDTypography>
               <img
-                src={`https://picsum.photos/800/200?random=${displayedCourse.id}`}
+                src={displayedCourse.course_thumbnail}
                 alt="Course Thumbnail"
                 style={{
                   width: "100%",
@@ -109,7 +135,7 @@ function ViewCourseDetails() {
                 }}
               />
               <MDTypography variant="body1" color="textPrimary">
-                {displayedCourse.description}
+                {displayedCourse.course_description}
               </MDTypography>
             </Card>
 
@@ -120,10 +146,11 @@ function ViewCourseDetails() {
               </MDTypography>
               <Divider sx={{ my: 1 }} />
               <MDTypography variant="body2" color="textSecondary">
-                <strong>Expectations:</strong> {displayedCourse.expectations}
+                <strong>Expectations:</strong> Attend lectures, complete assignments, participate in
+                discussions.
               </MDTypography>
               <MDTypography variant="body2" color="textSecondary" mt={1}>
-                <strong>Prerequisites:</strong> {displayedCourse.prerequisites}
+                <strong>Prerequisites:</strong> {displayedCourse.course_pre_requisites}
               </MDTypography>
             </Card>
 
@@ -152,12 +179,12 @@ function ViewCourseDetails() {
               </MDTypography>
               <LinearProgress
                 variant="determinate"
-                value={displayedCourse.progressPercentage}
+                value={displayedCourse.course_current_completed}
                 sx={{ height: 8, borderRadius: 5 }}
               />
               <MDBox display="flex" justifyContent="flex-end" mt={1}>
                 <MDTypography variant="caption" color="textSecondary" fontWeight="bold">
-                  {displayedCourse.progressPercentage}% completed
+                  {displayedCourse.course_current_completed}% completed
                 </MDTypography>
               </MDBox>
             </Card>
@@ -170,11 +197,11 @@ function ViewCourseDetails() {
               <Divider sx={{ my: 1 }} />
               <List>
                 {filteredNotes.map((note) => (
-                  <ListItem button key={note.id} onClick={() => handleNoteClick(note.url)}>
+                  <ListItem button key={note.AN_id} onClick={() => handleNoteClick(note.AN_link)}>
                     <ListItemIcon>
                       <InsertDriveFileIcon color="info" />
                     </ListItemIcon>
-                    <ListItemText primary={note.title} />
+                    <ListItemText primary={note.AN_title} />
                   </ListItem>
                 ))}
               </List>

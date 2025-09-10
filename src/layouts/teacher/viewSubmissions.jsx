@@ -24,33 +24,33 @@ function ViewSubmissions() {
   const navigate = useNavigate();
   const { search } = useSearch(); // Global search
 
-  // Dummy submissions
+  // Dummy submissions (replace with API later)
   const [submissions, setSubmissions] = useState([
     {
       id: 1,
-      rollNo: "101",
-      studentName: "John Doe",
-      title: "Assignment 1",
-      subject: "DBMS",
-      file: "assignment1_john.pdf",
+      roll_no: "101",
+      student_name: "John Doe",
+      course_name: "DBMS",
+      assignment_title: "Assignment 1",
+      file_url: "assignment1_john.pdf",
       status: "Pending",
     },
     {
       id: 2,
-      rollNo: "102",
-      studentName: "Jane Smith",
-      title: "Assignment 1",
-      subject: "DBMS",
-      file: "assignment1_jane.pdf",
+      roll_no: "102",
+      student_name: "Jane Smith",
+      course_name: "DBMS",
+      assignment_title: "Assignment 1",
+      file_url: "assignment1_jane.pdf",
       status: "Pending",
     },
     {
       id: 3,
-      rollNo: "103",
-      studentName: "Ravi Kumar",
-      title: "Assignment 1",
-      subject: "DBMS",
-      file: "assignment1_ravi.pdf",
+      roll_no: "103",
+      student_name: "Ravi Kumar",
+      course_name: "DBMS",
+      assignment_title: "Assignment 1",
+      file_url: "assignment1_ravi.pdf",
       status: "Approved",
     },
   ]);
@@ -62,7 +62,7 @@ function ViewSubmissions() {
     );
   };
 
-  // Mark function (toggles between Marked/Unmarked)
+  // Mark function (toggle between Marked/Pending)
   const handleMark = (id) => {
     setSubmissions((prev) =>
       prev.map((sub) =>
@@ -76,13 +76,13 @@ function ViewSubmissions() {
     navigate(`/students/${id}`);
   };
 
-  // Apply global search to submissions
+  // Apply global search
   const filteredSubmissions = submissions.filter(
     (sub) =>
-      sub.studentName.toLowerCase().includes(search.toLowerCase()) ||
-      sub.rollNo.toLowerCase().includes(search.toLowerCase()) ||
-      sub.title.toLowerCase().includes(search.toLowerCase()) ||
-      sub.subject.toLowerCase().includes(search.toLowerCase())
+      sub.student_name.toLowerCase().includes(search.toLowerCase()) ||
+      sub.roll_no.toLowerCase().includes(search.toLowerCase()) ||
+      sub.assignment_title.toLowerCase().includes(search.toLowerCase()) ||
+      sub.course_name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -112,10 +112,10 @@ function ViewSubmissions() {
                   Student Name
                 </MDTypography>
                 <MDTypography variant="button" fontWeight="bold" flex={1}>
-                  Title
+                  Assignment
                 </MDTypography>
                 <MDTypography variant="button" fontWeight="bold" flex={1}>
-                  Subject
+                  Course
                 </MDTypography>
                 <MDTypography variant="button" fontWeight="bold" flex={1}>
                   File
@@ -146,38 +146,51 @@ function ViewSubmissions() {
                     bgColor="#f9f9f9"
                   >
                     <MDTypography variant="body2" flex={1}>
-                      {sub.rollNo}
+                      {sub.roll_no}
                     </MDTypography>
                     <MDTypography
                       variant="body2"
                       flex={1}
                       color="info"
-                      sx={{ cursor: "pointer", textDecoration: "underline" }}
+                      sx={{
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
                       onClick={() => handleStudentClick(sub.id)}
                     >
-                      {sub.studentName}
+                      {sub.student_name}
                     </MDTypography>
                     <MDTypography variant="body2" flex={1}>
-                      {sub.title}
+                      {sub.assignment_title}
                     </MDTypography>
                     <MDTypography variant="body2" flex={1}>
-                      {sub.subject}
+                      {sub.course_name}
                     </MDTypography>
                     <MDTypography variant="body2" flex={1} color="info">
                       <a
-                        href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                        href={sub.file_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ textDecoration: "underline", color: "#1a73e8", cursor: "pointer" }}
+                        style={{
+                          textDecoration: "underline",
+                          color: "#1a73e8",
+                          cursor: "pointer",
+                        }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {sub.file}
+                        {sub.file_url}
                       </a>
                     </MDTypography>
                     <MDTypography
                       variant="body2"
                       flex={1}
-                      color={sub.status === "Approved" ? "success" : "warning"}
+                      color={
+                        sub.status === "Approved"
+                          ? "success"
+                          : sub.status === "Marked"
+                          ? "info"
+                          : "warning"
+                      }
                     >
                       {sub.status}
                     </MDTypography>

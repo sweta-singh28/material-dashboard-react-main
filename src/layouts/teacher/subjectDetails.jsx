@@ -36,34 +36,61 @@ function SubjectDetails() {
   const [openUpdateForm, setOpenUpdateForm] = React.useState(false);
   const [updateText, setUpdateText] = React.useState("");
 
-  // Dummy courses data
+  // ✅ Schema-based JSON (hardcoded, API-ready)
   const courses = [
     {
-      name: "Mathematics",
-      code: "MTH101",
-      credits: 4,
-      semester: "Semester 1",
-      students: ["Sophia Clark", "Ethan Miller", "Olivia Davis"],
+      course_id: 1,
+      course_name: "Mathematics",
+      course_code: "MTH101",
+      students: [
+        {
+          user_id: 1,
+          full_name: "Sophia Clark",
+          email: "sophia@example.com",
+          profile_picture: "https://i.pravatar.cc/150?u=sophia@example.com",
+        },
+        {
+          user_id: 2,
+          full_name: "Ethan Miller",
+          email: "ethan@example.com",
+          profile_picture: "https://i.pravatar.cc/150?u=ethan@example.com",
+        },
+      ],
     },
     {
-      name: "Computer Science",
-      code: "CSE201",
-      credits: 3,
-      semester: "Semester 2",
-      students: ["Liam Wilson", "Ava Martinez"],
+      course_id: 2,
+      course_name: "Computer Science",
+      course_code: "CSE201",
+      students: [
+        {
+          user_id: 3,
+          full_name: "Olivia Davis",
+          email: "olivia@example.com",
+          profile_picture: "https://i.pravatar.cc/150?u=olivia@example.com",
+        },
+        {
+          user_id: 4,
+          full_name: "Liam Wilson",
+          email: "liam@example.com",
+          profile_picture: "https://i.pravatar.cc/150?u=liam@example.com",
+        },
+      ],
     },
   ];
 
   const defaultCourse = {
-    name: "Unknown",
-    code: "-",
-    credits: 0,
-    semester: "-",
+    course_id: 0,
+    course_name: "Unknown",
+    course_code: "-",
     students: [],
   };
 
   const parsedId = id ? Number(id) : null;
-  const courseFromParams = parsedId && courses[parsedId - 1] ? courses[parsedId - 1] : undefined;
+  const courseFromParams =
+    parsedId && courses.find((c) => c.course_id === parsedId)
+      ? courses.find((c) => c.course_id === parsedId)
+      : undefined;
+
   const course = location.state?.course || courseFromParams || defaultCourse;
 
   // Dummy progress data
@@ -82,8 +109,8 @@ function SubjectDetails() {
   };
 
   // Navigate to student details
-  const handleStudentClick = (index) => {
-    navigate(`/students/${index}`, { state: { studentName: course.students[index] } });
+  const handleStudentClick = (userId) => {
+    navigate(`/students/${userId}`);
   };
 
   // Navigate to upload materials with type 'assignment'
@@ -111,12 +138,12 @@ function SubjectDetails() {
 
               <MDBox mb={2}>
                 <MDTypography variant="h6">Course Name:</MDTypography>
-                <MDTypography variant="body1">{course.name}</MDTypography>
+                <MDTypography variant="body1">{course.course_name}</MDTypography>
               </MDBox>
 
               <MDBox mb={2}>
                 <MDTypography variant="h6">Course Code:</MDTypography>
-                <MDTypography variant="body1">{course.code}</MDTypography>
+                <MDTypography variant="body1">{course.course_code}</MDTypography>
               </MDBox>
 
               <MDBox mb={2}>
@@ -127,19 +154,31 @@ function SubjectDetails() {
                       <TableHead>
                         <TableRow>
                           <TableCell>#</TableCell>
+                          <TableCell>Profile</TableCell>
                           <TableCell>Student Name</TableCell>
+                          <TableCell>Email</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {course.students.map((student, index) => (
                           <TableRow
-                            key={index}
+                            key={student.user_id}
                             hover
                             sx={{ cursor: "pointer" }}
-                            onClick={() => handleStudentClick(index)}
+                            onClick={() => handleStudentClick(student.user_id)}
                           >
                             <TableCell>{index + 1}</TableCell>
-                            <TableCell>{student}</TableCell>
+                            <TableCell>
+                              <img
+                                src={student.profile_picture}
+                                alt={student.full_name}
+                                width={40}
+                                height={40}
+                                style={{ borderRadius: "50%" }}
+                              />
+                            </TableCell>
+                            <TableCell>{student.full_name}</TableCell>
+                            <TableCell>{student.email}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

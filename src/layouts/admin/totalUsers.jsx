@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// TotalUsers.jsx
+import React, { useState, useEffect, useMemo } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import MDBox from "components/MDBox";
@@ -16,69 +17,79 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
-
 import { useNavigate, useLocation } from "react-router-dom";
-
-// Context for global search
 import { useMaterialUIController } from "context";
-
-// Dummy Users
-const initialUsers = [
-  { id: 1, name: "Sophia Clark", email: "sophia.clark@email.com", role: "Teacher" },
-  { id: 2, name: "Ethan Bennett", email: "ethan.bennett@email.com", role: "Student" },
-  { id: 3, name: "Olivia Carter", email: "olivia.carter@email.com", role: "Teacher" },
-  { id: 4, name: "Liam Davis", email: "liam.davis@email.com", role: "Student" },
-  { id: 5, name: "Ava Evans", email: "ava.evans@email.com", role: "Teacher" },
-  { id: 6, name: "Noah Foster", email: "noah.foster@email.com", role: "Student" },
-];
 
 const TotalUsers = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [controller] = useMaterialUIController();
-  const { search } = controller; // global search
+  const { search } = controller;
 
-  const [users, setUsers] = useState(() => {
-    const stored = localStorage.getItem("users");
-    try {
-      if (stored) {
-        const parsedStored = JSON.parse(stored);
-        if (Array.isArray(parsedStored) && parsedStored.length > 0) {
-          return parsedStored;
-        }
-      }
-    } catch (e) {
-      console.error("Failed to parse users from localStorage", e);
-    }
-    return initialUsers;
-  });
+  // ✅ 1. Pull dbJson from state (or use fallback hardcoded version)
+  const dbJson = location.state?.dbJson || {
+    Users: [
+      {
+        user_id: "u_1",
+        first_name: "Sophia",
+        last_name: "Clark",
+        email: "sophia.clark@email.com",
+        user_role: "Teacher",
+      },
+      {
+        user_id: "u_2",
+        first_name: "Ethan",
+        last_name: "Bennett",
+        email: "ethan.bennett@email.com",
+        user_role: "Student",
+      },
+      {
+        user_id: "u_3",
+        first_name: "Olivia",
+        last_name: "Carter",
+        email: "olivia.carter@email.com",
+        user_role: "Teacher",
+      },
+      {
+        user_id: "u_4",
+        first_name: "Liam",
+        last_name: "Davis",
+        email: "liam.davis@email.com",
+        user_role: "Student",
+      },
+    ],
+  };
 
-  const [filterRole, setFilterRole] = useState(() => {
-    const fromNav = location.state?.filterRole;
-    return fromNav ?? "All";
-  });
+  // ✅ 2. Transform Users to a simpler display structure
+  const allUsers = useMemo(
+    () =>
+      dbJson.Users.map((u) => ({
+        id: u.user_id,
+        name: `${u.first_name} ${u.last_name}`,
+        email: u.email,
+        role: u.user_role,
+      })),
+    [dbJson]
+  );
 
-  useEffect(() => {
-    if (location.state?.removedUserId) {
-      const updated = users.filter((u) => u.id !== location.state.removedUserId);
-      setUsers(updated);
-      localStorage.setItem("users", JSON.stringify(updated));
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, users]);
+  const [filterRole, setFilterRole] = useState(
+    location.state?.filterRole ? location.state.filterRole : "All"
+  );
 
   const handleChange = (event) => {
     setFilterRole(event.target.value);
   };
 
-  // Apply both role filter and global search
-  const filteredUsers = users
-    .filter(filterRole === "All" ? () => true : (user) => user.role === filterRole)
-    .filter((user) =>
-      Object.values(user).some((value) =>
-        String(value).toLowerCase().includes(search.toLowerCase())
-      )
-    );
+  // ✅ 3. Apply filters + global search
+  const filteredUsers = useMemo(() => {
+    return allUsers
+      .filter(filterRole === "All" ? () => true : (user) => user.role === filterRole)
+      .filter((user) =>
+        Object.values(user).some((value) =>
+          String(value).toLowerCase().includes(search.toLowerCase())
+        )
+      );
+  }, [allUsers, filterRole, search]);
 
   return (
     <DashboardLayout>
@@ -149,12 +160,14 @@ const TotalUsers = () => {
                           key={user.id}
                           hover
                           sx={{ cursor: "pointer" }}
-                          onClick={() => navigate(`/userDetails/${user.id}`, { state: { user } })}
+                          onClick={() =>
+                            navigate(`/userDetails/${user.id}`, { state: { user, dbJson } })
+                          }
                           role="button"
                           tabIndex={0}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" || e.key === " ") {
-                              navigate(`/userDetails/${user.id}`, { state: { user } });
+                              navigate(`/userDetails/${user.id}`, { state: { user, dbJson } });
                             }
                           }}
                         >

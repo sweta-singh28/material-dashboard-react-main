@@ -11,33 +11,47 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-// Search context
 import { useSearch } from "context";
 
 function AddNewCourse() {
-  const { search } = useSearch(); // get global search
+  const { search } = useSearch();
+
+  // JSON object matching DB schema
+  const [data, setData] = useState({
+    Courses: [
+      {
+        idCourses: "c001",
+        course_name: "React Basics",
+        course_pre_requisites: "HTML, CSS, JS",
+        course_syllabus: JSON.stringify(["JSX", "Props", "State", "Hooks"]),
+        course_code: "REACT101",
+        course_status: "Pending",
+        course_description: "Learn the fundamentals of React and component-based development.",
+        course_thumbnail: "react-course.png",
+        course_current_completed: 0,
+        course_active_students: JSON.stringify([]),
+        course_pending_students: JSON.stringify([]),
+        teachers_user_id: "u101",
+      },
+    ],
+  });
+
+  // form fields
   const [courseName, setCourseName] = useState("");
   const [description, setDescription] = useState("");
-  const [teacherInfo, setTeacherInfo] = useState("");
+  const [teacherInfo, setTeacherInfo] = useState(""); // will become teachers_user_id in DB
   const [thumbnail, setThumbnail] = useState(null);
-
-  // NEW fields
   const [expectations, setExpectations] = useState("");
   const [prerequisites, setPrerequisites] = useState("");
-  const [syllabus, setSyllabus] = useState(""); // now text input instead of pdf
-
-  // list of created courses
-  const [courses, setCourses] = useState([]);
+  const [syllabus, setSyllabus] = useState("");
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
@@ -48,18 +62,24 @@ function AddNewCourse() {
     if (!courseName.trim() || !description.trim() || !teacherInfo.trim()) return;
 
     const newCourse = {
-      id: courses.length + 1,
-      name: courseName,
-      description,
-      teacher: teacherInfo,
-      thumbnail: thumbnail ? thumbnail.name : "N/A",
-      expectations,
-      prerequisites,
-      syllabus: syllabus || "N/A",
-      status: "Pending",
+      idCourses: `c${data.Courses.length + 1}`,
+      course_name: courseName,
+      course_pre_requisites: prerequisites,
+      course_syllabus: JSON.stringify(syllabus ? syllabus.split(",").map((t) => t.trim()) : []),
+      course_code: `${courseName.toUpperCase().replace(/\s+/g, "")}-${data.Courses.length + 1}`,
+      course_status: "Pending",
+      course_description: description,
+      course_thumbnail: thumbnail ? thumbnail.name : "N/A",
+      course_current_completed: 0,
+      course_active_students: JSON.stringify([]),
+      course_pending_students: JSON.stringify([]),
+      teachers_user_id: teacherInfo, // You can later map this to actual Users table
     };
 
-    setCourses([...courses, newCourse]);
+    setData((prev) => ({
+      ...prev,
+      Courses: [...prev.Courses, newCourse],
+    }));
 
     // reset form
     setCourseName("");
@@ -84,9 +104,9 @@ function AddNewCourse() {
   const chipColor = (status) =>
     status === "Approved" ? "success" : status === "Rejected" ? "error" : "warning";
 
-  // Filter courses based on global search
-  const filteredCourses = courses.filter((course) =>
-    course.name.toLowerCase().includes(search.toLowerCase())
+  // search filter
+  const filteredCourses = data.Courses.filter((course) =>
+    course.course_name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -128,15 +148,15 @@ function AddNewCourse() {
               <MDBox mb={2}>
                 <TextField
                   fullWidth
-                  label="Teacher's Information"
+                  label="Teacher's ID / Info"
                   variant="outlined"
-                  placeholder="Enter your name, qualification, experience"
+                  placeholder="Enter user_id or teacher's info"
                   value={teacherInfo}
                   onChange={(e) => setTeacherInfo(e.target.value)}
                 />
               </MDBox>
 
-              {/* Course Expectations */}
+              {/* Course Expectations (just informational for now) */}
               <MDBox mb={2}>
                 <TextField
                   fullWidth
@@ -210,7 +230,7 @@ function AddNewCourse() {
               </MDBox>
             </MDBox>
 
-            {/* Table of submitted courses (filtered by global search) */}
+            {/* Table of submitted courses */}
             {filteredCourses.length > 0 && (
               <MDBox mt={4}>
                 <MDTypography variant="h5" gutterBottom>
@@ -233,13 +253,10 @@ function AddNewCourse() {
                           <b>Thumbnail</b>
                         </TableCell>
                         <TableCell>
-                          <b>Expectations</b>
-                        </TableCell>
-                        <TableCell>
                           <b>Prerequisites</b>
                         </TableCell>
                         <TableCell>
-                          <b>Syllabus (Topics)</b>
+                          <b>Syllabus</b>
                         </TableCell>
                         <TableCell>
                           <b>Status</b>
@@ -248,19 +265,18 @@ function AddNewCourse() {
                     </TableHead>
                     <TableBody>
                       {filteredCourses.map((course) => (
-                        <TableRow key={course.id}>
-                          <TableCell>{course.name}</TableCell>
-                          <TableCell>{course.description}</TableCell>
-                          <TableCell>{course.teacher}</TableCell>
-                          <TableCell>{course.thumbnail}</TableCell>
-                          <TableCell>{course.expectations || "-"}</TableCell>
-                          <TableCell>{course.prerequisites || "-"}</TableCell>
-                          <TableCell>{course.syllabus}</TableCell>
+                        <TableRow key={course.idCourses}>
+                          <TableCell>{course.course_name}</TableCell>
+                          <TableCell>{course.course_description}</TableCell>
+                          <TableCell>{course.teachers_user_id}</TableCell>
+                          <TableCell>{course.course_thumbnail}</TableCell>
+                          <TableCell>{course.course_pre_requisites}</TableCell>
+                          <TableCell>{JSON.parse(course.course_syllabus).join(", ")}</TableCell>
                           <TableCell>
                             <Chip
-                              label={course.status}
+                              label={course.course_status}
                               size="small"
-                              color={chipColor(course.status)}
+                              color={chipColor(course.course_status)}
                             />
                           </TableCell>
                         </TableRow>

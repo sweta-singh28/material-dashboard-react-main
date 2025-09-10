@@ -1,6 +1,6 @@
 // ActiveCourses.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Material Dashboard 2 React components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -13,49 +13,95 @@ import MDButton from "components/MDButton";
 // Global search context
 import { useSearch } from "context";
 
-// Sample Active Courses Data
-const activeCourseData = [
-  {
-    id: 1,
-    title: "Introduction to Data Science",
-    instructor: "Dr. Eleanor Vance",
-    started: "2024-01-20",
-    description: "A comprehensive overview of data science...",
-    status: "Active",
-  },
-  {
-    id: 2,
-    title: "Advanced Machine Learning",
-    instructor: "Prof. Samuel Harper",
-    started: "2024-02-25",
-    description: "In-depth study of advanced machine le...",
-    status: "Active",
-  },
-  {
-    id: 3,
-    title: "Digital Marketing Strategies",
-    instructor: "Ms. Olivia Bennett",
-    started: "2024-03-15",
-    description: "Effective strategies for digital marketing...",
-    status: "Active",
-  },
-];
-
 const ActiveCourses = () => {
-  const [activeCourses] = useState(activeCourseData);
   const navigate = useNavigate();
-  const { search } = useSearch(); // Global search filter
+  const location = useLocation();
+  const { search } = useSearch();
 
-  const handleRowClick = (course) => {
-    navigate("/courseDetails", { state: { course } });
+  // ✅ 1. Get dbJson (if passed from AdminDashboard or wrap in global context later)
+  const dbJson = location.state?.dbJson || {
+    Courses: [
+      {
+        idCourses: "c_1",
+        course_name: "Math 101",
+        course_pre_requisites: "[]",
+        course_syllabus: JSON.stringify({ chapters: ["Algebra", "Geometry"] }),
+        course_code: "MATH101",
+        course_status: "active",
+        course_description: "Basic mathematics",
+        course_thumbnail: null,
+        course_current_completed: JSON.stringify([]),
+        course_active_students: JSON.stringify(["u_1", "u_2"]),
+        course_pending_students: JSON.stringify([]),
+        teachers_user_id: "u_3",
+      },
+      {
+        idCourses: "c_2",
+        course_name: "Science Basics",
+        course_pre_requisites: "[]",
+        course_syllabus: JSON.stringify({ chapters: ["Physics", "Chemistry"] }),
+        course_code: "SCI101",
+        course_status: "active",
+        course_description: "Intro to science",
+        course_thumbnail: null,
+        course_current_completed: JSON.stringify([]),
+        course_active_students: JSON.stringify(["u_5"]),
+        course_pending_students: JSON.stringify(["u_2"]),
+        teachers_user_id: "u_4",
+      },
+      {
+        idCourses: "c_3",
+        course_name: "English Literature",
+        course_pre_requisites: "[]",
+        course_syllabus: JSON.stringify({ chapters: ["Poetry", "Prose"] }),
+        course_code: "ENG101",
+        course_status: "inactive",
+        course_description: "English studies",
+        course_thumbnail: null,
+        course_current_completed: JSON.stringify([]),
+        course_active_students: JSON.stringify([]),
+        course_pending_students: JSON.stringify([]),
+        teachers_user_id: "u_4",
+      },
+    ],
+    Users: [
+      { user_id: "u_3", first_name: "Charlie", last_name: "Khan", user_role: "Teacher" },
+      { user_id: "u_4", first_name: "Diana", last_name: "Verma", user_role: "Teacher" },
+    ],
   };
 
-  // Filtered courses based on search
-  const filteredCourses = activeCourses.filter(
-    (course) =>
-      course.title.toLowerCase().includes(search.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(search.toLowerCase())
-  );
+  // ✅ 2. Derive only active courses
+  const activeCourses = useMemo(() => {
+    return dbJson.Courses.filter((c) => c.course_status === "active").map((course) => {
+      const instructor = dbJson.Users.find((u) => u.user_id === course.teachers_user_id);
+      const instructorName = instructor
+        ? `${instructor.first_name} ${instructor.last_name}`
+        : "Unknown Instructor";
+
+      return {
+        id: course.idCourses,
+        title: course.course_name,
+        instructor: instructorName,
+        started: course.create_time || "N/A",
+        description: course.course_description,
+        status: course.course_status,
+      };
+    });
+  }, [dbJson]);
+
+  // ✅ 3. Filtered results by global search
+  const filteredCourses = useMemo(() => {
+    return activeCourses.filter(
+      (course) =>
+        course.title.toLowerCase().includes(search.toLowerCase()) ||
+        course.instructor.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [activeCourses, search]);
+
+  // ✅ 4. Navigate with state (pass entire course object + dbJson for details page)
+  const handleRowClick = (course) => {
+    navigate("/courseDetails", { state: { course, dbJson } });
+  };
 
   return (
     <DashboardLayout>
@@ -129,6 +175,7 @@ const ActiveCourses = () => {
                 </MDTypography>
               </MDBox>
             </MDBox>
+
             <MDBox component="tbody">
               {filteredCourses.length > 0 ? (
                 filteredCourses.map((course) => (
@@ -161,9 +208,17 @@ const ActiveCourses = () => {
                       <MDTypography
                         variant="button"
                         fontWeight="bold"
-                        sx={{ color: "green", textTransform: "uppercase" }}
+                        sx={{
+                          color:
+                            course.status === "active"
+                              ? "green"
+                              : course.status === "inactive"
+                              ? "red"
+                              : "grey",
+                          textTransform: "uppercase",
+                        }}
                       >
-                        ACTIVE
+                        {course.status}
                       </MDTypography>
                     </MDTypography>
                   </MDBox>

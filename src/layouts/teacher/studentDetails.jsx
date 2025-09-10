@@ -26,49 +26,59 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function StudentDetails() {
-  const { id } = useParams(); // Student ID from route
+  const { id } = useParams(); // id will be user_id or roll_no
   const navigate = useNavigate();
 
-  // Dummy student data with rollNo added
-  const students = [
-    { name: "Sophia Clark", email: "sophia@example.com", rollNo: "R101", enrolled: 4, pending: 1 },
-    { name: "Ethan Miller", email: "ethan@example.com", rollNo: "R102", enrolled: 3, pending: 2 },
-    { name: "Olivia Davis", email: "olivia@example.com", rollNo: "R103", enrolled: 5, pending: 0 },
-    { name: "Liam Wilson", email: "liam@example.com", rollNo: "R104", enrolled: 2, pending: 1 },
-    { name: "Ava Martinez", email: "ava@example.com", rollNo: "R105", enrolled: 6, pending: 0 },
+  // Hardcoded JSON data (later replace with API call)
+  const studentsData = [
+    {
+      user_id: "S101",
+      full_name: "Sophia Clark",
+      email: "sophia@example.com",
+      roll_no: "R101",
+      profile_picture: "https://i.pravatar.cc/150?u=sophia@example.com",
+      courses_enrolled: ["Math 101", "English 101", "Science 101"],
+      pending_requests: 1,
+      assignments: [
+        { assignment: "Math Homework 1", status: "Submitted" },
+        { assignment: "English Essay", status: "Graded" },
+        { assignment: "Science Project", status: "Not Submitted" },
+        { assignment: "History Assignment", status: "Expired" },
+      ],
+    },
+    {
+      user_id: "S102",
+      full_name: "Ethan Miller",
+      email: "ethan@example.com",
+      roll_no: "R102",
+      profile_picture: "https://i.pravatar.cc/150?u=ethan@example.com",
+      courses_enrolled: ["History 202", "Science 101"],
+      pending_requests: 2,
+      assignments: [
+        { assignment: "History Essay", status: "Graded" },
+        { assignment: "Science Lab Work", status: "Not Submitted" },
+      ],
+    },
   ];
 
-  const student = students[id] || {
-    name: "Unknown",
+  // Find student by user_id or roll_no
+  const student = studentsData.find((s) => s.user_id === id || s.roll_no === id) || {
+    full_name: "Unknown",
     email: "-",
-    rollNo: "-",
-    enrolled: 0,
-    pending: 0,
+    roll_no: "-",
+    profile_picture: null,
+    courses_enrolled: [],
+    pending_requests: 0,
+    assignments: [],
   };
 
-  // generate a simple avatar URL based on email; will fallback to initials if image fails to load
-  const photoUrl =
-    student.email && student.email !== "-"
-      ? `https://i.pravatar.cc/150?u=${encodeURIComponent(student.email)}`
-      : null;
-
-  // Dummy assignments data
-  const assignments = [
-    { assignment: "Math Homework 1", status: "Submitted" },
-    { assignment: "English Essay", status: "Graded" },
-    { assignment: "Science Project", status: "Not Submitted" },
-    { assignment: "History Assignment", status: "Expired" },
-  ];
-
-  // compute assignment counts
+  // Assignment categories
   const completedStatuses = ["Submitted", "Graded"];
-  const completedAssignments = assignments.filter((a) => completedStatuses.includes(a.status));
-  const pendingAssignments = assignments.filter((a) => a.status === "Not Submitted");
-  const expiredAssignments = assignments.filter((a) => a.status === "Expired");
-
-  const completedCount = completedAssignments.length;
-  const pendingCount = pendingAssignments.length;
-  const expiredCount = expiredAssignments.length;
+  const completedAssignments = student.assignments.filter((a) =>
+    completedStatuses.includes(a.status)
+  );
+  const pendingAssignments = student.assignments.filter((a) => a.status === "Not Submitted");
+  const expiredAssignments = student.assignments.filter((a) => a.status === "Expired");
 
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -88,7 +98,7 @@ function StudentDetails() {
     }
   };
 
-  // Get assignments list by category
+  // Get assignments by selected category
   const getAssignmentsByCategory = () => {
     if (selectedCategory === "Completed") return completedAssignments;
     if (selectedCategory === "Pending") return pendingAssignments;
@@ -101,7 +111,7 @@ function StudentDetails() {
       <DashboardNavbar />
       <MDBox py={3}>
         <Grid container justifyContent="center" spacing={3}>
-          {/* Student Info Card with Avatar */}
+          {/* Student Info Card */}
           <Grid item xs={12} md={8} lg={6}>
             <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
               <MDTypography variant="h4" fontWeight="bold" gutterBottom>
@@ -109,14 +119,14 @@ function StudentDetails() {
               </MDTypography>
               <Divider sx={{ my: 2 }} />
 
-              {/* Avatar + basic info */}
+              {/* Avatar + Info */}
               <MDBox display="flex" alignItems="center" mb={2}>
                 <Avatar
-                  src={photoUrl || undefined}
-                  alt={student.name}
+                  src={student.profile_picture || undefined}
+                  alt={student.full_name}
                   sx={{ width: 80, height: 80, mr: 2 }}
                 >
-                  {student.name
+                  {student.full_name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")
@@ -125,40 +135,32 @@ function StudentDetails() {
 
                 <MDBox>
                   <MDTypography variant="h6">Name:</MDTypography>
-                  <MDTypography variant="body1" color="text">
-                    {student.name}
-                  </MDTypography>
+                  <MDTypography variant="body1">{student.full_name}</MDTypography>
 
                   <MDBox mt={1}>
                     <MDTypography variant="h6">Email:</MDTypography>
-                    <MDTypography variant="body1" color="text">
-                      {student.email}
-                    </MDTypography>
+                    <MDTypography variant="body1">{student.email}</MDTypography>
                   </MDBox>
                 </MDBox>
               </MDBox>
 
-              {/* Roll Number */}
+              {/* Roll No */}
               <MDBox mb={2}>
                 <MDTypography variant="h6">Roll No:</MDTypography>
-                <MDTypography variant="body1" color="text">
-                  {student.rollNo}
-                </MDTypography>
+                <MDTypography variant="body1">{student.roll_no}</MDTypography>
               </MDBox>
 
               {/* Courses Enrolled */}
               <MDBox mb={2}>
                 <MDTypography variant="h6">Courses Enrolled:</MDTypography>
-                <MDTypography variant="body1" color="text">
-                  {student.enrolled}
-                </MDTypography>
+                <MDTypography variant="body1">{student.courses_enrolled.length}</MDTypography>
               </MDBox>
 
               {/* Pending Requests */}
               <MDBox mb={2}>
                 <MDTypography variant="h6">Pending Requests:</MDTypography>
                 <MDTypography variant="body1" color="error">
-                  {student.pending}
+                  {student.pending_requests}
                 </MDTypography>
               </MDBox>
 
@@ -176,7 +178,7 @@ function StudentDetails() {
             </Card>
           </Grid>
 
-          {/* Assignments Section with counts and details on click */}
+          {/* Assignments Section */}
           <Grid item xs={12} md={10} lg={8}>
             <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
               <MDTypography variant="h5" fontWeight="bold" gutterBottom>
@@ -184,29 +186,29 @@ function StudentDetails() {
               </MDTypography>
               <Divider sx={{ my: 2 }} />
 
-              {/* Summary counts with clickable chips */}
+              {/* Summary counts */}
               <MDBox display="flex" alignItems="center" gap={2} mb={2}>
                 <Chip
-                  label={`Completed: ${completedCount}`}
+                  label={`Completed: ${completedAssignments.length}`}
                   color="success"
                   size="small"
                   onClick={() => setSelectedCategory("Completed")}
                 />
                 <Chip
-                  label={`Pending: ${pendingCount}`}
+                  label={`Pending: ${pendingAssignments.length}`}
                   color="warning"
                   size="small"
                   onClick={() => setSelectedCategory("Pending")}
                 />
                 <Chip
-                  label={`Expired: ${expiredCount}`}
+                  label={`Expired: ${expiredAssignments.length}`}
                   color="error"
                   size="small"
                   onClick={() => setSelectedCategory("Expired")}
                 />
               </MDBox>
 
-              {/* Show assignments list for selected category */}
+              {/* Assignments list */}
               {selectedCategory && (
                 <MDBox>
                   <MDTypography variant="h6" gutterBottom>

@@ -28,21 +28,89 @@ function TeacherDashboard() {
   const navigate = useNavigate();
   const { search } = useSearch();
 
-  // Dummy course data
-  const courses = [
-    { id: 1, name: "Math 101", students: 120, pending: 8 },
-    { id: 2, name: "History 202", students: 95, pending: 5 },
-    { id: 3, name: "English 101", students: 150, pending: 12 },
-    { id: 4, name: "Science 101", students: 130, pending: 6 },
-    { id: 5, name: "Art History", students: 70, pending: 2 },
+  // --------------------------------------------------
+  // Hardcoded JSON simulating your Courses table rows.
+  // Fields match your DB schema where relevant:
+  //  - idCourses, course_name, course_active_students (JSON array of user ids),
+  //  - course_pending_students (JSON array of user ids), teachers_user_id
+  // Replace `allCourses` / the filtering below with your API call that returns
+  // only the courses for the specific teacher (by teacherId).
+  // --------------------------------------------------
+  const allCourses = [
+    {
+      idCourses: "c1",
+      course_name: "Math 101",
+      course_pre_requisites: "[]",
+      course_syllabus: { chapters: ["Algebra", "Geometry"] },
+      course_code: "MTH101",
+      course_status: "active",
+      course_description: "Basic Mathematics",
+      course_thumbnail: "",
+      course_current_completed: [],
+      course_active_students: ["u1", "u2", "u3", "u4", "u5"],
+      course_pending_students: ["u21", "u22"],
+      teachers_user_id: "teacher-123",
+    },
+    {
+      idCourses: "c2",
+      course_name: "History 202",
+      course_active_students: ["u6", "u7", "u8"],
+      course_pending_students: ["u23"],
+      teachers_user_id: "teacher-123",
+    },
+    {
+      idCourses: "c3",
+      course_name: "English 101",
+      course_active_students: ["u9", "u10", "u11", "u12"],
+      course_pending_students: ["u24", "u25", "u26"],
+      teachers_user_id: "teacher-456",
+    },
+    {
+      idCourses: "c4",
+      course_name: "Science 101",
+      course_active_students: ["u13", "u14"],
+      course_pending_students: [],
+      teachers_user_id: "teacher-123",
+    },
+    {
+      idCourses: "c5",
+      course_name: "Art History",
+      course_active_students: ["u15"],
+      course_pending_students: ["u27"],
+      teachers_user_id: "teacher-789",
+    },
   ];
 
-  // Search filter ONLY for course cards
+  // Simulate the teacher id you'll query with (replace with actual teacher id / prop)
+  const teacherId = "teacher-123";
+
+  // Filter courses coming from the "API" by teacher id and compute counts from JSON arrays
+  const courses = allCourses
+    .filter((c) => c.teachers_user_id === teacherId)
+    .map((c) => {
+      const activeCount = Array.isArray(c.course_active_students)
+        ? c.course_active_students.length
+        : 0;
+      const pendingCount = Array.isArray(c.course_pending_students)
+        ? c.course_pending_students.length
+        : 0;
+
+      return {
+        id: c.idCourses, // used for navigation
+        name: c.course_name,
+        // Keep 'students' as **active students count** (so UI/Chart reflect active users)
+        students: activeCount,
+        // Keep pending separately so the badge shows pending request count
+        pending: pendingCount,
+      };
+    });
+
+  // Search filter ONLY for course cards (searches the teacher's courses)
   const filteredCourses = courses.filter((course) =>
     course.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Chart data (always shows all courses, not filtered)
+  // Chart data (shows teacher's courses)
   const chartData = courses.map((c) => ({
     course: c.name,
     students: c.students,

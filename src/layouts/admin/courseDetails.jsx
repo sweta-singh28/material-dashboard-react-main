@@ -1,8 +1,6 @@
-// CourseDetails.jsx
 import React from "react";
 import { useLocation } from "react-router-dom";
 
-// Material Dashboard 2 React components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -13,6 +11,12 @@ import MDAlert from "components/MDAlert";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
+
+// Sample users JSON (can later come from API)
+const usersJSON = [
+  { idUsers: "t1", first_name: "Eleanor", last_name: "Vance", role: "teacher" },
+  { idUsers: "t2", first_name: "Samuel", last_name: "Harper", role: "teacher" },
+];
 
 const CourseDetails = () => {
   const location = useLocation();
@@ -34,6 +38,12 @@ const CourseDetails = () => {
     );
   }
 
+  // Map teacher ID to name
+  const instructor = usersJSON.find((u) => u.idUsers === course.teachers_user_id);
+  const instructorName = instructor
+    ? `${instructor.first_name} ${instructor.last_name}`
+    : course.teachers_user_id;
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -41,7 +51,7 @@ const CourseDetails = () => {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <MDTypography variant="h4" fontWeight="medium" mb={2}>
-              {course.title}
+              {course.course_name}
             </MDTypography>
           </Grid>
 
@@ -58,34 +68,28 @@ const CourseDetails = () => {
                   <MDTypography component="span" fontWeight="bold">
                     Instructor:
                   </MDTypography>{" "}
-                  {course.instructor}
+                  {instructorName}
                 </MDTypography>
 
-                {/* NEW: Course Code */}
                 <MDTypography variant="body2" color="text" mb={2}>
                   <MDTypography component="span" fontWeight="bold">
                     Course Code:
                   </MDTypography>{" "}
-                  {course.courseCode || "-"}
+                  {course.course_code || "-"}
                 </MDTypography>
 
                 <MDTypography variant="body2" color="text" mb={2}>
                   <MDTypography component="span" fontWeight="bold">
-                    Submitted:
-                  </MDTypography>{" "}
-                  {course.submitted}
-                </MDTypography>
-                <MDTypography variant="body2" color="text" mb={2}>
-                  <MDTypography component="span" fontWeight="bold">
                     Status:
                   </MDTypography>{" "}
-                  {course.status}
+                  {course.course_status}
                 </MDTypography>
+
                 <MDTypography variant="body2" color="text" mb={2}>
                   <MDTypography component="span" fontWeight="bold">
                     Description:
                   </MDTypography>{" "}
-                  {course.description}
+                  {course.course_description}
                 </MDTypography>
               </CardContent>
             </Card>
@@ -94,10 +98,18 @@ const CourseDetails = () => {
 
         {/* Action Buttons */}
         <MDBox mt={4} display="flex" justifyContent="flex-end" gap={2}>
-          <MDButton variant="gradient" color="success">
+          <MDButton
+            variant="gradient"
+            color="success"
+            onClick={() => console.log(`Approve course ${course.idCourses}`)}
+          >
             Approve
           </MDButton>
-          <MDButton variant="gradient" color="error">
+          <MDButton
+            variant="gradient"
+            color="error"
+            onClick={() => console.log(`Reject course ${course.idCourses}`)}
+          >
             Reject
           </MDButton>
         </MDBox>
