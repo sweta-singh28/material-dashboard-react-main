@@ -12,6 +12,11 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import Checkbox from "@mui/material/Checkbox";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon from "@mui/material/ListItemIcon";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -42,6 +47,24 @@ function SubjectDetails() {
       course_id: 1,
       course_name: "Mathematics",
       course_code: "MTH101",
+      course_syllabus: {
+        chapters: [
+          "Linear Equations",
+          "Quadratic Equations",
+          "Polynomials",
+          "Lines & Angles",
+          "Triangles",
+          "Circles",
+          "Coordinate Geometry",
+          "Limits & Continuity",
+          "Derivatives",
+          "Integrals",
+          "Probability Basics",
+          "Distributions",
+          "Data Analysis",
+        ],
+      },
+      course_current_completed: ["Linear Equations", "Quadratic Equations", "Lines & Angles"],
       students: [
         {
           user_id: 1,
@@ -57,31 +80,14 @@ function SubjectDetails() {
         },
       ],
     },
-    {
-      course_id: 2,
-      course_name: "Computer Science",
-      course_code: "CSE201",
-      students: [
-        {
-          user_id: 3,
-          full_name: "Olivia Davis",
-          email: "olivia@example.com",
-          profile_picture: "https://i.pravatar.cc/150?u=olivia@example.com",
-        },
-        {
-          user_id: 4,
-          full_name: "Liam Wilson",
-          email: "liam@example.com",
-          profile_picture: "https://i.pravatar.cc/150?u=liam@example.com",
-        },
-      ],
-    },
   ];
 
   const defaultCourse = {
     course_id: 0,
     course_name: "Unknown",
     course_code: "-",
+    course_syllabus: { chapters: [] },
+    course_current_completed: [],
     students: [],
   };
 
@@ -91,7 +97,18 @@ function SubjectDetails() {
       ? courses.find((c) => c.course_id === parsedId)
       : undefined;
 
-  const course = location.state?.course || courseFromParams || defaultCourse;
+  const course = location.state?.course || courseFromParams || courses[0] || defaultCourse;
+
+  // ✅ Track completed chapters in state (tickable)
+  const [completedChapters, setCompletedChapters] = React.useState(
+    course.course_current_completed || []
+  );
+
+  const handleToggleChapter = (chapter) => {
+    setCompletedChapters((prev) =>
+      prev.includes(chapter) ? prev.filter((c) => c !== chapter) : [...prev, chapter]
+    );
+  };
 
   // Dummy progress data
   const progressData = [
@@ -242,6 +259,32 @@ function SubjectDetails() {
                   <Bar dataKey="completion" fill="#673ab7" name="Completion %" />
                 </BarChart>
               </ResponsiveContainer>
+            </Card>
+          </Grid>
+
+          {/* ✅ Course Syllabus Checklist */}
+          <Grid item xs={12} md={10} lg={8}>
+            <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
+              <MDTypography variant="h5" fontWeight="bold" gutterBottom>
+                📑 Course Syllabus Checklist
+              </MDTypography>
+              <Divider sx={{ my: 2 }} />
+              <List>
+                {course.course_syllabus?.chapters?.map((chapter, index) => (
+                  <ListItem key={index} button onClick={() => handleToggleChapter(chapter)}>
+                    <ListItemIcon>
+                      <Checkbox
+                        edge="start"
+                        checked={completedChapters.includes(chapter)}
+                        tabIndex={-1}
+                        disableRipple
+                        sx={{ color: "#673ab7" }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText primary={chapter} />
+                  </ListItem>
+                ))}
+              </List>
             </Card>
           </Grid>
 
