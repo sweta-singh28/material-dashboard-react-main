@@ -1,7 +1,6 @@
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 import Table from "@mui/material/Table";
@@ -26,7 +25,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function StudentDetails() {
-  const { id } = useParams(); // id will be user_id or roll_no
+  const { id } = useParams();
   const navigate = useNavigate();
 
   // Hardcoded JSON data (later replace with API call)
@@ -34,34 +33,31 @@ function StudentDetails() {
     {
       user_id: "S101",
       full_name: "Sophia Clark",
-      email: "sophia@example.com",
-      roll_no: "R101",
+      email: "sophia.clark@email.com",
+      roll_no: "2023-SC-001",
       profile_picture: "https://i.pravatar.cc/150?u=sophia@example.com",
-      courses_enrolled: ["Math 101", "English 101", "Science 101"],
-      pending_requests: 1,
-      assignments: [
-        { assignment: "Math Homework 1", status: "Submitted" },
-        { assignment: "English Essay", status: "Graded" },
-        { assignment: "Science Project", status: "Not Submitted" },
-        { assignment: "History Assignment", status: "Expired" },
-      ],
+      courses_enrolled: ["Mathematics", "Physics", "Chemistry"],
+      pending_requests: 0,
+      assignments: [],
     },
     {
       user_id: "S102",
-      full_name: "Ethan Miller",
-      email: "ethan@example.com",
-      roll_no: "R102",
-      profile_picture: "https://i.pravatar.cc/150?u=ethan@example.com",
-      courses_enrolled: ["History 202", "Science 101"],
-      pending_requests: 2,
-      assignments: [
-        { assignment: "History Essay", status: "Graded" },
-        { assignment: "Science Lab Work", status: "Not Submitted" },
-      ],
+      full_name: "Liam Johnson",
+      email: "liam.johnson@email.com",
+      roll_no: "2023-LJ-002",
+      profile_picture: "https://i.pravatar.cc/150?u=liam@example.com",
+      courses_enrolled: ["Biology", "English", "History"],
+      pending_requests: 1,
+      assignments: [],
     },
   ];
 
-  // Find student by user_id or roll_no
+  const assignmentSummaryData = [
+    { subject: "Mathematics", completed: 10, expired: 2, pending: 3 },
+    { subject: "Physics", completed: 8, expired: 1, pending: 4 },
+    { subject: "Chemistry", completed: 12, expired: 0, pending: 1 },
+  ];
+
   const student = studentsData.find((s) => s.user_id === id || s.roll_no === id) || {
     full_name: "Unknown",
     email: "-",
@@ -71,14 +67,6 @@ function StudentDetails() {
     pending_requests: 0,
     assignments: [],
   };
-
-  // Assignment categories
-  const completedStatuses = ["Submitted", "Graded"];
-  const completedAssignments = student.assignments.filter((a) =>
-    completedStatuses.includes(a.status)
-  );
-  const pendingAssignments = student.assignments.filter((a) => a.status === "Not Submitted");
-  const expiredAssignments = student.assignments.filter((a) => a.status === "Expired");
 
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -98,146 +86,147 @@ function StudentDetails() {
     }
   };
 
-  // Get assignments by selected category
-  const getAssignmentsByCategory = () => {
-    if (selectedCategory === "Completed") return completedAssignments;
-    if (selectedCategory === "Pending") return pendingAssignments;
-    if (selectedCategory === "Expired") return expiredAssignments;
-    return [];
-  };
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>
         <Grid container justifyContent="center" spacing={3}>
-          {/* Student Info Card */}
-          <Grid item xs={12} md={8} lg={6}>
-            <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
-              <MDTypography variant="h4" fontWeight="bold" gutterBottom>
-                👩‍🎓 Student Details
-              </MDTypography>
-              <Divider sx={{ my: 2 }} />
+          <Grid item xs={12}>
+            <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+              <MDBox>
+                <MDTypography variant="h4" fontWeight="bold">
+                  Student Details
+                </MDTypography>
+                <MDTypography variant="subtitle1" color="text">
+                  View and manage student information and assignment progress.
+                </MDTypography>
+              </MDBox>
+              <Button
+                variant="contained"
+                onClick={() => navigate("/teacher/studentRegister")}
+                sx={{
+                  backgroundColor: "#1976d2",
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  boxShadow: "none",
+                  color: "white",
+                  fontWeight: "bold",
+                  px: 3,
+                  py: 1,
+                  "&:hover": {
+                    backgroundColor: "#1565c0",
+                  },
+                }}
+              >
+                <MDTypography variant="button" color="white" fontWeight="bold">
+                  ← Back to Students
+                </MDTypography>
+              </Button>
+            </MDBox>
+          </Grid>
 
-              {/* Avatar + Info */}
-              <MDBox display="flex" alignItems="center" mb={2}>
+          {/* Left Column */}
+          <Grid item xs={12} md={5}>
+            {/* Student Info Card */}
+            <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
+              <MDBox display="flex" flexDirection="column" alignItems="center">
                 <Avatar
                   src={student.profile_picture || undefined}
                   alt={student.full_name}
-                  sx={{ width: 80, height: 80, mr: 2 }}
-                >
-                  {student.full_name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .slice(0, 2)}
-                </Avatar>
-
-                <MDBox>
-                  <MDTypography variant="h6">Name:</MDTypography>
-                  <MDTypography variant="body1">{student.full_name}</MDTypography>
-
-                  <MDBox mt={1}>
-                    <MDTypography variant="h6">Email:</MDTypography>
-                    <MDTypography variant="body1">{student.email}</MDTypography>
-                  </MDBox>
-                </MDBox>
-              </MDBox>
-
-              {/* Roll No */}
-              <MDBox mb={2}>
-                <MDTypography variant="h6">Roll No:</MDTypography>
-                <MDTypography variant="body1">{student.roll_no}</MDTypography>
-              </MDBox>
-
-              {/* Courses Enrolled */}
-              <MDBox mb={2}>
-                <MDTypography variant="h6">Courses Enrolled:</MDTypography>
-                <MDTypography variant="body1">{student.courses_enrolled.length}</MDTypography>
-              </MDBox>
-
-              {/* Pending Requests */}
-              <MDBox mb={2}>
-                <MDTypography variant="h6">Pending Requests:</MDTypography>
-                <MDTypography variant="body1" color="error">
-                  {student.pending_requests}
+                  sx={{ width: 150, height: 150, mb: 2 }}
+                />
+                <MDTypography variant="h5" fontWeight="bold">
+                  {student.full_name}
+                </MDTypography>
+                <MDTypography variant="body2" color="text">
+                  {student.email}
+                </MDTypography>
+                <MDTypography variant="body2" color="text">
+                  Roll Number: {student.roll_no}
                 </MDTypography>
               </MDBox>
+            </Card>
 
-              {/* Back Button */}
-              <MDBox mt={3} display="flex" justifyContent="flex-end">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => navigate("/teacher/studentRegister")}
-                  sx={{ borderRadius: "12px", textTransform: "none" }}
-                >
-                  ← Back to Students
-                </Button>
+            {/* Courses Enrolled Card */}
+            <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
+              <MDTypography variant="h6" fontWeight="bold" mb={2}>
+                Courses Enrolled
+              </MDTypography>
+              <MDBox display="flex" flexWrap="wrap" gap={1}>
+                {student.courses_enrolled.map((course) => (
+                  <Chip
+                    key={course}
+                    label={course}
+                    sx={{
+                      fontWeight: "bold",
+                      bgcolor: "#e3f2fd",
+                      color: "#2196f3",
+                      border: "1px solid #2196f3",
+                    }}
+                  />
+                ))}
               </MDBox>
+            </Card>
+
+            {/* Pending Course Requests Card */}
+            <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
+              <MDTypography variant="h6" fontWeight="bold" mb={1}>
+                Pending Course Requests
+              </MDTypography>
+              <MDTypography variant="body2" color="text">
+                No pending course requests.
+              </MDTypography>
             </Card>
           </Grid>
 
-          {/* Assignments Section */}
-          <Grid item xs={12} md={10} lg={8}>
-            <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
-              <MDTypography variant="h5" fontWeight="bold" gutterBottom>
-                📑 Assignments Summary
+          {/* Right Column */}
+          <Grid item xs={12} md={7}>
+            {/* Assignment Summary Card */}
+            <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
+              <MDTypography variant="h6" fontWeight="bold" mb={2}>
+                Assignment Summary
               </MDTypography>
-              <Divider sx={{ my: 2 }} />
-
-              {/* Summary counts */}
-              <MDBox display="flex" alignItems="center" gap={2} mb={2}>
-                <Chip
-                  label={`Completed: ${completedAssignments.length}`}
-                  color="success"
-                  size="small"
-                  onClick={() => setSelectedCategory("Completed")}
-                />
-                <Chip
-                  label={`Pending: ${pendingAssignments.length}`}
-                  color="warning"
-                  size="small"
-                  onClick={() => setSelectedCategory("Pending")}
-                />
-                <Chip
-                  label={`Expired: ${expiredAssignments.length}`}
-                  color="error"
-                  size="small"
-                  onClick={() => setSelectedCategory("Expired")}
-                />
-              </MDBox>
-
-              {/* Assignments list */}
-              {selectedCategory && (
-                <MDBox>
-                  <MDTypography variant="h6" gutterBottom>
-                    {selectedCategory} Assignments
-                  </MDTypography>
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>
-                            <strong>Assignment</strong>
-                          </TableCell>
-                          <TableCell align="right">
-                            <strong>Status</strong>
-                          </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {getAssignmentsByCategory().map((row, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{row.assignment}</TableCell>
-                            <TableCell align="right">{getStatusChip(row.status)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </MDBox>
-              )}
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <MDTypography variant="button" fontWeight="bold">
+                          SUBJECT
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <MDTypography variant="button" fontWeight="bold">
+                          COMPLETED
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <MDTypography variant="button" fontWeight="bold">
+                          EXPIRED
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <MDTypography variant="button" fontWeight="bold">
+                          PENDING
+                        </MDTypography>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {assignmentSummaryData.map((row, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{ "&:nth-of-type(odd)": { backgroundColor: "#fafafa" } }}
+                      >
+                        <TableCell>{row.subject}</TableCell>
+                        <TableCell align="center">{row.completed}</TableCell>
+                        <TableCell align="center">{row.expired}</TableCell>
+                        <TableCell align="center">{row.pending}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Card>
           </Grid>
         </Grid>

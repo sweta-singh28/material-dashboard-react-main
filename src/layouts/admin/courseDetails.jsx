@@ -12,10 +12,83 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
 
-// Sample users JSON (can later come from API)
+// Sample courses JSON (from your data)
+const courses = [
+  {
+    idCourses: "c1",
+    course_name: "Introduction to Computer Science",
+    course_code: "CS101",
+    course_status: "pending_approval",
+    course_description:
+      "This foundational course provides a comprehensive introduction to the principles of computer science. Students will learn about programming fundamentals, data structures, algorithms, and computational thinking.",
+    course_pre_requisites: "Basic knowledge of mathematics and logic is recommended.",
+    course_syllabus: {
+      week_1: "Introduction to Programming",
+      week_2: "Data Structures",
+      week_3: "Algorithms",
+    },
+    course_thumbnail: "https://example.com/images/cs101_thumbnail.jpg",
+    course_current_completed: "95%",
+    teachers_user_id: "t1",
+    course_notes: [
+      {
+        AN_id: "n1",
+        AN_title: "Lecture 1 - Introduction.pdf",
+        AN_link: "https://example.com/notes/lecture1.pdf",
+      },
+      {
+        AN_id: "n2",
+        AN_title: "Lecture 2 - Advanced Concepts.pdf",
+        AN_link: "https://example.com/notes/lecture2.pdf",
+      },
+      {
+        AN_id: "n3",
+        AN_title: "Practice Questions.pdf",
+        AN_link: "https://example.com/notes/practice.pdf",
+      },
+    ],
+  },
+  {
+    idCourses: "c2",
+    course_name: "Data Science Fundamentals",
+    course_code: "DS205",
+    course_status: "approved",
+    course_description:
+      "An introductory course on the core concepts of data science, including statistical analysis, machine learning, and data visualization.",
+    course_pre_requisites: "CS101 or equivalent.",
+    course_syllabus: {
+      week_1: "Introduction to Data Science",
+      week_2: "Probability and Statistics",
+    },
+    course_thumbnail: "https://example.com/images/ds205_thumbnail.jpg",
+    course_current_completed: "80%",
+    teachers_user_id: "t2",
+    course_notes: [],
+  },
+];
+
+// Users JSON (from your data)
 const usersJSON = [
-  { idUsers: "t1", first_name: "Eleanor", last_name: "Vance", role: "teacher" },
-  { idUsers: "t2", first_name: "Samuel", last_name: "Harper", role: "teacher" },
+  {
+    idUsers: "t1",
+    first_name: "Eleanor",
+    last_name: "Vance",
+  },
+  {
+    idUsers: "t2",
+    first_name: "Samuel",
+    last_name: "Harper",
+  },
+  {
+    idUsers: "a1",
+    first_name: "Admin",
+    last_name: "User",
+  },
+  {
+    idUsers: "s1",
+    first_name: "Grace",
+    last_name: "Hopper",
+  },
 ];
 
 const CourseDetails = () => {
@@ -90,6 +163,20 @@ const CourseDetails = () => {
                     Description:
                   </MDTypography>{" "}
                   {course.course_description}
+                </MDTypography>
+
+                <MDTypography variant="body2" color="text" mb={2}>
+                  <MDTypography component="span" fontWeight="bold">
+                    Pre-requisites:
+                  </MDTypography>{" "}
+                  {course.course_pre_requisites || "-"}
+                </MDTypography>
+
+                <MDTypography variant="body2" color="text" mb={2}>
+                  <MDTypography component="span" fontWeight="bold">
+                    Progress:
+                  </MDTypography>{" "}
+                  {course.course_current_completed || "-"}
                 </MDTypography>
               </CardContent>
             </Card>

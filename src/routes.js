@@ -8,6 +8,7 @@ import ViewSubmissions from "layouts/teacher/viewSubmissions";
 import StudentDetails from "layouts/teacher/studentDetails";
 import StudentRegister from "layouts/teacher/studentRegister";
 import SubjectDetails from "layouts/teacher/subjectDetails";
+import PendingStudentApprovals from "layouts/teacher/pendingStudentApprovals";
 //Student pages
 import StudentDashboard from "layouts/student/dashboard";
 import Assignment from "layouts/student/assignment";
@@ -20,6 +21,7 @@ import PendingApprovals from "layouts/admin/PendingApprovals";
 import CourseDetail from "layouts/admin/courseDetails";
 import UserDetails from "layouts/admin/userDetails";
 import ActiveCourses from "layouts/admin/activeCourses";
+import CompletedCourses from "layouts/admin/completedCourses";
 
 //Common pages
 import Tables from "layouts/tables";
@@ -87,6 +89,14 @@ const routes = [
     icon: <Icon fontSize="small">upload</Icon>,
     route: "/uploadMaterials",
     component: <UploadMaterials />,
+  },
+  {
+    type: "collapse",
+    name: "Approve Students",
+    key: "pendingStudentApprovals",
+    icon: <Icon fontSize="small">check</Icon>,
+    route: "/pendingStudentApprovals",
+    component: <PendingStudentApprovals />,
   },
   {
     type: "collapse",
@@ -208,6 +218,14 @@ const routes = [
     icon: <FaBookOpen size={18} />,
     route: "/admin/activeCourses",
     component: <ActiveCourses />,
+  },
+  {
+    type: "collapse",
+    name: "Completed Courses",
+    key: "completedCourses",
+    icon: <Icon fontSize="small">check</Icon>,
+    route: "/admin/completedCourses",
+    component: <CompletedCourses />,
   },
 ];
 

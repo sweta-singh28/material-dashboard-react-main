@@ -1,4 +1,4 @@
-// ActiveCourses.jsx
+// CompletedCourses.jsx
 import React, { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -13,43 +13,35 @@ import MDButton from "components/MDButton";
 // Global search context
 import { useSearch } from "context";
 
-const ActiveCourses = () => {
+const CompletedCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { search } = useSearch();
 
-  // ✅ 1. Get dbJson (if passed from AdminDashboard or wrap in global context later)
+  // ✅ 1. Get dbJson (fallback if not passed)
   const dbJson = location.state?.dbJson || {
     Courses: [
       {
         idCourses: "c_1",
         course_name: "Math 101",
         course_pre_requisites: "[]",
-        course_status: "active",
+        course_status: "completed",
         course_description: "Basic mathematics",
-        course_thumbnail: null,
-        course_current_completed: JSON.stringify([]),
-        course_active_students: JSON.stringify(["u_1", "u_2"]),
-        course_pending_students: JSON.stringify([]),
         teachers_user_id: "u_3",
       },
       {
         idCourses: "c_2",
         course_name: "Science Basics",
-        course_pre_requisites: "[]",
-        course_syllabus: JSON.stringify({ chapters: ["Physics", "Chemistry"] }),
         course_code: "SCI101",
-        course_status: "active",
+        course_status: "completed",
         course_description: "Intro to science",
         teachers_user_id: "u_4",
       },
       {
         idCourses: "c_3",
         course_name: "English Literature",
-        course_pre_requisites: "[]",
-        course_syllabus: JSON.stringify({ chapters: ["Poetry", "Prose"] }),
         course_code: "ENG101",
-        course_status: "inactive",
+        course_status: "completed",
         course_description: "English studies",
         teachers_user_id: "u_4",
       },
@@ -60,9 +52,9 @@ const ActiveCourses = () => {
     ],
   };
 
-  // ✅ 2. Derive only active courses
-  const activeCourses = useMemo(() => {
-    return dbJson.Courses.filter((c) => c.course_status === "active").map((course) => {
+  // ✅ 2. Derive only completed courses
+  const completedCourses = useMemo(() => {
+    return dbJson.Courses.filter((c) => c.course_status === "completed").map((course) => {
       const instructor = dbJson.Users.find((u) => u.user_id === course.teachers_user_id);
       const instructorName = instructor
         ? `${instructor.first_name} ${instructor.last_name}`
@@ -81,14 +73,14 @@ const ActiveCourses = () => {
 
   // ✅ 3. Filtered results by global search
   const filteredCourses = useMemo(() => {
-    return activeCourses.filter(
+    return completedCourses.filter(
       (course) =>
         course.title.toLowerCase().includes(search.toLowerCase()) ||
         course.instructor.toLowerCase().includes(search.toLowerCase())
     );
-  }, [activeCourses, search]);
+  }, [completedCourses, search]);
 
-  // ✅ 4. Navigate with state (pass entire course object + dbJson for details page)
+  // ✅ 4. Navigate with state
   const handleRowClick = (course) => {
     navigate("/courseDetails", { state: { course, dbJson } });
   };
@@ -99,14 +91,14 @@ const ActiveCourses = () => {
       <MDBox pt={6} pb={3}>
         <MDBox mb={3}>
           <MDTypography variant="h4" fontWeight="medium">
-            Active Courses
+            Completed Courses
           </MDTypography>
           <MDTypography variant="body2" color="text">
-            Manage all courses currently active. There are{" "}
+            Manage all completed courses. There are{" "}
             <MDTypography component="span" fontWeight="bold">
               {filteredCourses.length}
             </MDTypography>{" "}
-            active courses.
+            completed courses.
           </MDTypography>
         </MDBox>
 
@@ -199,12 +191,7 @@ const ActiveCourses = () => {
                         variant="button"
                         fontWeight="bold"
                         sx={{
-                          color:
-                            course.status === "active"
-                              ? "green"
-                              : course.status === "inactive"
-                              ? "red"
-                              : "grey",
+                          color: course.status === "completed" ? "blue" : "grey",
                           textTransform: "uppercase",
                         }}
                       >
@@ -246,4 +233,4 @@ const ActiveCourses = () => {
   );
 };
 
-export default ActiveCourses;
+export default CompletedCourses;

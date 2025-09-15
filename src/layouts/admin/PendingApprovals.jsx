@@ -23,28 +23,43 @@ const coursesJSON = [
     course_name: "Introduction to Data Science",
     course_pre_requisites: "Basic Math, Python",
     course_syllabus: {},
-    course_code: "",
+    course_code: "123",
     course_status: "Pending",
     course_description: "A comprehensive overview of data science...",
     course_thumbnail: "https://picsum.photos/seed/course1/240/140",
-    course_current_completed: 0,
-    course_active_students: [],
-    course_pending_students: [],
-    teachers_user_id: "t1",
   },
   {
     idCourses: "c2",
     course_name: "Advanced Machine Learning",
     course_pre_requisites: "Intro to ML",
     course_syllabus: {},
-    course_code: "",
+    course_code: "123",
     course_status: "Pending",
     course_description: "In-depth study of advanced machine learning...",
     course_thumbnail: "https://picsum.photos/seed/course2/240/140",
-    course_current_completed: 0,
-    course_active_students: [],
-    course_pending_students: [],
-    teachers_user_id: "t2",
+  },
+];
+
+const usersJSON = [
+  {
+    idUsers: "t1",
+    first_name: "Eleanor",
+    last_name: "Vance",
+  },
+  {
+    idUsers: "t2",
+    first_name: "Samuel",
+    last_name: "Harper",
+  },
+  {
+    idUsers: "a1",
+    first_name: "Admin",
+    last_name: "User",
+  },
+  {
+    idUsers: "s1",
+    first_name: "Grace",
+    last_name: "Hopper",
   },
 ];
 

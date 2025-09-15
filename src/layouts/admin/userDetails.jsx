@@ -3,13 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Avatar from "@mui/material/Avatar";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
+import Divider from "@mui/material/Divider";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -41,13 +35,7 @@ const usersJSON = {
         },
       ],
       completedEnrolled: [
-        {
-          id: 102,
-          title: "Physics 101",
-          code: "PHY101",
-          grade: "A",
-          status: "completed",
-        },
+        { id: 102, title: "Physics 101", code: "PHY101", grade: "A", status: "completed" },
       ],
       rejectedCourses: [
         {
@@ -71,22 +59,10 @@ const usersJSON = {
       contact: "9876543210",
       joined: "2021-08-20T09:00:00Z",
       currentlyTeaching: [
-        {
-          id: 201,
-          title: "Physics 101",
-          code: "PHY101",
-          studentsEnrolled: 30,
-          status: "ongoing",
-        },
+        { id: 201, title: "Physics 101", code: "PHY101", studentsEnrolled: 30, status: "ongoing" },
       ],
       completedTeaching: [
-        {
-          id: 202,
-          title: "Mathematics 101",
-          code: "MATH101",
-          year: 2022,
-          status: "completed",
-        },
+        { id: 202, title: "Mathematics 101", code: "MATH101", year: 2022, status: "completed" },
       ],
       rejectedTeaching: [
         {
@@ -109,7 +85,6 @@ const UserDetails = () => {
 
   const [user, setUser] = useState(location.state?.user || null);
 
-  // ----- Fetch user from JSON if not passed via state -----
   useEffect(() => {
     if (!user && id) {
       const found = usersJSON.users.find(
@@ -134,7 +109,6 @@ const UserDetails = () => {
     );
   }
 
-  // ----- Helper Functions -----
   const getInitials = (name = "") =>
     name
       .split(" ")
@@ -239,93 +213,137 @@ const UserDetails = () => {
     if (!course) return "";
     if (typeof course === "string") return course;
     if (typeof course === "number") return String(course);
-    for (const k of keys) {
-      if (course[k] !== undefined && course[k] !== null) return course[k];
-    }
+    for (const k of keys) if (course[k] !== undefined && course[k] !== null) return course[k];
     return "";
   };
 
   const roleLower = (user.role || "").toLowerCase();
 
-  const joinedText = (() => {
-    const j = user.joined || user.joinedAt || user.joinedDate || user.joinedOn;
-    if (!j) return null;
-    try {
-      const d = new Date(j);
-      if (!isNaN(d))
-        return `Joined ${d.toLocaleString(undefined, { month: "long" })} ${d.getFullYear()}`;
-    } catch (e) {}
-    return typeof j === "string" ? j : null;
-  })();
+  const renderListCard = (title, courses = []) => (
+    <Card sx={{ p: 2, mb: 0, minHeight: 140 }}>
+      <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+        <MDTypography variant="h6">{title}</MDTypography>
+        <MDTypography variant="caption">{courses.length} items</MDTypography>
+      </MDBox>
+      <Divider />
+      <MDBox mt={1}>
+        {courses.length === 0 ? (
+          <MDTypography variant="body2" color="text" sx={{ p: 1 }}>
+            No {title.toLowerCase()}.
+          </MDTypography>
+        ) : (
+          courses.map((c, idx) => {
+            const key = getCourseField(c, ["id", "code"]) || idx;
+            const titleText = formatCourseTitle(c);
+            return (
+              <MDBox
+                key={key}
+                sx={{
+                  px: 1.5,
+                  py: 1.25,
+                  borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                  backgroundColor: idx % 2 === 0 ? "#fafafa" : "transparent",
+                }}
+              >
+                <MDTypography variant="body2">{titleText}</MDTypography>
+              </MDBox>
+            );
+          })
+        )}
+      </MDBox>
+    </Card>
+  );
 
-  // ----- Render -----
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox mt={6} mb={3}>
+      <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2} mt={4}>
+        <MDTypography variant="h4" fontWeight="bold">
+          User Details
+        </MDTypography>
+        <MDButton
+          sx={{
+            backgroundColor: "#1976d2",
+            color: "#fff",
+            "&:hover": { backgroundColor: "#115293" },
+          }}
+          onClick={() => navigate(-1)}
+        >
+          Back to Total Users
+        </MDButton>
+      </MDBox>
+
+      <MDBox mb={3}>
         <Grid container spacing={3} justifyContent="center">
-          {/* Left profile card */}
-          <Grid item xs={12} md={4} lg={3}>
+          <Grid item xs={12}>
             <Card sx={{ p: 3, borderRadius: 2 }}>
-              <MDBox display="flex" flexDirection="column" alignItems="center" mb={2}>
+              <MDBox display="flex" alignItems="center" gap={2}>
                 <Avatar
                   src={user.profilePicture || user.avatar || ""}
                   alt={user.name}
-                  sx={{ width: 120, height: 120, mb: 1 }}
+                  sx={{ width: 110, height: 110, mr: 2, boxShadow: 1 }}
                 >
                   {!user.profilePicture && getInitials(user.name)}
                 </Avatar>
-                <MDTypography variant="h6">{user.name}</MDTypography>
-                <MDTypography variant="caption" color="text">
-                  {user.role} {joinedText ? <br /> : null}
-                  {joinedText}
-                </MDTypography>
-              </MDBox>
-
-              <MDBox mt={2}>
-                <MDTypography variant="caption" color="text">
-                  Name
-                </MDTypography>
-                <MDTypography variant="body2" mb={1}>
-                  {user.name}
-                </MDTypography>
-
-                <MDTypography variant="caption" color="text">
-                  Email ID
-                </MDTypography>
-                <MDTypography variant="body2" mb={1}>
-                  {user.email}
-                </MDTypography>
-
-                <MDTypography variant="caption" color="text">
-                  Qualifications
-                </MDTypography>
-                <MDTypography variant="body2" mb={1}>
-                  {user.qualifications || "Not specified"}
-                </MDTypography>
-
-                <MDTypography variant="caption" color="text">
-                  Contact Number
-                </MDTypography>
-                <MDTypography variant="body2" mb={1}>
-                  {user.contact || "Not specified"}
-                </MDTypography>
-
-                <MDBox mt={2} display="flex" justifyContent="space-between">
-                  <MDButton variant="gradient" color="info" onClick={() => navigate(-1)}>
-                    Back
-                  </MDButton>
+                <MDBox flexGrow={1}>
+                  <MDTypography variant="h5" fontWeight="bold">
+                    {user.name}
+                  </MDTypography>
+                  <MDTypography
+                    variant="button"
+                    fontWeight="regular"
+                    sx={{ mt: 0.5, color: "info.main" }}
+                  >
+                    {user.role && user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                  </MDTypography>
+                  <Divider sx={{ my: 2 }} />
+                  <MDBox display="flex" flexWrap="wrap" gap={2}>
+                    <MDBox minWidth="220px">
+                      <MDTypography variant="caption" color="text">
+                        Email ID
+                      </MDTypography>
+                      <MDTypography variant="body2" sx={{ mt: 0.5 }}>
+                        {user.email || "Not specified"}
+                      </MDTypography>
+                    </MDBox>
+                    <MDBox minWidth="220px">
+                      <MDTypography variant="caption" color="text">
+                        Contact Number
+                      </MDTypography>
+                      <MDTypography variant="body2" sx={{ mt: 0.5 }}>
+                        {user.contact || "Not specified"}
+                      </MDTypography>
+                    </MDBox>
+                    <MDBox minWidth="220px">
+                      <MDTypography variant="caption" color="text">
+                        Qualifications
+                      </MDTypography>
+                      <MDTypography variant="body2" sx={{ mt: 0.5 }}>
+                        {user.qualifications || "Not specified"}
+                      </MDTypography>
+                    </MDBox>
+                  </MDBox>
                 </MDBox>
               </MDBox>
             </Card>
           </Grid>
 
-          {/* Right: courses table rendering remains unchanged */}
-          <Grid item xs={12} md={8} lg={9}>
-            <MDBox>
-              {roleLower === "student" && <>{/* Student tables code here, same as original */}</>}
-              {roleLower === "teacher" && <>{/* Teacher tables code here, same as original */}</>}
-            </MDBox>
+          <Grid item xs={12} md={4}>
+            {roleLower === "student"
+              ? renderListCard("Currently Enrolled", currentCourses)
+              : renderListCard("Currently Teaching", currentCourses)}
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            {roleLower === "student"
+              ? renderListCard("Completed Courses", completedCourses)
+              : renderListCard("Completed Teaching", completedCourses)}
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            {roleLower === "student"
+              ? renderListCard("Rejected Courses", rejectedCourses)
+              : renderListCard("Rejected Teaching", rejectedCourses)}
           </Grid>
         </Grid>
       </MDBox>

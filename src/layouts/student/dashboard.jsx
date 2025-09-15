@@ -10,10 +10,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 
 // icons
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,251 +30,90 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-/*
-  IMPORTANT:
-  - The `db` object below mirrors your database schema exactly (table/field names).
-  - Replace `const db = {...}` with an API fetch and set the same-shaped object as the response.
-  - Keys and relations:
-      Users.user_id  <-> Courses.teachers_user_id
-      Courses.course_active_students (JSON array of user ids)
-      Courses.course_pending_students (JSON array of user ids)
-*/
-
 function StudentDashboard() {
   const navigate = useNavigate();
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
-  // ---------- Sample DB object matching your schema ----------
-  // Replace this whole block with an API call that returns the same JSON structure.
+  // ---------- Sample DB object (replace with API) ----------
   const db = useMemo(
     () => ({
-      Users: [
+      courses: [
         {
-          email: "alice@student.edu",
-          password: "hashed_pw",
-          create_time: "2025-01-01T10:00:00Z",
-          first_name: "Alice",
-          last_name: "Kumar",
-          user_id: "user-001", // CHAR(36) in real DB
-          user_role: "student",
-          user_picture: null,
-          qualifications: "BSc",
-        },
-        {
-          email: "raoji@uni.edu",
-          password: "hashed_pw",
-          create_time: "2018-08-10T08:00:00Z",
-          first_name: "Rao",
-          last_name: "Subramanian",
-          user_id: "t-101",
-          user_role: "teacher",
-          user_picture: null,
-          qualifications: "PhD",
-        },
-        {
-          email: "iyer@uni.edu",
-          password: "hashed_pw",
-          create_time: "2017-03-20T09:00:00Z",
-          first_name: "Anita",
-          last_name: "Iyer",
-          user_id: "t-102",
-          user_role: "teacher",
-          user_picture: null,
-          qualifications: "PhD",
-        },
-        {
-          email: "singh@uni.edu",
-          password: "hashed_pw",
-          create_time: "2016-05-12T09:00:00Z",
-          first_name: "Ramesh",
-          last_name: "Singh",
-          user_id: "t-103",
-          user_role: "teacher",
-          user_picture: null,
-          qualifications: "PhD",
-        },
-        {
-          email: "patel@uni.edu",
-          password: "hashed_pw",
-          create_time: "2016-05-12T09:00:00Z",
-          first_name: "Nisha",
-          last_name: "Patel",
-          user_id: "t-104",
-          user_role: "teacher",
-          user_picture: null,
-          qualifications: "MA",
-        },
-        {
-          email: "verma@uni.edu",
-          password: "hashed_pw",
-          create_time: "2016-05-12T09:00:00Z",
-          first_name: "Arjun",
-          last_name: "Verma",
-          user_id: "t-105",
-          user_role: "teacher",
-          user_picture: null,
-          qualifications: "MSc",
-        },
-        {
-          email: "gupta@uni.edu",
-          password: "hashed_pw",
-          create_time: "2016-05-12T09:00:00Z",
-          first_name: "Sonia",
-          last_name: "Gupta",
-          user_id: "t-106",
-          user_role: "teacher",
-          user_picture: null,
-          qualifications: "PhD",
+          user_id: "user-001",
+          activeCourses: [
+            {
+              idCourses: "c1",
+              course_name: "Introduction to Databases",
+              course_description: "Learn the fundamentals of relational databases and SQL.",
+              course_thumbnail: "/thumbnails/cs101.png",
+              course_active_students: ["user-001", "user-005"],
+              course_pending_students: ["user-009"],
+              teachers_user_id: "teacher-abc",
+            },
+            {
+              idCourses: "c2",
+              course_name: "Advanced Web Development",
+              course_description: "Build modern, full-stack web applications.",
+              course_thumbnail: "/thumbnails/cs205.png",
+              course_active_students: ["user-001", "user-008"],
+              course_pending_students: [],
+              teachers_user_id: "teacher-xyz",
+            },
+          ],
+          pendingCourses: [
+            {
+              idCourses: "c4",
+              course_name: "Machine Learning Fundamentals",
+              course_description: "An introduction to the core concepts of machine learning.",
+              course_thumbnail: "/thumbnails/ai300.png",
+              course_active_students: ["user-110"],
+              course_pending_students: ["user-001", "user-112"],
+              teachers_user_id: "teacher-lmn",
+            },
+          ],
+          expiredCourses: [],
         },
       ],
-      Courses: [
-        {
-          idCourses: "c1",
-          course_name: "Mathematics I",
-          course_pre_requisites: "",
-          course_syllabus: JSON.stringify({ topics: ["Algebra", "Calculus"] }),
-          course_code: "MATH101",
-          course_status: "active",
-          course_description: "Introductory mathematics",
-          course_thumbnail: "https://via.placeholder.com/80x80.png?text=Math",
-          course_current_completed: JSON.stringify([]),
-          course_active_students: JSON.stringify(["user-001"]), // enrolled student ids
-          course_pending_students: JSON.stringify([]), // user ids pending teacher approval
-          teachers_user_id: "t-101",
-        },
-        {
-          idCourses: "c2",
-          course_name: "Physics I",
-          course_pre_requisites: "",
-          course_syllabus: JSON.stringify({ topics: ["Mechanics", "Waves"] }),
-          course_code: "PHYS101",
-          course_status: "active",
-          course_description: "Introductory physics",
-          course_thumbnail: "https://via.placeholder.com/80x80.png?text=Phys",
-          course_current_completed: JSON.stringify([]),
-          course_active_students: JSON.stringify(["user-001"]), // Alice is enrolled
-          course_pending_students: JSON.stringify([]),
-          teachers_user_id: "t-102",
-        },
-        {
-          idCourses: "c3",
-          course_name: "Chemistry",
-          course_pre_requisites: "",
-          course_syllabus: JSON.stringify({ topics: ["Organic", "Inorganic"] }),
-          course_code: "CHEM101",
-          course_status: "active",
-          course_description: "Introductory chemistry",
-          course_thumbnail: "https://via.placeholder.com/80x80.png?text=Chem",
-          course_current_completed: JSON.stringify([]),
-          course_active_students: JSON.stringify([]),
-          course_pending_students: JSON.stringify([]),
-          teachers_user_id: "t-103",
-        },
-        {
-          idCourses: "c4",
-          course_name: "English",
-          course_pre_requisites: "",
-          course_syllabus: JSON.stringify({ topics: ["Grammar", "Composition"] }),
-          course_code: "ENG101",
-          course_status: "active",
-          course_description: "Introductory English",
-          course_thumbnail: "https://via.placeholder.com/80x80.png?text=Eng",
-          course_current_completed: JSON.stringify([]),
-          course_active_students: JSON.stringify([]),
-          course_pending_students: JSON.stringify([]),
-          teachers_user_id: "t-104",
-        },
-        {
-          idCourses: "c5",
-          course_name: "Computer Science",
-          course_pre_requisites: "",
-          course_syllabus: JSON.stringify({ topics: ["Programming", "Data Structures"] }),
-          course_code: "CS101",
-          course_status: "active",
-          course_description: "Introductory CS",
-          course_thumbnail: "https://via.placeholder.com/80x80.png?text=CS",
-          course_current_completed: JSON.stringify([]),
-          course_active_students: JSON.stringify([]),
-          course_pending_students: JSON.stringify([]),
-          teachers_user_id: "t-105",
-        },
-        {
-          idCourses: "c6",
-          course_name: "Biology",
-          course_pre_requisites: "",
-          course_syllabus: JSON.stringify({ topics: ["Cells", "Genetics"] }),
-          course_code: "BIO101",
-          course_status: "active",
-          course_description: "Introductory Biology",
-          course_thumbnail: "https://via.placeholder.com/80x80.png?text=Bio",
-          course_current_completed: JSON.stringify([]),
-          course_active_students: JSON.stringify([]),
-          course_pending_students: JSON.stringify([]),
-          teachers_user_id: "t-106",
-        },
-      ],
-      // You can also include Assignment_Notes and SubmittedAssignments here
-      Assignment_Notes: [],
-      SubmittedAssignments: [],
     }),
     []
   );
-
   // ---------- End sample DB ----------
 
-  // Simulated "current logged-in user" from Users table:
-  // In production replace with auth / API-provided current user
-  const currentUser = db.Users.find((u) => u.user_id === "user-001");
+  const currentUser = db.courses.find((c) => c.user_id === "user-001");
 
-  // Helper: convert DB courses into UI-friendly course objects
   const allCourses = useMemo(() => {
-    return db.Courses.map((course) => {
-      const teacher = db.Users.find((u) => u.user_id === course.teachers_user_id);
-      // course_active_students and course_pending_students stored as JSON strings
-      let activeArr = [];
-      let pendingArr = [];
-      try {
-        activeArr = JSON.parse(course.course_active_students || "[]");
-      } catch (e) {
-        activeArr = [];
-      }
-      try {
-        pendingArr = JSON.parse(course.course_pending_students || "[]");
-      } catch (e) {
-        pendingArr = [];
-      }
-      return {
-        id: course.idCourses,
-        title: course.course_name,
-        teacher: teacher ? `${teacher.first_name} ${teacher.last_name}` : "Unknown",
-        teacher_id: course.teachers_user_id,
-        thumbnail: course.course_thumbnail || null,
-        description: course.course_description,
-        active_students: activeArr,
-        pending_students: pendingArr,
-        raw: course,
-      };
-    });
-  }, [db]);
+    if (!currentUser) return [];
+    const courseList = [
+      ...currentUser.activeCourses,
+      ...currentUser.pendingCourses,
+      ...currentUser.expiredCourses,
+    ];
+    return courseList.map((course) => ({
+      id: course.idCourses,
+      title: course.course_name,
+      teacher: course.teachers_user_id || "Unknown",
+      thumbnail: course.course_thumbnail || null,
+      description: course.course_description,
+      active_students: course.course_active_students || [],
+      pending_students: course.course_pending_students || [],
+    }));
+  }, [db, currentUser]);
 
-  // Build lists from DB for the current student
   const initialEnrolled = useMemo(
-    () => allCourses.filter((c) => c.active_students.includes(currentUser.user_id)).map((c) => c),
+    () => allCourses.filter((c) => c.active_students.includes(currentUser?.user_id)),
     [allCourses, currentUser]
   );
   const initialPending = useMemo(
-    () => allCourses.filter((c) => c.pending_students.includes(currentUser.user_id)).map((c) => c),
+    () => allCourses.filter((c) => c.pending_students.includes(currentUser?.user_id)),
     [allCourses, currentUser]
   );
 
-  // UI state
   const [enrolledCourses, setEnrolledCourses] = useState(initialEnrolled);
   const [pendingRequests, setPendingRequests] = useState(initialPending);
   const [selected, setSelected] = useState("");
   const [showCourseDetails, setShowCourseDetails] = useState(null);
 
-  // Open details for a course id
   const handleOpenDetails = (courseId) => {
     const course = allCourses.find((c) => c.id === courseId);
     setShowCourseDetails(course || null);
@@ -283,7 +124,6 @@ function StudentDashboard() {
     setSelected("");
   };
 
-  // Request course: add to pendingRequests only in UI (server should persist)
   const handleRequestCourse = () => {
     if (!showCourseDetails) return;
     if (enrolledCourses.length + pendingRequests.length >= 5) {
@@ -300,15 +140,11 @@ function StudentDashboard() {
       handleCloseDetails();
       return;
     }
-
-    // UI-only update. In production call API to add currentUser.user_id to
-    // course.course_pending_students and re-fetch or update local db.
     setPendingRequests((prev) => [...prev, course]);
     handleCloseDetails();
   };
 
   const handleView = (course) => {
-    // Keep existing routing: navigate with course in state
     navigate("/student/viewCourseDetails", { state: { course } });
   };
 
@@ -317,7 +153,6 @@ function StudentDashboard() {
     ...pendingRequests.map((c) => c.id),
   ];
 
-  // Apply global search filter
   const filteredEnrolled = enrolledCourses.filter(
     (c) =>
       c.title.toLowerCase().includes((search || "").toLowerCase()) ||
@@ -341,49 +176,75 @@ function StudentDashboard() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox py={3}>
+
+      {/* background and padding to mimic the design */}
+      <MDBox py={4} px={3} sx={{ backgroundColor: "#f7f9fb", minHeight: "100vh" }}>
         <Grid container spacing={3}>
-          {/* Section 1: Enrolled Courses */}
           <Grid item xs={12}>
-            <MDTypography variant="h5" gutterBottom>
+            <MDTypography variant="h4" sx={{ color: "#1f2a44", fontWeight: 800, mb: 1 }}>
+              Student Dashboard
+            </MDTypography>
+          </Grid>
+
+          {/* Section 1: Enrolled Courses header */}
+          <Grid item xs={12}>
+            <MDTypography variant="h6" gutterBottom sx={{ color: "#2e3b55", fontWeight: 700 }}>
               Enrolled Courses
             </MDTypography>
-            <Grid container spacing={3}>
+
+            {/* Enrolled course list: horizontally laid out cards */}
+            <Grid container spacing={2} alignItems="stretch">
               {filteredEnrolled.length === 0 ? (
                 <Grid item xs={12}>
-                  <MDTypography variant="body2">No courses enrolled yet.</MDTypography>
+                  <MDTypography variant="body2" color="textSecondary">
+                    No courses enrolled yet.
+                  </MDTypography>
                 </Grid>
               ) : (
                 filteredEnrolled.map((course) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
                     <Card
                       onClick={() => handleView(course)}
-                      style={{
-                        padding: "16px",
-                        textAlign: "center",
-                        borderRadius: "12px",
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        textAlign: "left",
+                        minHeight: 96,
+                        padding: 2,
+                        borderRadius: 2,
                         cursor: "pointer",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        transition: "transform 0.2s",
+                        background: "#fff",
+                        border: "1px solid #eef1f5",
+                        boxShadow: "0 6px 18px rgba(26, 34, 54, 0.04)",
+                        transition: "transform 0.18s ease, box-shadow 0.18s ease",
+                        "&:hover": { transform: "translateY(-6px)" },
                       }}
                     >
-                      {course.thumbnail && (
-                        <img
-                          src={course.thumbnail}
-                          alt={`${course.title} thumbnail`}
-                          style={{
-                            width: "80px",
-                            height: "80px",
-                            objectFit: "cover",
-                            borderRadius: "8px",
-                            marginBottom: "10px",
-                          }}
-                        />
-                      )}
-                      <MDTypography variant="h6">{course.title}</MDTypography>
-                      <MDTypography variant="body2" color="textSecondary">
-                        {course.teacher}
-                      </MDTypography>
+                      <Box display="flex" flexDirection="column">
+                        <MDTypography
+                          variant="subtitle1"
+                          sx={{ color: "#182033", fontWeight: 700 }}
+                        >
+                          {course.title}
+                        </MDTypography>
+                        <MDTypography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
+                          {course.teacher}
+                        </MDTypography>
+                        <Box mt={1}>
+                          <Chip
+                            label="Enrolled"
+                            size="small"
+                            icon={<CheckCircleIcon style={{ fontSize: 16 }} />}
+                            sx={{
+                              height: 26,
+                              fontWeight: 600,
+                              "& .MuiChip-icon": { marginRight: 0.5 },
+                            }}
+                            color="success"
+                          />
+                        </Box>
+                      </Box>
                     </Card>
                   </Grid>
                 ))
@@ -393,29 +254,58 @@ function StudentDashboard() {
 
           {/* Section 2: Choose a Course */}
           <Grid item xs={12} md={6}>
-            <Card style={{ padding: "16px", borderRadius: "12px" }}>
-              <MDTypography variant="h5" gutterBottom>
-                Choose a Course (Max 5 Total)
+            <Card
+              sx={{
+                padding: 2,
+                borderRadius: 2,
+                background: "#fff",
+                border: "1px solid #eef1f5",
+                boxShadow: "0 6px 18px rgba(26, 34, 54, 0.03)",
+              }}
+            >
+              <MDTypography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#2e3b55" }}>
+                Choose a Course
               </MDTypography>
-              <MDBox display="flex" gap={2} alignItems="center" mb={1}>
-                <Select
-                  value={selected}
-                  onChange={(e) => {
-                    setSelected(e.target.value);
-                    if (e.target.value) handleOpenDetails(e.target.value);
+
+              <Box display="flex" alignItems="center" gap={2} sx={{ mt: 1 }}>
+                <Box
+                  sx={{
+                    flex: 1,
+                    background: "#f8f9fb",
+                    borderRadius: 1,
+                    padding: 1,
+                    display: "flex",
+                    alignItems: "center",
                   }}
-                  displayEmpty
-                  style={{ minWidth: 220 }}
                 >
-                  <MenuItem value="">-- Select Course --</MenuItem>
-                  {availableCourses.map((c) => (
-                    <MenuItem key={c.id} value={c.id}>
-                      {c.title} — {c.teacher}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </MDBox>
-              <Typography variant="caption" color="textSecondary">
+                  <Select
+                    value={selected}
+                    onChange={(e) => {
+                      setSelected(e.target.value);
+                      if (e.target.value) handleOpenDetails(e.target.value);
+                    }}
+                    displayEmpty
+                    sx={{ width: "100%", pl: 1 }}
+                  >
+                    <MenuItem value="">Select a course to enroll</MenuItem>
+                    {availableCourses.map((c) => (
+                      <MenuItem key={c.id} value={c.id}>
+                        {c.title} — {c.teacher}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Box>
+
+                <Button
+                  variant="contained"
+                  onClick={() => selected && handleOpenDetails(selected)}
+                  sx={{ whiteSpace: "nowrap", px: 2 }}
+                >
+                  Enroll Now
+                </Button>
+              </Box>
+
+              <Typography variant="caption" sx={{ color: "#6c757d", display: "block", mt: 1 }}>
                 Slots left: {5 - (enrolledCourses.length + pendingRequests.length)}
               </Typography>
             </Card>
@@ -423,50 +313,51 @@ function StudentDashboard() {
 
           {/* Section 3: Pending Requests */}
           <Grid item xs={12}>
-            <MDTypography variant="h5" gutterBottom>
-              Pending Approval from Teacher
+            <MDTypography variant="h6" gutterBottom sx={{ color: "#2e3b55", fontWeight: 700 }}>
+              Pending Approval
             </MDTypography>
-            <Grid container spacing={3}>
+
+            <Grid container spacing={2}>
               {filteredPending.length === 0 ? (
                 <Grid item xs={12}>
-                  <MDTypography variant="body2">No pending requests.</MDTypography>
+                  <MDTypography variant="body2" color="textSecondary">
+                    No pending requests.
+                  </MDTypography>
                 </Grid>
               ) : (
                 filteredPending.map((course) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
                     <Card
-                      style={{
-                        padding: "16px",
-                        borderRadius: "12px",
-                        textAlign: "center",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      sx={{
+                        padding: 2,
+                        borderRadius: 2,
+                        textAlign: "left",
+                        background: "#fff",
+                        border: "1px solid #eef1f5",
+                        boxShadow: "0 6px 18px rgba(26, 34, 54, 0.03)",
                       }}
                     >
-                      <MDBox display="flex" flexDirection="column" alignItems="center" mb={1}>
-                        {course.thumbnail && (
-                          <img
-                            src={course.thumbnail}
-                            alt={`${course.title} thumbnail`}
-                            style={{
-                              width: "80px",
-                              height: "80px",
-                              objectFit: "cover",
-                              borderRadius: "8px",
-                              marginBottom: "8px",
-                            }}
-                          />
-                        )}
-                        <MDBox display="flex" alignItems="center" gap={1}>
-                          <AccessTimeIcon color="warning" />
-                          <MDTypography variant="h6">{course.title}</MDTypography>
-                        </MDBox>
-                        <MDTypography variant="body2" color="textSecondary">
-                          {course.teacher}
-                        </MDTypography>
-                      </MDBox>
-                      <MDTypography variant="caption" color="textSecondary">
-                        Waiting for teacher approval...
+                      <MDTypography variant="subtitle1" sx={{ color: "#182033", fontWeight: 700 }}>
+                        {course.title}
                       </MDTypography>
+                      <MDTypography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
+                        {course.teacher}
+                      </MDTypography>
+
+                      <Box mt={2}>
+                        <Chip
+                          label="Pending"
+                          size="small"
+                          icon={<AccessTimeIcon style={{ fontSize: 16 }} />}
+                          sx={{
+                            height: 26,
+                            fontWeight: 700,
+                            backgroundColor: "#fff4d6",
+                            color: "#8a6d00",
+                            borderRadius: "10px",
+                          }}
+                        />
+                      </Box>
                     </Card>
                   </Grid>
                 ))
@@ -477,21 +368,27 @@ function StudentDashboard() {
       </MDBox>
 
       {/* Course Details Dialog */}
-      <Dialog open={!!showCourseDetails} onClose={handleCloseDetails}>
-        <DialogTitle>Course Details</DialogTitle>
-        <DialogContent>
+      <Dialog open={!!showCourseDetails} onClose={handleCloseDetails} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ background: "#2e3b55", color: "#fff", fontWeight: 600 }}>
+          Course Details
+        </DialogTitle>
+        <DialogContent sx={{ background: "#fafbfc" }}>
           {showCourseDetails && (
             <Box>
-              <MDTypography variant="h6">Course: {showCourseDetails.title}</MDTypography>
-              <MDTypography variant="body1">Teacher: {showCourseDetails.teacher}</MDTypography>
-              <MDTypography variant="body2" mt={2}>
-                Please note: Requesting this course will add it to your pending requests. It will
-                only be officially enrolled after teacher approval.
+              <MDTypography variant="h6" sx={{ color: "#2e3b55" }}>
+                {showCourseDetails.title}
+              </MDTypography>
+              <MDTypography variant="body1" sx={{ color: "#6c757d" }}>
+                Teacher: {showCourseDetails.teacher}
+              </MDTypography>
+              <MDTypography variant="body2" mt={2} sx={{ color: "#495057" }}>
+                Requesting this course will add it to your pending requests. It will only be
+                enrolled after teacher approval.
               </MDTypography>
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ background: "#fafbfc" }}>
           <Button onClick={handleCloseDetails} color="secondary">
             Cancel
           </Button>

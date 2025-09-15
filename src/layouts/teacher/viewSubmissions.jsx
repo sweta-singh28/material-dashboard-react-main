@@ -1,11 +1,11 @@
-// ViewSubmissions.jsx
+// ViewSubmissions.jsx (redesigned to match screenshot)
 
-// React
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -27,46 +27,69 @@ function ViewSubmissions() {
   // Dummy submissions (replace with API later)
   const [submissions, setSubmissions] = useState([
     {
-      id: 1,
-      roll_no: "101",
-      student_name: "John Doe",
-      course_name: "DBMS",
-      assignment_title: "Assignment 1",
-      file_url: "assignment1_john.pdf",
-      status: "Pending",
+      submission_id: "subm-101",
+      submission_link: "https://files.example.com/submissions/subm-101.pdf",
+      submission_time: "2025-09-10T15:30:00Z",
+      approval: "pending",
+      student_id: "user-789",
+      assignment: {
+        AN_id: "assign-001",
+        AN_title: "ER Diagram Assignment",
+        AN_link: "https://files.example.com/assignments/er_assignment.pdf",
+      },
+      course: {
+        idCourses: "course-123",
+        course_name: "Database Systems",
+      },
     },
     {
-      id: 2,
-      roll_no: "102",
-      student_name: "Jane Smith",
-      course_name: "DBMS",
-      assignment_title: "Assignment 1",
-      file_url: "assignment1_jane.pdf",
-      status: "Pending",
+      submission_id: "subm-102",
+      submission_link: "https://files.example.com/submissions/subm-102.pdf",
+      submission_time: "2025-09-11T18:45:00Z",
+      approval: "approved",
+      student_id: "user-456",
+      assignment: {
+        AN_id: "assign-001",
+        AN_title: "ER Diagram Assignment",
+        AN_link: "https://files.example.com/assignments/er_assignment.pdf",
+      },
+      course: {
+        idCourses: "course-123",
+        course_name: "Database Systems",
+      },
     },
     {
-      id: 3,
-      roll_no: "103",
-      student_name: "Ravi Kumar",
-      course_name: "DBMS",
-      assignment_title: "Assignment 1",
-      file_url: "assignment1_ravi.pdf",
-      status: "Approved",
+      submission_id: "subm-201",
+      submission_link: "https://files.example.com/submissions/subm-201.pdf",
+      submission_time: "2025-09-12T09:20:00Z",
+      approval: "pending",
+      student_id: "user-222",
+      assignment: {
+        AN_id: "assign-002",
+        AN_title: "SQL Queries Assignment",
+        AN_link: "https://files.example.com/assignments/sql_assignment.pdf",
+      },
+      course: {
+        idCourses: "course-456",
+        course_name: "Advanced SQL",
+      },
     },
   ]);
 
   // Approve function
   const handleApprove = (id) => {
     setSubmissions((prev) =>
-      prev.map((sub) => (sub.id === id ? { ...sub, status: "Approved" } : sub))
+      prev.map((sub) => (sub.submission_id === id ? { ...sub, approval: "approved" } : sub))
     );
   };
 
-  // Mark function (toggle between Marked/Pending)
+  // Mark function (kept intact) — UI will interpret non-approved as Pending
   const handleMark = (id) => {
     setSubmissions((prev) =>
       prev.map((sub) =>
-        sub.id === id ? { ...sub, status: sub.status === "Marked" ? "Pending" : "Marked" } : sub
+        sub.submission_id === id
+          ? { ...sub, approval: sub.approval === "marked" ? "pending" : "marked" }
+          : sub
       )
     );
   };
@@ -79,10 +102,9 @@ function ViewSubmissions() {
   // Apply global search
   const filteredSubmissions = submissions.filter(
     (sub) =>
-      sub.student_name.toLowerCase().includes(search.toLowerCase()) ||
-      sub.roll_no.toLowerCase().includes(search.toLowerCase()) ||
-      sub.assignment_title.toLowerCase().includes(search.toLowerCase()) ||
-      sub.course_name.toLowerCase().includes(search.toLowerCase())
+      sub.student_id.toLowerCase().includes(search.toLowerCase()) ||
+      sub.assignment.AN_title.toLowerCase().includes(search.toLowerCase()) ||
+      sub.course.course_name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -96,35 +118,36 @@ function ViewSubmissions() {
                 📑 Student Submissions
               </MDTypography>
 
-              {/* Table Header */}
+              {/* Table-like header using CSS grid to match screenshot proportions */}
               <MDBox
-                display="flex"
-                justifyContent="space-between"
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 4fr 3fr 2fr 1fr 1fr",
+                  gap: 2,
+                  alignItems: "center",
+                }}
                 p={2}
-                bgColor="grey-100"
+                mb={1}
                 borderRadius="md"
-                mb={2}
+                bgcolor="#f1f5f9"
               >
-                <MDTypography variant="button" fontWeight="bold" flex={1}>
-                  Roll No
+                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
+                  Student ID
                 </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" flex={1}>
-                  Student Name
-                </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" flex={1}>
+                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
                   Assignment
                 </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" flex={1}>
+                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
                   Course
                 </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" flex={1}>
+                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
                   File
                 </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" flex={1}>
+                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
                   Status
                 </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" flex={1}>
-                  Actions
+                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
+                  Action
                 </MDTypography>
               </MDBox>
 
@@ -134,87 +157,103 @@ function ViewSubmissions() {
                   No submissions found.
                 </MDTypography>
               ) : (
-                filteredSubmissions.map((sub) => (
-                  <MDBox
-                    key={sub.id}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    p={2}
-                    mb={1}
-                    borderRadius="md"
-                    bgColor="#f9f9f9"
-                  >
-                    <MDTypography variant="body2" flex={1}>
-                      {sub.roll_no}
-                    </MDTypography>
-                    <MDTypography
-                      variant="body2"
-                      flex={1}
-                      color="info"
+                filteredSubmissions.map((sub) => {
+                  // UI-only mapping: show either Approved or Pending (any non-'approved' is Pending)
+                  const isApproved = sub.approval === "approved";
+                  const displayStatus = isApproved ? "Approved" : "Pending";
+
+                  return (
+                    <MDBox
+                      key={sub.submission_id}
                       sx={{
-                        cursor: "pointer",
-                        textDecoration: "underline",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 4fr 3fr 2fr 1fr 1fr",
+                        gap: 2,
+                        alignItems: "center",
+                        py: 2,
+                        px: 1,
+                        borderBottom: "1px solid rgba(0,0,0,0.06)",
+                        background: "#ffffff",
                       }}
-                      onClick={() => handleStudentClick(sub.id)}
                     >
-                      {sub.student_name}
-                    </MDTypography>
-                    <MDTypography variant="body2" flex={1}>
-                      {sub.assignment_title}
-                    </MDTypography>
-                    <MDTypography variant="body2" flex={1}>
-                      {sub.course_name}
-                    </MDTypography>
-                    <MDTypography variant="body2" flex={1} color="info">
-                      <a
-                        href={sub.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          textDecoration: "underline",
-                          color: "#1a73e8",
+                      <MDTypography
+                        variant="body2"
+                        sx={{
                           cursor: "pointer",
+                          textDecoration: "underline",
+                          color: "#0b66ff",
                         }}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={() => handleStudentClick(sub.student_id)}
                       >
-                        {sub.file_url}
-                      </a>
-                    </MDTypography>
-                    <MDTypography
-                      variant="body2"
-                      flex={1}
-                      color={
-                        sub.status === "Approved"
-                          ? "success"
-                          : sub.status === "Marked"
-                          ? "info"
-                          : "warning"
-                      }
-                    >
-                      {sub.status}
-                    </MDTypography>
-                    <MDBox display="flex" gap={1} flex={1}>
-                      <MDButton
-                        variant="outlined"
-                        color="info"
-                        size="small"
-                        onClick={() => handleMark(sub.id)}
-                      >
-                        Mark
-                      </MDButton>
-                      <MDButton
-                        variant="gradient"
-                        color="success"
-                        size="small"
-                        onClick={() => handleApprove(sub.id)}
-                        disabled={sub.status === "Approved"}
-                      >
-                        Approve
-                      </MDButton>
+                        {sub.student_id}
+                      </MDTypography>
+
+                      <MDTypography variant="body2">{sub.assignment.AN_title}</MDTypography>
+
+                      <MDTypography variant="body2">{sub.course.course_name}</MDTypography>
+
+                      <MDTypography variant="body2">
+                        <a
+                          href={sub.submission_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: "none", display: "inline-flex", gap: 6 }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Icon fontSize="small" sx={{ verticalAlign: "middle" }}>
+                            description
+                          </Icon>
+                          <span style={{ textDecoration: "underline", color: "#1a73e8" }}>
+                            View File
+                          </span>
+                        </a>
+                      </MDTypography>
+
+                      {/* Status pill */}
+                      <MDBox>
+                        <MDTypography
+                          variant="caption"
+                          sx={{
+                            display: "inline-block",
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: "20px",
+                            fontWeight: 600,
+                            fontSize: "0.75rem",
+                            textTransform: "none",
+                            backgroundColor: isApproved ? "#e6f4ea" : "#fff7e6",
+                            color: isApproved ? "#14632a" : "#7a4a00",
+                          }}
+                        >
+                          {displayStatus}
+                        </MDTypography>
+                      </MDBox>
+
+                      {/* Action: either Approve (if pending) or Mark (if approved) */}
+                      <MDBox display="flex" justifyContent="flex-start" gap={1}>
+                        {!isApproved ? (
+                          <MDButton
+                            variant="gradient"
+                            color="success"
+                            size="small"
+                            onClick={() => handleApprove(sub.submission_id)}
+                          >
+                            Approve
+                          </MDButton>
+                        ) : (
+                          <MDButton
+                            variant="outlined"
+                            color="info"
+                            size="small"
+                            onClick={() => handleMark(sub.submission_id)}
+                          >
+                            Mark
+                          </MDButton>
+                        )}
+                      </MDBox>
                     </MDBox>
-                  </MDBox>
-                ))
+                  );
+                })
               )}
             </MDBox>
           </Grid>

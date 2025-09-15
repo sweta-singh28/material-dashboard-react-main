@@ -2,10 +2,8 @@ import React from "react";
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Collapse from "@mui/material/Collapse";
+import Icon from "@mui/material/Icon";
+import Avatar from "@mui/material/Avatar";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -17,12 +15,14 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import TextField from "@mui/material/TextField";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDButton from "components/MDButton";
 
-// Material Dashboard 2 React example components
+// Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -30,53 +30,104 @@ import Footer from "examples/Footer";
 // React Router
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
-// Charts
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+// A simple static component to represent the bar chart from the image
+function CourseProgressBar() {
+  const bars = [
+    { value: 60, label: "Week 1" },
+    { value: 90, label: "Week 2" },
+    { value: 85, label: "Week 3" },
+    { value: 100, label: "Week 4" },
+  ];
+
+  return (
+    <MDBox display="flex" justifyContent="space-around" alignItems="flex-end" height="150px" mt={2}>
+      {bars.map((bar, index) => (
+        <MDBox key={index} textAlign="center">
+          <MDBox
+            display="flex"
+            alignItems="flex-end"
+            justifyContent="center"
+            width="40px"
+            height={`${bar.value}%`}
+            sx={{
+              backgroundColor: "#1A73E8",
+              borderRadius: "4px",
+              position: "relative",
+              overflow: "hidden",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                height: `${100 - bar.value}%`,
+              },
+            }}
+          />
+          <MDTypography variant="caption" color="text" mt={1}>
+            {bar.label}
+          </MDTypography>
+        </MDBox>
+      ))}
+    </MDBox>
+  );
+}
 
 function SubjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [openUpdateForm, setOpenUpdateForm] = React.useState(false);
   const [updateText, setUpdateText] = React.useState("");
 
   // ✅ Schema-based JSON (hardcoded, API-ready)
   const courses = [
     {
       course_id: 1,
-      course_name: "Mathematics",
-      course_code: "MTH101",
+      course_name: "Introduction to Programming",
+      course_code: "CS101",
       course_syllabus: {
         chapters: [
-          "Linear Equations",
-          "Quadratic Equations",
-          "Polynomials",
-          "Lines & Angles",
-          "Triangles",
-          "Circles",
-          "Coordinate Geometry",
-          "Limits & Continuity",
-          "Derivatives",
-          "Integrals",
-          "Probability Basics",
-          "Distributions",
-          "Data Analysis",
+          "Introduction to Programming Concepts",
+          "Data Types and Variables",
+          "Control Structures (Loops and Conditionals)",
+          "Functions and Modularity",
+          "Object-Oriented Programming",
         ],
       },
-      course_current_completed: ["Linear Equations", "Quadratic Equations", "Lines & Angles"],
+      course_current_completed: ["Introduction to Programming Concepts"],
       students: [
         {
-          user_id: 1,
+          user_id: 101,
           full_name: "Sophia Clark",
-          email: "sophia@example.com",
+          email: "sophia.clark@email.com",
           profile_picture: "https://i.pravatar.cc/150?u=sophia@example.com",
         },
         {
-          user_id: 2,
+          user_id: 102,
           full_name: "Ethan Miller",
-          email: "ethan@example.com",
+          email: "ethan.miller@email.com",
           profile_picture: "https://i.pravatar.cc/150?u=ethan@example.com",
+        },
+        {
+          user_id: 103,
+          full_name: "Olivia Davis",
+          email: "olivia.davis@email.com",
+          profile_picture: "https://i.pravatar.cc/150?u=olivia@example.com",
+        },
+        {
+          user_id: 104,
+          full_name: "Noah Wilson",
+          email: "noah.wilson@email.com",
+          profile_picture: "https://i.pravatar.cc/150?u=noah@example.com",
+        },
+        {
+          user_id: 105,
+          full_name: "Ava Taylor",
+          email: "ava.taylor@email.com",
+          profile_picture: "https://i.pravatar.cc/150?u=ava@example.com",
         },
       ],
     },
@@ -84,8 +135,8 @@ function SubjectDetails() {
 
   const defaultCourse = {
     course_id: 0,
-    course_name: "Unknown",
-    course_code: "-",
+    course_name: "Unknown Course",
+    course_code: "N/A",
     course_syllabus: { chapters: [] },
     course_current_completed: [],
     students: [],
@@ -99,7 +150,6 @@ function SubjectDetails() {
 
   const course = location.state?.course || courseFromParams || courses[0] || defaultCourse;
 
-  // ✅ Track completed chapters in state (tickable)
   const [completedChapters, setCompletedChapters] = React.useState(
     course.course_current_completed || []
   );
@@ -110,32 +160,21 @@ function SubjectDetails() {
     );
   };
 
-  // Dummy progress data
-  const progressData = [
-    { week: "Week 1", completion: 70 },
-    { week: "Week 2", completion: 80 },
-    { week: "Week 3", completion: 90 },
-    { week: "Week 4", completion: 60 },
-  ];
-
   const handleUpdateSubmit = (e) => {
     e.preventDefault();
     console.log("Updated course info:", updateText);
     setUpdateText("");
-    setOpenUpdateForm(false);
+    // In a real app, you would likely show a success message here
   };
 
-  // Navigate to student details
   const handleStudentClick = (userId) => {
     navigate(`/students/${userId}`);
   };
 
-  // Navigate to upload materials with type 'assignment'
   const handleAddAssignment = () => {
     navigate("/uploadMaterials", { state: { course, type: "assignment" } });
   };
 
-  // Navigate to upload materials with type 'notes'
   const handleAddNotes = () => {
     navigate("/uploadMaterials", { state: { course, type: "notes" } });
   };
@@ -143,192 +182,217 @@ function SubjectDetails() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox py={3}>
-        <Grid container justifyContent="center" spacing={3}>
-          {/* Course Info Card */}
-          <Grid item xs={12} md={8} lg={6}>
-            <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
-              <MDTypography variant="h4" fontWeight="bold" gutterBottom>
-                📘 Course Details
+      <MDBox pt={6} pb={3}>
+        {/* Header */}
+        <MDBox mb={3}>
+          <Grid container justifyContent="space-between" alignItems="center">
+            <Grid item>
+              <MDTypography variant="h4" fontWeight="medium">
+                {course.course_name}
               </MDTypography>
-              <Divider sx={{ my: 2 }} />
+              <MDTypography variant="body2" color="text">
+                Course Code: {course.course_code}
+              </MDTypography>
+            </Grid>
+            <Grid item>
+              <MDButton variant="gradient" color="info" size="small" onClick={() => navigate(-1)}>
+                <Icon sx={{ fontWeight: "bold" }}>arrow_back</Icon>
+                &nbsp;Back to Courses
+              </MDButton>
+            </Grid>
+          </Grid>
+        </MDBox>
 
-              <MDBox mb={2}>
-                <MDTypography variant="h6">Course Name:</MDTypography>
-                <MDTypography variant="body1">{course.course_name}</MDTypography>
-              </MDBox>
+        <Grid container spacing={3}>
+          {/* Left Column */}
+          <Grid item xs={12} lg={8}>
+            <Grid container spacing={3}>
+              {/* Course Progress Card */}
+              <Grid item xs={12}>
+                <Card>
+                  <MDBox p={2}>
+                    <MDTypography variant="h6">Course Progress</MDTypography>
+                    <CourseProgressBar />
+                  </MDBox>
+                </Card>
+              </Grid>
 
-              <MDBox mb={2}>
-                <MDTypography variant="h6">Course Code:</MDTypography>
-                <MDTypography variant="body1">{course.course_code}</MDTypography>
-              </MDBox>
-
-              <MDBox mb={2}>
-                <MDTypography variant="h6">Enrolled Students:</MDTypography>
-                {course.students?.length ? (
+              {/* Enrolled Students Card */}
+              <Grid item xs={12}>
+                <Card>
+                  <MDBox pt={2} px={2}>
+                    <MDTypography variant="h6">Enrolled Students</MDTypography>
+                  </MDBox>
                   <TableContainer>
                     <Table>
-                      <TableHead>
+                      <TableHead sx={{ display: "table-header-group" }}>
                         <TableRow>
-                          <TableCell>#</TableCell>
-                          <TableCell>Profile</TableCell>
-                          <TableCell>Student Name</TableCell>
-                          <TableCell>Email</TableCell>
+                          <TableCell sx={{ px: 2, width: "15%", borderBottom: "none" }}>
+                            <MDTypography variant="overline">ROLL NUMBER</MDTypography>
+                          </TableCell>
+                          <TableCell sx={{ px: 2, borderBottom: "none" }}>
+                            <MDTypography variant="overline">STUDENT</MDTypography>
+                          </TableCell>
+                          <TableCell sx={{ px: 2, borderBottom: "none" }}>
+                            <MDTypography variant="overline">EMAIL ID</MDTypography>
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {course.students.map((student, index) => (
+                        {course.students.map((student) => (
                           <TableRow
                             key={student.user_id}
                             hover
-                            sx={{ cursor: "pointer" }}
                             onClick={() => handleStudentClick(student.user_id)}
+                            sx={{
+                              cursor: "pointer",
+                              "& > .MuiTableCell-root": {
+                                borderBottom: "1px solid #e0e0e0",
+                                py: 1.5,
+                              },
+                            }}
                           >
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell>
-                              <img
-                                src={student.profile_picture}
-                                alt={student.full_name}
-                                width={40}
-                                height={40}
-                                style={{ borderRadius: "50%" }}
-                              />
+                            <TableCell sx={{ px: 2 }}>
+                              <MDTypography variant="body2">{student.user_id}</MDTypography>
                             </TableCell>
-                            <TableCell>{student.full_name}</TableCell>
-                            <TableCell>{student.email}</TableCell>
+                            <TableCell sx={{ px: 2 }}>
+                              <MDBox display="flex" alignItems="center">
+                                <Avatar
+                                  src={student.profile_picture}
+                                  alt={student.full_name}
+                                  sx={{ width: 36, height: 36, mr: 2 }}
+                                />
+                                <MDTypography variant="button" fontWeight="medium">
+                                  {student.full_name}
+                                </MDTypography>
+                              </MDBox>
+                            </TableCell>
+                            <TableCell sx={{ px: 2 }}>
+                              <MDTypography variant="body2" color="text">
+                                {student.email}
+                              </MDTypography>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
                   </TableContainer>
-                ) : (
-                  <MDTypography variant="body1">No students enrolled yet</MDTypography>
-                )}
-              </MDBox>
+                </Card>
+              </Grid>
 
-              {/* Add Assignment & Notes Buttons */}
-              <MDBox
-                mt={3}
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                gap={2}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  onClick={handleAddAssignment}
-                  sx={{ borderRadius: "12px", textTransform: "none" }}
-                >
-                  ➕ Add Assignment
-                </Button>
-                <Button
-                  variant="contained"
-                  color="info"
-                  onClick={handleAddNotes}
-                  sx={{ borderRadius: "12px", textTransform: "none" }}
-                >
-                  📝 Add Notes
-                </Button>
-
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => navigate(-1)}
-                  sx={{ borderRadius: "12px", textTransform: "none" }}
-                >
-                  ← Back to Courses
-                </Button>
-              </MDBox>
-            </Card>
-          </Grid>
-
-          {/* Course Progress Chart */}
-          <Grid item xs={12} md={10} lg={8}>
-            <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
-              <MDTypography variant="h5" fontWeight="bold" gutterBottom>
-                📊 Course Progress
-              </MDTypography>
-              <Divider sx={{ my: 2 }} />
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={progressData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
-                  <Bar dataKey="completion" fill="#673ab7" name="Completion %" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          </Grid>
-
-          {/* ✅ Course Syllabus Checklist */}
-          <Grid item xs={12} md={10} lg={8}>
-            <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
-              <MDTypography variant="h5" fontWeight="bold" gutterBottom>
-                📑 Course Syllabus Checklist
-              </MDTypography>
-              <Divider sx={{ my: 2 }} />
-              <List>
-                {course.course_syllabus?.chapters?.map((chapter, index) => (
-                  <ListItem key={index} button onClick={() => handleToggleChapter(chapter)}>
-                    <ListItemIcon>
-                      <Checkbox
-                        edge="start"
-                        checked={completedChapters.includes(chapter)}
-                        tabIndex={-1}
-                        disableRipple
-                        sx={{ color: "#673ab7" }}
-                      />
-                    </ListItemIcon>
-                    <ListItemText primary={chapter} />
-                  </ListItem>
-                ))}
-              </List>
-            </Card>
-          </Grid>
-
-          {/* Teacher Update Section */}
-          <Grid item xs={12} md={10} lg={8}>
-            <Card sx={{ p: 4, borderRadius: "16px", boxShadow: 4 }}>
-              <MDTypography variant="h5" fontWeight="bold" gutterBottom>
-                ✏️ Update About Course
-              </MDTypography>
-              <Divider sx={{ my: 2 }} />
-
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ borderRadius: "12px", textTransform: "none", mb: 2 }}
-                onClick={() => setOpenUpdateForm(!openUpdateForm)}
-              >
-                Update About Course
-              </Button>
-
-              <Collapse in={openUpdateForm}>
-                <form onSubmit={handleUpdateSubmit}>
-                  <MDBox display="flex" flexDirection="column" gap={2} mt={2}>
-                    <TextField
-                      label="Write updates about assignments / notes"
-                      multiline
-                      rows={4}
-                      variant="outlined"
-                      value={updateText}
-                      onChange={(e) => setUpdateText(e.target.value)}
-                      fullWidth
-                    />
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="success"
-                      sx={{ borderRadius: "12px", textTransform: "none" }}
-                    >
-                      Submit Update
-                    </Button>
+              {/* Course Management Card */}
+              <Grid item xs={12}>
+                <Card>
+                  <MDBox p={3}>
+                    <MDTypography variant="h6" mb={2}>
+                      Course Management
+                    </MDTypography>
+                    <Grid container spacing={4}>
+                      {/* Actions */}
+                      <Grid item xs={12} md={4}>
+                        <MDTypography variant="subtitle2" fontWeight="bold" color="text" mb={1}>
+                          Actions
+                        </MDTypography>
+                        <MDBox display="flex" gap={1.5}>
+                          <MDButton variant="gradient" color="info" onClick={handleAddAssignment}>
+                            Add Assignments
+                          </MDButton>
+                          <MDButton variant="gradient" color="info" onClick={handleAddNotes}>
+                            Add Notes
+                          </MDButton>
+                        </MDBox>
+                      </Grid>
+                      {/* Update About Course */}
+                      <Grid item xs={12} md={8}>
+                        <MDTypography variant="subtitle2" fontWeight="bold" color="text" mb={1}>
+                          Update About Course
+                        </MDTypography>
+                        <form onSubmit={handleUpdateSubmit}>
+                          <TextField
+                            label="Enter course description"
+                            multiline
+                            rows={4}
+                            variant="outlined"
+                            fullWidth
+                            value={updateText}
+                            onChange={(e) => setUpdateText(e.target.value)}
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                padding: "8px 12px",
+                              },
+                            }}
+                          />
+                          <MDButton type="submit" variant="gradient" color="info" sx={{ mt: 1.5 }}>
+                            Update About Course
+                          </MDButton>
+                        </form>
+                      </Grid>
+                    </Grid>
                   </MDBox>
-                </form>
-              </Collapse>
-            </Card>
+                </Card>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* Right Column */}
+          <Grid item xs={12} lg={4}>
+            <Grid container spacing={3}>
+              {/* Course Completion % Card */}
+              <Grid item xs={12}>
+                <Card>
+                  <MDBox p={2}>
+                    <MDTypography variant="h6">Course Completion %</MDTypography>
+                    <MDTypography variant="body2" color="text">
+                      Last 30 Days
+                    </MDTypography>
+                    <MDBox display="flex" alignItems="center" mt={2}>
+                      <MDTypography variant="h3" fontWeight="bold">
+                        78%
+                      </MDTypography>
+                      <MDTypography variant="body2" color="success" sx={{ ml: 1 }}>
+                        +5%
+                      </MDTypography>
+                    </MDBox>
+                  </MDBox>
+                </Card>
+              </Grid>
+
+              {/* Course Syllabus Checklist Card */}
+              <Grid item xs={12}>
+                <Card>
+                  <MDBox pt={2} pb={1} px={2}>
+                    <MDTypography variant="h6">Course Syllabus Checklist</MDTypography>
+                  </MDBox>
+                  <MDBox>
+                    <List dense sx={{ p: 0 }}>
+                      {course.course_syllabus?.chapters?.map((chapter, index) => (
+                        <ListItem
+                          key={index}
+                          onClick={() => handleToggleChapter(chapter)}
+                          sx={{
+                            cursor: "pointer",
+                            px: 2,
+                            py: 1,
+                            "&:hover": {
+                              backgroundColor: "rgba(0, 0, 0, 0.04)",
+                            },
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 0, mr: 1.5 }}>
+                            <Checkbox
+                              edge="start"
+                              checked={completedChapters.includes(chapter)}
+                              disableRipple
+                            />
+                          </ListItemIcon>
+                          <ListItemText primary={chapter} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </MDBox>
+                </Card>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </MDBox>

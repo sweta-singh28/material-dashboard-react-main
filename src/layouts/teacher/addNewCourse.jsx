@@ -1,4 +1,3 @@
-// AddNewCourse.jsx
 import React, { useState } from "react";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
@@ -10,6 +9,14 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -35,7 +42,6 @@ function AddNewCourse() {
         course_code: "REACT101",
         course_status: "Pending",
         course_description: "Learn the fundamentals of React and component-based development.",
-        course_thumbnail: "react-course.png",
         course_current_completed: 0,
         course_active_students: JSON.stringify([]),
         course_pending_students: JSON.stringify([]),
@@ -52,6 +58,10 @@ function AddNewCourse() {
   const [expectations, setExpectations] = useState("");
   const [prerequisites, setPrerequisites] = useState("");
   const [syllabus, setSyllabus] = useState("");
+
+  // New state for dialog
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
@@ -104,6 +114,17 @@ function AddNewCourse() {
   const chipColor = (status) =>
     status === "Approved" ? "success" : status === "Rejected" ? "error" : "warning";
 
+  // New functions for dialog
+  const handleOpenDialog = (course) => {
+    setSelectedCourse(course);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedCourse(null);
+  };
+
   // search filter
   const filteredCourses = data.Courses.filter((course) =>
     course.course_name.toLowerCase().includes(search.toLowerCase())
@@ -117,7 +138,10 @@ function AddNewCourse() {
           <Grid item xs={12} md={8}>
             <MDBox p={3} borderRadius="lg" shadow="md" bgColor="white">
               <MDTypography variant="h4" gutterBottom>
-                📚 Launch New Course
+                Add a New Course
+              </MDTypography>
+              <MDTypography variant="body2" color="text" mb={3}>
+                Fill out the form below to create a new course.
               </MDTypography>
 
               {/* Course Name */}
@@ -126,6 +150,7 @@ function AddNewCourse() {
                   fullWidth
                   label="Course Name"
                   variant="outlined"
+                  placeholder="e.g., Introduction to Python Programming"
                   value={courseName}
                   onChange={(e) => setCourseName(e.target.value)}
                 />
@@ -139,6 +164,7 @@ function AddNewCourse() {
                   rows={4}
                   label="Course Description"
                   variant="outlined"
+                  placeholder="A comprehensive overview of the course content and objectives."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
@@ -148,23 +174,23 @@ function AddNewCourse() {
               <MDBox mb={2}>
                 <TextField
                   fullWidth
-                  label="Teacher's ID / Info"
+                  label="Teacher's Info"
                   variant="outlined"
-                  placeholder="Enter user_id or teacher's info"
+                  placeholder="e.g., Dr. Jane Doe, PhD in Computer Science"
                   value={teacherInfo}
                   onChange={(e) => setTeacherInfo(e.target.value)}
                 />
               </MDBox>
 
-              {/* Course Expectations (just informational for now) */}
+              {/* Course Expectations */}
               <MDBox mb={2}>
                 <TextField
                   fullWidth
                   multiline
-                  rows={3}
+                  rows={4}
                   label="Course Expectations"
                   variant="outlined"
-                  placeholder="What students will learn / outcomes"
+                  placeholder="What students will learn and be able to do after completing the course."
                   value={expectations}
                   onChange={(e) => setExpectations(e.target.value)}
                 />
@@ -175,48 +201,61 @@ function AddNewCourse() {
                 <TextField
                   fullWidth
                   multiline
-                  rows={2}
+                  rows={4}
                   label="Course Prerequisites"
                   variant="outlined"
-                  placeholder="Required knowledge or tools"
+                  placeholder="Any required skills, knowledge, or prior courses."
                   value={prerequisites}
                   onChange={(e) => setPrerequisites(e.target.value)}
                 />
               </MDBox>
 
-              {/* Thumbnail Upload */}
+              {/* Course Syllabus */}
               <MDBox mb={2}>
-                <MDTypography variant="button" fontWeight="medium">
-                  Upload Course Thumbnail
-                </MDTypography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Course Syllabus"
+                  variant="outlined"
+                  placeholder="A detailed week-by-week breakdown of topics, readings, and assignments."
+                  value={syllabus}
+                  onChange={(e) => setSyllabus(e.target.value)}
+                />
+              </MDBox>
+
+              {/* Thumbnail Upload */}
+              <MDBox
+                mb={2}
+                sx={{
+                  border: "2px dashed #ccc",
+                  borderRadius: "8px",
+                  padding: "24px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                }}
+              >
                 <input
                   type="file"
                   accept="image/*"
-                  style={{ display: "block", marginTop: "8px" }}
                   onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  id="thumbnail-upload"
                 />
+                <label htmlFor="thumbnail-upload" style={{ cursor: "pointer", display: "block" }}>
+                  <CloudUploadIcon color="info" sx={{ fontSize: 40 }} />
+                  <MDTypography variant="body2" fontWeight="medium" mt={1}>
+                    Upload a file or drag and drop
+                  </MDTypography>
+                  <MDTypography variant="caption" color="text">
+                    PNG, JPG, GIF up to 10MB
+                  </MDTypography>
+                </label>
                 {thumbnail && (
                   <MDTypography variant="caption" color="text" sx={{ display: "block", mt: 1 }}>
                     Selected: {thumbnail.name}
                   </MDTypography>
                 )}
-              </MDBox>
-
-              {/* Syllabus Topics */}
-              <MDBox mb={2}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  label="Course Syllabus"
-                  variant="outlined"
-                  placeholder="Add topics separated by commas"
-                  value={syllabus}
-                  onChange={(e) => setSyllabus(e.target.value)}
-                />
-                <MDTypography variant="caption" color="text" sx={{ display: "block", mt: 1 }}>
-                  *Add topics separated by commas
-                </MDTypography>
               </MDBox>
 
               {/* Action Buttons */}
@@ -225,7 +264,7 @@ function AddNewCourse() {
                   Cancel
                 </MDButton>
                 <MDButton variant="gradient" color="info" onClick={handleCreate}>
-                  Create Course
+                  Submit Course
                 </MDButton>
               </MDBox>
             </MDBox>
@@ -234,44 +273,29 @@ function AddNewCourse() {
             {filteredCourses.length > 0 && (
               <MDBox mt={4}>
                 <MDTypography variant="h5" gutterBottom>
-                  📑 Your Submitted Courses
+                  Your Submitted Courses
                 </MDTypography>
                 <TableContainer component={Paper}>
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell>
-                          <b>Course Name</b>
+                          <b>COURSE NAME</b>
                         </TableCell>
                         <TableCell>
-                          <b>Description</b>
-                        </TableCell>
-                        <TableCell>
-                          <b>Teacher</b>
-                        </TableCell>
-                        <TableCell>
-                          <b>Thumbnail</b>
-                        </TableCell>
-                        <TableCell>
-                          <b>Prerequisites</b>
-                        </TableCell>
-                        <TableCell>
-                          <b>Syllabus</b>
-                        </TableCell>
-                        <TableCell>
-                          <b>Status</b>
+                          <b>STATUS</b>
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {filteredCourses.map((course) => (
-                        <TableRow key={course.idCourses}>
+                        <TableRow
+                          key={course.idCourses}
+                          hover
+                          onClick={() => handleOpenDialog(course)}
+                          sx={{ cursor: "pointer" }}
+                        >
                           <TableCell>{course.course_name}</TableCell>
-                          <TableCell>{course.course_description}</TableCell>
-                          <TableCell>{course.teachers_user_id}</TableCell>
-                          <TableCell>{course.course_thumbnail}</TableCell>
-                          <TableCell>{course.course_pre_requisites}</TableCell>
-                          <TableCell>{JSON.parse(course.course_syllabus).join(", ")}</TableCell>
                           <TableCell>
                             <Chip
                               label={course.course_status}
@@ -290,6 +314,58 @@ function AddNewCourse() {
         </Grid>
       </MDBox>
       <Footer />
+
+      {/* Dialog for viewing course details */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>Course Details</DialogTitle>
+        <DialogContent>
+          {selectedCourse && (
+            <List>
+              <ListItem>
+                <ListItemText primary="Course Name" secondary={selectedCourse.course_name} />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Teacher's ID" secondary={selectedCourse.teachers_user_id} />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Course Syllabus"
+                  secondary={JSON.parse(selectedCourse.course_syllabus).join(", ")}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Status"
+                  secondary={
+                    <Chip
+                      label={selectedCourse.course_status}
+                      size="small"
+                      color={chipColor(selectedCourse.course_status)}
+                    />
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Course Description"
+                  secondary={selectedCourse.course_description}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Prerequisites"
+                  secondary={selectedCourse.course_pre_requisites}
+                />
+              </ListItem>
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={handleCloseDialog} color="info">
+            Close
+          </MDButton>
+        </DialogActions>
+      </Dialog>
     </DashboardLayout>
   );
 }
