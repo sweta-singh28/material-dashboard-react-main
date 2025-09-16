@@ -11,6 +11,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import TablePagination from "@mui/material/TablePagination";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import MDBox from "components/MDBox";
@@ -82,6 +83,19 @@ const TotalUsers = () => {
       );
   }, [allUsers, filterRole, search]);
 
+  // Pagination state (UI only, mirrors PendingStudentApprovals look)
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const renderRoleChip = (role) => {
     const chipBase = {
       fontWeight: 600,
@@ -107,18 +121,11 @@ const TotalUsers = () => {
     <DashboardLayout>
       <DashboardNavbar />
 
-      <MDBox mt={6} mb={3}>
+      <MDBox pt={6} pb={3}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <MDTypography
-              variant="h6"
-              fontWeight="medium"
-              color="text"
-              sx={{
-                fontFamily: "Inter, Roboto, Helvetica, Arial, sans-serif",
-                fontSize: "1.05rem",
-              }}
-            >
+            {/* Heading changed to match PendingStudentApprovals style */}
+            <MDTypography variant="h4" fontWeight="bold" mb={2}>
               Total Users
             </MDTypography>
           </Grid>
@@ -148,9 +155,17 @@ const TotalUsers = () => {
                       px: 2.5,
                       py: 0.5,
                       minWidth: "90px",
-                      color: isActive ? "#fff" : "#344054",
+                      /* ensure active button text is clearly white and overrides MUI defaults */
+                      color: isActive ? "#ffffff !important" : "#344054",
                       backgroundColor: isActive ? "#1D4ED8" : "transparent",
-                      "&:hover": { backgroundColor: isActive ? "#1E40AF" : "rgba(0,0,0,0.04)" },
+                      "&:hover": {
+                        backgroundColor: isActive ? "#1E40AF" : "rgba(0,0,0,0.04)",
+                        color: isActive ? "#ffffff !important" : "#344054",
+                      },
+                      /* keep focus/active states white too */
+                      "&.Mui-focusVisible, &:focus": {
+                        color: isActive ? "#ffffff !important" : undefined,
+                      },
                     }}
                   >
                     {r === "Teacher" ? "Teachers" : r === "Student" ? "Students" : "All"}
@@ -160,24 +175,11 @@ const TotalUsers = () => {
             </Box>
           </Grid>
 
-          {/* Table with thinner rows */}
+          {/* Table UI updated to match PendingStudentApprovals look */}
           <Grid item xs={12}>
-            <Card
-              sx={{
-                borderRadius: 2,
-                border: "1px solid rgba(226,233,239,1)",
-                boxShadow: "none",
-                backgroundColor: "#F4F6F7",
-              }}
-            >
-              <TableContainer sx={{ p: 2 }}>
-                <Table
-                  sx={{
-                    width: "100%",
-                    borderCollapse: "separate",
-                    borderSpacing: "0 8px", // slightly reduced vertical spacing
-                  }}
-                >
+            <Card sx={{ p: 3, boxShadow: 0, borderRadius: 0 }}>
+              <TableContainer>
+                <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
                   <TableHead>
                     <TableRow>
                       {[
@@ -188,18 +190,11 @@ const TotalUsers = () => {
                         <TableCell
                           key={head.label}
                           align={head.align}
-                          sx={{
-                            fontWeight: 700,
-                            textTransform: "uppercase",
-                            fontSize: "0.7rem",
-                            color: "#6B7280",
-                            borderBottom: "none",
-                            py: 1,
-                            backgroundColor: "transparent",
-                            letterSpacing: "0.03em",
-                          }}
+                          sx={{ borderBottom: "none" }}
                         >
-                          {head.label}
+                          <MDTypography variant="button" fontWeight="bold" color="text">
+                            {head.label}
+                          </MDTypography>
                         </TableCell>
                       ))}
                     </TableRow>
@@ -207,63 +202,53 @@ const TotalUsers = () => {
 
                   <TableBody>
                     {filteredUsers.length > 0 ? (
-                      filteredUsers.map((user) => (
-                        <TableRow
-                          key={user.id}
-                          hover
-                          sx={{
-                            cursor: "pointer",
-                            "& td": {
-                              borderBottom: "none",
-                              backgroundColor: "#F8F9FA",
-                              py: 1.4, // reduced vertical padding for thinner row
-                              px: 3,
-                            },
-                            "& td:first-of-type": {
-                              borderTopLeftRadius: 8,
-                              borderBottomLeftRadius: 8,
-                            },
-                            "& td:last-of-type": {
-                              borderTopRightRadius: 8,
-                              borderBottomRightRadius: 8,
-                            },
-                            "&:hover td": {
-                              backgroundColor: "#F3F6FB",
-                            },
-                          }}
-                          onClick={() =>
-                            navigate(`/userDetails/${user.id}`, { state: { user, dbJson } })
-                          }
-                        >
-                          <TableCell sx={{ py: 0 }}>
-                            <MDTypography
-                              variant="body1"
-                              fontWeight="600"
-                              color="dark"
-                              sx={{ fontSize: "0.95rem", fontFamily: "Inter, Roboto, sans-serif" }}
-                            >
-                              {user.name}
-                            </MDTypography>
-                          </TableCell>
+                      filteredUsers
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((user) => (
+                          <TableRow
+                            key={user.id}
+                            hover
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: "#f9f9f9",
+                              "&:hover": { backgroundColor: "#f0f0f0" },
+                            }}
+                            onClick={() =>
+                              navigate(`/userDetails/${user.id}`, { state: { user, dbJson } })
+                            }
+                          >
+                            <TableCell sx={{ borderBottom: "none" }}>
+                              <MDTypography
+                                variant="body1"
+                                fontWeight="600"
+                                color="dark"
+                                sx={{
+                                  fontSize: "0.95rem",
+                                  fontFamily: "Inter, Roboto, sans-serif",
+                                }}
+                              >
+                                {user.name}
+                              </MDTypography>
+                            </TableCell>
 
-                          <TableCell align="center" sx={{ py: 0 }}>
-                            {renderRoleChip(user.role)}
-                          </TableCell>
+                            <TableCell align="center" sx={{ borderBottom: "none" }}>
+                              {renderRoleChip(user.role)}
+                            </TableCell>
 
-                          <TableCell align="right" sx={{ py: 0 }}>
-                            <MDTypography
-                              variant="body2"
-                              color="text"
-                              sx={{ fontSize: "0.9rem", fontFamily: "Inter, Roboto, sans-serif" }}
-                            >
-                              {user.email}
-                            </MDTypography>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                            <TableCell align="right" sx={{ borderBottom: "none" }}>
+                              <MDTypography
+                                variant="body2"
+                                color="text"
+                                sx={{ fontSize: "0.9rem", fontFamily: "Inter, Roboto, sans-serif" }}
+                              >
+                                {user.email}
+                              </MDTypography>
+                            </TableCell>
+                          </TableRow>
+                        ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
+                        <TableCell colSpan={3} align="center" sx={{ py: 3, borderBottom: "none" }}>
                           <MDTypography color="text">No users found.</MDTypography>
                         </TableCell>
                       </TableRow>
@@ -271,6 +256,17 @@ const TotalUsers = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
+
+              {/* Pagination UI to match PendingStudentApprovals */}
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredUsers.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
             </Card>
           </Grid>
         </Grid>

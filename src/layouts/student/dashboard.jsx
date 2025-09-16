@@ -44,32 +44,50 @@ function StudentDashboard() {
           activeCourses: [
             {
               idCourses: "c1",
-              course_name: "Introduction to Databases",
+              course_name: "Introduction to Computer Science",
               course_description: "Learn the fundamentals of relational databases and SQL.",
               course_thumbnail: "/thumbnails/cs101.png",
               course_active_students: ["user-001", "user-005"],
               course_pending_students: ["user-009"],
-              teachers_user_id: "teacher-abc",
+              teachers_user_id: "Professor Eleanor Bennett",
             },
             {
               idCourses: "c2",
-              course_name: "Advanced Web Development",
+              course_name: "Calculus I",
               course_description: "Build modern, full-stack web applications.",
               course_thumbnail: "/thumbnails/cs205.png",
               course_active_students: ["user-001", "user-008"],
               course_pending_students: [],
-              teachers_user_id: "teacher-xyz",
+              teachers_user_id: "Professor Charles Harris",
+            },
+            {
+              idCourses: "c3",
+              course_name: "History of Art",
+              course_description: "An introduction to the core concepts of machine learning.",
+              course_thumbnail: "/thumbnails/ai300.png",
+              course_active_students: ["user-001"],
+              course_pending_students: [],
+              teachers_user_id: "Professor Olivia Carter",
             },
           ],
           pendingCourses: [
             {
               idCourses: "c4",
-              course_name: "Machine Learning Fundamentals",
+              course_name: "Advanced Physics",
               course_description: "An introduction to the core concepts of machine learning.",
               course_thumbnail: "/thumbnails/ai300.png",
               course_active_students: ["user-110"],
               course_pending_students: ["user-001", "user-112"],
-              teachers_user_id: "teacher-lmn",
+              teachers_user_id: "Professor Amelia Hayes",
+            },
+            {
+              idCourses: "c5",
+              course_name: "Creative Writing Workshop",
+              course_description: "An introduction to the core concepts of machine learning.",
+              course_thumbnail: "/thumbnails/ai300.png",
+              course_active_students: ["user-110"],
+              course_pending_students: ["user-001", "user-112"],
+              teachers_user_id: "Professor Owen Mitchell",
             },
           ],
           expiredCourses: [],
@@ -185,7 +203,6 @@ function StudentDashboard() {
               Student Dashboard
             </MDTypography>
           </Grid>
-
           {/* Section 1: Enrolled Courses header */}
           <Grid item xs={12}>
             <MDTypography variant="h6" gutterBottom sx={{ color: "#2e3b55", fontWeight: 700 }}>
@@ -193,7 +210,7 @@ function StudentDashboard() {
             </MDTypography>
 
             {/* Enrolled course list: horizontally laid out cards */}
-            <Grid container spacing={2} alignItems="stretch">
+            <Grid container spacing={2}>
               {filteredEnrolled.length === 0 ? (
                 <Grid item xs={12}>
                   <MDTypography variant="body2" color="textSecondary">
@@ -202,7 +219,7 @@ function StudentDashboard() {
                 </Grid>
               ) : (
                 filteredEnrolled.map((course) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
+                  <Grid item xs={12} sm={6} md={4} key={course.id}>
                     <Card
                       onClick={() => handleView(course)}
                       sx={{
@@ -210,7 +227,6 @@ function StudentDashboard() {
                         flexDirection: "column",
                         justifyContent: "center",
                         textAlign: "left",
-                        minHeight: 96,
                         padding: 2,
                         borderRadius: 2,
                         cursor: "pointer",
@@ -222,15 +238,12 @@ function StudentDashboard() {
                       }}
                     >
                       <Box display="flex" flexDirection="column">
-                        <MDTypography
-                          variant="subtitle1"
-                          sx={{ color: "#182033", fontWeight: 700 }}
-                        >
+                        <Typography variant="subtitle1" sx={{ color: "#182033", fontWeight: 700 }}>
                           {course.title}
-                        </MDTypography>
-                        <MDTypography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
                           {course.teacher}
-                        </MDTypography>
+                        </Typography>
                         <Box mt={1}>
                           <Chip
                             label="Enrolled"
@@ -251,9 +264,11 @@ function StudentDashboard() {
               )}
             </Grid>
           </Grid>
-
           {/* Section 2: Choose a Course */}
           <Grid item xs={12} md={6}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#2e3b55", mb: 2 }}>
+              Choose a Course
+            </Typography>
             <Card
               sx={{
                 padding: 2,
@@ -263,43 +278,28 @@ function StudentDashboard() {
                 boxShadow: "0 6px 18px rgba(26, 34, 54, 0.03)",
               }}
             >
-              <MDTypography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#2e3b55" }}>
-                Choose a Course
-              </MDTypography>
-
-              <Box display="flex" alignItems="center" gap={2} sx={{ mt: 1 }}>
-                <Box
-                  sx={{
-                    flex: 1,
-                    background: "#f8f9fb",
-                    borderRadius: 1,
-                    padding: 1,
-                    display: "flex",
-                    alignItems: "center",
+              <Box display="flex" alignItems="center" gap={2}>
+                <Select
+                  value={selected}
+                  onChange={(e) => {
+                    setSelected(e.target.value);
+                    if (e.target.value) handleOpenDetails(e.target.value);
                   }}
+                  displayEmpty
+                  sx={{ width: "100%", pl: 1, height: "40px" }}
                 >
-                  <Select
-                    value={selected}
-                    onChange={(e) => {
-                      setSelected(e.target.value);
-                      if (e.target.value) handleOpenDetails(e.target.value);
-                    }}
-                    displayEmpty
-                    sx={{ width: "100%", pl: 1 }}
-                  >
-                    <MenuItem value="">Select a course to enroll</MenuItem>
-                    {availableCourses.map((c) => (
-                      <MenuItem key={c.id} value={c.id}>
-                        {c.title} — {c.teacher}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </Box>
+                  <MenuItem value="">Select a course to enroll</MenuItem>
+                  {availableCourses.map((c) => (
+                    <MenuItem key={c.id} value={c.id}>
+                      {c.title} — {c.teacher}
+                    </MenuItem>
+                  ))}
+                </Select>
 
                 <Button
                   variant="contained"
                   onClick={() => selected && handleOpenDetails(selected)}
-                  sx={{ whiteSpace: "nowrap", px: 2 }}
+                  sx={{ whiteSpace: "nowrap", px: 2, height: "40px", color: "#fff" }}
                 >
                   Enroll Now
                 </Button>
@@ -310,23 +310,23 @@ function StudentDashboard() {
               </Typography>
             </Card>
           </Grid>
-
+          <Grid item xs={12}></Grid> {/* Adds a clear separation */}
           {/* Section 3: Pending Requests */}
           <Grid item xs={12}>
-            <MDTypography variant="h6" gutterBottom sx={{ color: "#2e3b55", fontWeight: 700 }}>
+            <Typography variant="h6" gutterBottom sx={{ color: "#2e3b55", fontWeight: 700 }}>
               Pending Approval
-            </MDTypography>
+            </Typography>
 
             <Grid container spacing={2}>
               {filteredPending.length === 0 ? (
                 <Grid item xs={12}>
-                  <MDTypography variant="body2" color="textSecondary">
+                  <Typography variant="body2" color="textSecondary">
                     No pending requests.
-                  </MDTypography>
+                  </Typography>
                 </Grid>
               ) : (
                 filteredPending.map((course) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
+                  <Grid item xs={12} sm={6} md={4} key={course.id}>
                     <Card
                       sx={{
                         padding: 2,
@@ -337,26 +337,29 @@ function StudentDashboard() {
                         boxShadow: "0 6px 18px rgba(26, 34, 54, 0.03)",
                       }}
                     >
-                      <MDTypography variant="subtitle1" sx={{ color: "#182033", fontWeight: 700 }}>
-                        {course.title}
-                      </MDTypography>
-                      <MDTypography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
-                        {course.teacher}
-                      </MDTypography>
+                      <Box display="flex" flexDirection="column">
+                        <Typography variant="subtitle1" sx={{ color: "#182033", fontWeight: 700 }}>
+                          {course.title}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
+                          {course.teacher}
+                        </Typography>
 
-                      <Box mt={2}>
-                        <Chip
-                          label="Pending"
-                          size="small"
-                          icon={<AccessTimeIcon style={{ fontSize: 16 }} />}
-                          sx={{
-                            height: 26,
-                            fontWeight: 700,
-                            backgroundColor: "#fff4d6",
-                            color: "#8a6d00",
-                            borderRadius: "10px",
-                          }}
-                        />
+                        <Box mt={2}>
+                          <Chip
+                            label="Pending"
+                            size="small"
+                            icon={<AccessTimeIcon style={{ fontSize: 16 }} />}
+                            sx={{
+                              height: 26,
+                              fontWeight: 700,
+                              backgroundColor: "#fff4d6",
+                              color: "#8a6d00",
+                              borderRadius: "10px",
+                              "& .MuiChip-icon": { marginRight: 0.5 },
+                            }}
+                          />
+                        </Box>
                       </Box>
                     </Card>
                   </Grid>
@@ -375,16 +378,16 @@ function StudentDashboard() {
         <DialogContent sx={{ background: "#fafbfc" }}>
           {showCourseDetails && (
             <Box>
-              <MDTypography variant="h6" sx={{ color: "#2e3b55" }}>
+              <Typography variant="h6" sx={{ color: "#2e3b55" }}>
                 {showCourseDetails.title}
-              </MDTypography>
-              <MDTypography variant="body1" sx={{ color: "#6c757d" }}>
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#6c757d" }}>
                 Teacher: {showCourseDetails.teacher}
-              </MDTypography>
-              <MDTypography variant="body2" mt={2} sx={{ color: "#495057" }}>
+              </Typography>
+              <Typography variant="body2" mt={2} sx={{ color: "#495057" }}>
                 Requesting this course will add it to your pending requests. It will only be
                 enrolled after teacher approval.
-              </MDTypography>
+              </Typography>
             </Box>
           )}
         </DialogContent>

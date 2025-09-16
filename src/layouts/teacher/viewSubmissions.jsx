@@ -1,10 +1,18 @@
-// ViewSubmissions.jsx (redesigned to match screenshot)
+// ViewSubmissions.jsx (redesigned with thinner rows)
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TablePagination from "@mui/material/TablePagination";
 import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
@@ -22,9 +30,8 @@ import { useSearch } from "context";
 
 function ViewSubmissions() {
   const navigate = useNavigate();
-  const { search } = useSearch(); // Global search
+  const { search } = useSearch();
 
-  // Dummy submissions (replace with API later)
   const [submissions, setSubmissions] = useState([
     {
       submission_id: "subm-101",
@@ -76,14 +83,12 @@ function ViewSubmissions() {
     },
   ]);
 
-  // Approve function
   const handleApprove = (id) => {
     setSubmissions((prev) =>
       prev.map((sub) => (sub.submission_id === id ? { ...sub, approval: "approved" } : sub))
     );
   };
 
-  // Mark function (kept intact) — UI will interpret non-approved as Pending
   const handleMark = (id) => {
     setSubmissions((prev) =>
       prev.map((sub) =>
@@ -94,12 +99,13 @@ function ViewSubmissions() {
     );
   };
 
-  // Navigate to student details
   const handleStudentClick = (id) => {
     navigate(`/students/${id}`);
   };
 
-  // Apply global search
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
   const filteredSubmissions = submissions.filter(
     (sub) =>
       sub.student_id.toLowerCase().includes(search.toLowerCase()) ||
@@ -107,155 +113,176 @@ function ViewSubmissions() {
       sub.course.course_name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox py={3}>
-        <Grid container spacing={3} justifyContent="center">
-          <Grid item xs={12} md={11}>
-            <MDBox p={3} borderRadius="lg" shadow="md" bgColor="white">
-              <MDTypography variant="h4" gutterBottom>
+      <MDBox pt={6} pb={3}>
+        <Grid container>
+          <Grid item xs={12}>
+            <Card sx={{ p: 3, boxShadow: 0, borderRadius: 0 }}>
+              <MDTypography variant="h4" fontWeight="bold" mb={2}>
                 📑 Student Submissions
               </MDTypography>
 
-              {/* Table-like header using CSS grid to match screenshot proportions */}
-              <MDBox
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 4fr 3fr 2fr 1fr 1fr",
-                  gap: 2,
-                  alignItems: "center",
-                }}
-                p={2}
-                mb={1}
-                borderRadius="md"
-                bgcolor="#f1f5f9"
-              >
-                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
-                  Student ID
-                </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
-                  Assignment
-                </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
-                  Course
-                </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
-                  File
-                </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
-                  Status
-                </MDTypography>
-                <MDTypography variant="button" fontWeight="bold" sx={{ color: "#6b7280" }}>
-                  Action
-                </MDTypography>
-              </MDBox>
-
-              {/* Submissions List */}
-              {filteredSubmissions.length === 0 ? (
-                <MDTypography variant="body2" color="textSecondary" align="center" py={3}>
-                  No submissions found.
-                </MDTypography>
-              ) : (
-                filteredSubmissions.map((sub) => {
-                  // UI-only mapping: show either Approved or Pending (any non-'approved' is Pending)
-                  const isApproved = sub.approval === "approved";
-                  const displayStatus = isApproved ? "Approved" : "Pending";
-
-                  return (
-                    <MDBox
-                      key={sub.submission_id}
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 4fr 3fr 2fr 1fr 1fr",
-                        gap: 2,
-                        alignItems: "center",
-                        py: 2,
-                        px: 1,
-                        borderBottom: "1px solid rgba(0,0,0,0.06)",
-                        background: "#ffffff",
-                      }}
-                    >
-                      <MDTypography
-                        variant="body2"
-                        sx={{
-                          cursor: "pointer",
-                          textDecoration: "underline",
-                          color: "#0b66ff",
-                        }}
-                        onClick={() => handleStudentClick(sub.student_id)}
-                      >
-                        {sub.student_id}
-                      </MDTypography>
-
-                      <MDTypography variant="body2">{sub.assignment.AN_title}</MDTypography>
-
-                      <MDTypography variant="body2">{sub.course.course_name}</MDTypography>
-
-                      <MDTypography variant="body2">
-                        <a
-                          href={sub.submission_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ textDecoration: "none", display: "inline-flex", gap: 6 }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Icon fontSize="small" sx={{ verticalAlign: "middle" }}>
-                            description
-                          </Icon>
-                          <span style={{ textDecoration: "underline", color: "#1a73e8" }}>
-                            View File
-                          </span>
-                        </a>
-                      </MDTypography>
-
-                      {/* Status pill */}
-                      <MDBox>
-                        <MDTypography
-                          variant="caption"
-                          sx={{
-                            display: "inline-block",
-                            px: 1.5,
-                            py: 0.5,
-                            borderRadius: "20px",
-                            fontWeight: 600,
-                            fontSize: "0.75rem",
-                            textTransform: "none",
-                            backgroundColor: isApproved ? "#e6f4ea" : "#fff7e6",
-                            color: isApproved ? "#14632a" : "#7a4a00",
-                          }}
-                        >
-                          {displayStatus}
+              <TableContainer>
+                <Table sx={{ borderCollapse: "separate", borderSpacing: "0 6px" }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                        <MDTypography variant="button" fontWeight="bold" color="text">
+                          Student ID
                         </MDTypography>
-                      </MDBox>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                        <MDTypography variant="button" fontWeight="bold" color="text">
+                          Assignment
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                        <MDTypography variant="button" fontWeight="bold" color="text">
+                          Course
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                        <MDTypography variant="button" fontWeight="bold" color="text">
+                          File
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                        <MDTypography variant="button" fontWeight="bold" color="text">
+                          Status
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                        <MDTypography variant="button" fontWeight="bold" color="text">
+                          Action
+                        </MDTypography>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
 
-                      {/* Action: either Approve (if pending) or Mark (if approved) */}
-                      <MDBox display="flex" justifyContent="flex-start" gap={1}>
-                        {!isApproved ? (
-                          <MDButton
-                            variant="gradient"
-                            color="success"
-                            size="small"
-                            onClick={() => handleApprove(sub.submission_id)}
+                  <TableBody>
+                    {filteredSubmissions
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((sub) => {
+                        const isApproved = sub.approval === "approved";
+                        const displayStatus = isApproved ? "Approved" : "Pending";
+
+                        return (
+                          <TableRow
+                            key={sub.submission_id}
+                            hover
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: "#f9f9f9",
+                              "&:hover": { backgroundColor: "#f0f0f0" },
+                            }}
                           >
-                            Approve
-                          </MDButton>
-                        ) : (
-                          <MDButton
-                            variant="outlined"
-                            color="info"
-                            size="small"
-                            onClick={() => handleMark(sub.submission_id)}
-                          >
-                            Mark
-                          </MDButton>
-                        )}
-                      </MDBox>
-                    </MDBox>
-                  );
-                })
-              )}
-            </MDBox>
+                            <TableCell sx={{ borderBottom: "none", py: 0.8 }}>
+                              <MDTypography
+                                variant="body2"
+                                sx={{
+                                  cursor: "pointer",
+                                  textDecoration: "underline",
+                                  color: "#0b66ff",
+                                }}
+                                onClick={() => handleStudentClick(sub.student_id)}
+                              >
+                                {sub.student_id}
+                              </MDTypography>
+                            </TableCell>
+
+                            <TableCell sx={{ borderBottom: "none", py: 0.8 }}>
+                              {sub.assignment.AN_title}
+                            </TableCell>
+
+                            <TableCell sx={{ borderBottom: "none", py: 0.8 }}>
+                              {sub.course.course_name}
+                            </TableCell>
+
+                            <TableCell sx={{ borderBottom: "none", py: 0.8 }}>
+                              <a
+                                href={sub.submission_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: "none", display: "inline-flex", gap: 6 }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Icon fontSize="small" sx={{ verticalAlign: "middle" }}>
+                                  description
+                                </Icon>
+                                <span style={{ textDecoration: "underline", color: "#1a73e8" }}>
+                                  View File
+                                </span>
+                              </a>
+                            </TableCell>
+
+                            <TableCell sx={{ borderBottom: "none", py: 0.8 }}>
+                              <MDTypography
+                                variant="caption"
+                                sx={{
+                                  display: "inline-block",
+                                  px: 1.5,
+                                  py: 0.3,
+                                  borderRadius: "20px",
+                                  fontWeight: 600,
+                                  fontSize: "0.7rem",
+                                  textTransform: "none",
+                                  backgroundColor: isApproved ? "#e6f4ea" : "#fff7e6",
+                                  color: isApproved ? "#14632a" : "#7a4a00",
+                                }}
+                              >
+                                {displayStatus}
+                              </MDTypography>
+                            </TableCell>
+
+                            <TableCell sx={{ borderBottom: "none", py: 0.8 }}>
+                              {!isApproved ? (
+                                <MDButton
+                                  variant="gradient"
+                                  color="success"
+                                  size="small"
+                                  onClick={() => handleApprove(sub.submission_id)}
+                                >
+                                  Approve
+                                </MDButton>
+                              ) : (
+                                <MDButton
+                                  variant="outlined"
+                                  color="info"
+                                  size="small"
+                                  onClick={() => handleMark(sub.submission_id)}
+                                >
+                                  Mark
+                                </MDButton>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredSubmissions.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Card>
           </Grid>
         </Grid>
       </MDBox>

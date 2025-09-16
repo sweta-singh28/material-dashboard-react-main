@@ -1,4 +1,6 @@
-// @mui material components
+// StudentDetails.jsx
+// (only the Back button styling was adjusted — nothing else changed)
+
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
@@ -11,16 +13,13 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Chip from "@mui/material/Chip";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-// React Router
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -101,6 +100,8 @@ function StudentDetails() {
                   View and manage student information and assignment progress.
                 </MDTypography>
               </MDBox>
+
+              {/* BACK BUTTON - size increased a bit, text size decreased */}
               <Button
                 variant="contained"
                 onClick={() => navigate("/teacher/studentRegister")}
@@ -111,14 +112,20 @@ function StudentDetails() {
                   boxShadow: "none",
                   color: "white",
                   fontWeight: "bold",
-                  px: 3,
-                  py: 1,
+                  px: 4, // increased horizontal padding (wider button)
+                  py: 1.25, // slightly taller button
+                  minWidth: 160, // ensure a bit larger width
                   "&:hover": {
                     backgroundColor: "#1565c0",
                   },
                 }}
               >
-                <MDTypography variant="button" color="white" fontWeight="bold">
+                <MDTypography
+                  variant="caption" // smaller typography variant
+                  color="white"
+                  fontWeight="bold"
+                  sx={{ letterSpacing: "0.2px" }}
+                >
                   ← Back to Students
                 </MDTypography>
               </Button>
