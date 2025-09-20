@@ -157,46 +157,56 @@ function TeacherDashboard() {
               My Courses
             </MDTypography>
             <Grid container spacing={3}>
-              {filteredCourses.map((course) => (
-                <Grid item xs={12} sm={6} md={4} key={course.id}>
-                  <Card
-                    sx={{
-                      p: 3,
-                      borderRadius: "12px",
-                      boxShadow: "0px 3px 12px rgba(0,0,0,0.08)",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                      },
-                    }}
-                    onClick={() => navigate(`/teacher/subjectDetails/${course.id}`)}
-                  >
-                    <MDTypography variant="h6" fontWeight="medium" gutterBottom>
-                      {course.name}
+              {filteredCourses.length > 0 ? (
+                filteredCourses.map((course) => (
+                  <Grid item xs={12} sm={6} md={4} key={course.id}>
+                    <Card
+                      sx={{
+                        p: 3,
+                        borderRadius: "12px",
+                        boxShadow: "0px 3px 12px rgba(0,0,0,0.08)",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          transform: "translateY(-2px)",
+                          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                        },
+                      }}
+                      onClick={() => navigate(`/teacher/subjectDetails/${course.id}`)}
+                    >
+                      <MDTypography variant="h6" fontWeight="medium" gutterBottom>
+                        {course.name}
+                      </MDTypography>
+                      <MDBox display="flex" justifyContent="space-between" mt={1}>
+                        <MDBox>
+                          <MDTypography variant="subtitle2" color="textSecondary">
+                            Pending Students
+                          </MDTypography>
+                          <MDTypography variant="body2" fontWeight="bold">
+                            {course.pending}
+                          </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                          <MDTypography variant="subtitle2" color="textSecondary">
+                            Enrolled Students
+                          </MDTypography>
+                          <MDTypography variant="body2" fontWeight="bold">
+                            {course.students}
+                          </MDTypography>
+                        </MDBox>
+                      </MDBox>
+                    </Card>
+                  </Grid>
+                ))
+              ) : (
+                <Grid item xs={12}>
+                  <MDBox textAlign="center" py={5}>
+                    <MDTypography variant="body2" color="text">
+                      No courses available
                     </MDTypography>
-                    <MDBox display="flex" justifyContent="space-between" mt={1}>
-                      <MDBox>
-                        <MDTypography variant="body2" color="textSecondary">
-                          Pending Students
-                        </MDTypography>
-                        <MDTypography variant="h6" fontWeight="bold">
-                          {course.pending}
-                        </MDTypography>
-                      </MDBox>
-                      <MDBox>
-                        <MDTypography variant="body2" color="textSecondary">
-                          Enrolled Students
-                        </MDTypography>
-                        <MDTypography variant="h6" fontWeight="bold">
-                          {course.students}
-                        </MDTypography>
-                      </MDBox>
-                    </MDBox>
-                  </Card>
+                  </MDBox>
                 </Grid>
-              ))}
+              )}
             </Grid>
           </Grid>
         </Grid>

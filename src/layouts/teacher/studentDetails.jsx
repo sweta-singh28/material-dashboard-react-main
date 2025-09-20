@@ -1,5 +1,4 @@
 // StudentDetails.jsx
-// (only the Back button styling was adjusted — nothing else changed)
 
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -15,6 +14,7 @@ import Chip from "@mui/material/Chip";
 
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDButton from "components/MDButton";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -27,7 +27,7 @@ function StudentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Hardcoded JSON data (later replace with API call)
+  // Hardcoded JSON data
   const studentsData = [
     {
       user_id: "S101",
@@ -69,7 +69,6 @@ function StudentDetails() {
 
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // Helper for status chip color
   const getStatusChip = (status) => {
     switch (status) {
       case "Submitted":
@@ -85,6 +84,22 @@ function StudentDetails() {
     }
   };
 
+  // Unified Back Button style
+  const backButtonSx = {
+    background: "linear-gradient(135deg,#1A73E8 0%, #1565C0 100%)",
+    color: "#fff",
+    borderRadius: "8px",
+    textTransform: "none",
+    fontWeight: 700,
+    fontSize: "13px",
+    px: 4,
+    py: 1.25,
+    minWidth: 160,
+    "&:hover": {
+      background: "linear-gradient(135deg,#1765d8 0%, #0f55b0 100%)",
+    },
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -93,42 +108,17 @@ function StudentDetails() {
           <Grid item xs={12}>
             <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={3}>
               <MDBox>
-                <MDTypography variant="h4" fontWeight="bold">
+                <MDTypography variant="h4" fontWeight="medium">
                   Student Details
                 </MDTypography>
-                <MDTypography variant="subtitle1" color="text">
+                <MDTypography variant="body2" color="text">
                   View and manage student information and assignment progress.
                 </MDTypography>
               </MDBox>
 
-              {/* BACK BUTTON - size increased a bit, text size decreased */}
-              <Button
-                variant="contained"
-                onClick={() => navigate("/teacher/studentRegister")}
-                sx={{
-                  backgroundColor: "#1976d2",
-                  borderRadius: "8px",
-                  textTransform: "none",
-                  boxShadow: "none",
-                  color: "white",
-                  fontWeight: "bold",
-                  px: 4, // increased horizontal padding (wider button)
-                  py: 1.25, // slightly taller button
-                  minWidth: 160, // ensure a bit larger width
-                  "&:hover": {
-                    backgroundColor: "#1565c0",
-                  },
-                }}
-              >
-                <MDTypography
-                  variant="caption" // smaller typography variant
-                  color="white"
-                  fontWeight="bold"
-                  sx={{ letterSpacing: "0.2px" }}
-                >
-                  ← Back to Students
-                </MDTypography>
-              </Button>
+              <MDButton onClick={() => navigate("/teacher/studentRegister")} sx={backButtonSx}>
+                ← Back to Students
+              </MDButton>
             </MDBox>
           </Grid>
 
@@ -142,7 +132,7 @@ function StudentDetails() {
                   alt={student.full_name}
                   sx={{ width: 150, height: 150, mb: 2 }}
                 />
-                <MDTypography variant="h5" fontWeight="bold">
+                <MDTypography variant="h5" fontWeight="medium">
                   {student.full_name}
                 </MDTypography>
                 <MDTypography variant="body2" color="text">
@@ -156,7 +146,7 @@ function StudentDetails() {
 
             {/* Courses Enrolled Card */}
             <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
-              <MDTypography variant="h6" fontWeight="bold" mb={2}>
+              <MDTypography variant="h6" fontWeight="medium" mb={2}>
                 Courses Enrolled
               </MDTypography>
               <MDBox display="flex" flexWrap="wrap" gap={1}>
@@ -165,10 +155,11 @@ function StudentDetails() {
                     key={course}
                     label={course}
                     sx={{
-                      fontWeight: "bold",
+                      fontWeight: "medium",
                       bgcolor: "#e3f2fd",
                       color: "#2196f3",
                       border: "1px solid #2196f3",
+                      fontSize: "0.85rem",
                     }}
                   />
                 ))}
@@ -177,7 +168,7 @@ function StudentDetails() {
 
             {/* Pending Course Requests Card */}
             <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
-              <MDTypography variant="h6" fontWeight="bold" mb={1}>
+              <MDTypography variant="h6" fontWeight="medium" mb={1}>
                 Pending Course Requests
               </MDTypography>
               <MDTypography variant="body2" color="text">
@@ -190,7 +181,7 @@ function StudentDetails() {
           <Grid item xs={12} md={7}>
             {/* Assignment Summary Card */}
             <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
-              <MDTypography variant="h6" fontWeight="bold" mb={2}>
+              <MDTypography variant="h6" fontWeight="medium" mb={2}>
                 Assignment Summary
               </MDTypography>
               <TableContainer>
@@ -198,23 +189,23 @@ function StudentDetails() {
                   <TableHead>
                     <TableRow>
                       <TableCell>
-                        <MDTypography variant="button" fontWeight="bold">
-                          SUBJECT
+                        <MDTypography variant="button" fontWeight="medium">
+                          Subject
                         </MDTypography>
                       </TableCell>
                       <TableCell align="center">
-                        <MDTypography variant="button" fontWeight="bold">
-                          COMPLETED
+                        <MDTypography variant="button" fontWeight="medium">
+                          Completed
                         </MDTypography>
                       </TableCell>
                       <TableCell align="center">
-                        <MDTypography variant="button" fontWeight="bold">
-                          EXPIRED
+                        <MDTypography variant="button" fontWeight="medium">
+                          Expired
                         </MDTypography>
                       </TableCell>
                       <TableCell align="center">
-                        <MDTypography variant="button" fontWeight="bold">
-                          PENDING
+                        <MDTypography variant="button" fontWeight="medium">
+                          Pending
                         </MDTypography>
                       </TableCell>
                     </TableRow>
@@ -225,10 +216,18 @@ function StudentDetails() {
                         key={index}
                         sx={{ "&:nth-of-type(odd)": { backgroundColor: "#fafafa" } }}
                       >
-                        <TableCell>{row.subject}</TableCell>
-                        <TableCell align="center">{row.completed}</TableCell>
-                        <TableCell align="center">{row.expired}</TableCell>
-                        <TableCell align="center">{row.pending}</TableCell>
+                        <TableCell>
+                          <MDTypography variant="body2">{row.subject}</MDTypography>
+                        </TableCell>
+                        <TableCell align="center">
+                          <MDTypography variant="body2">{row.completed}</MDTypography>
+                        </TableCell>
+                        <TableCell align="center">
+                          <MDTypography variant="body2">{row.expired}</MDTypography>
+                        </TableCell>
+                        <TableCell align="center">
+                          <MDTypography variant="body2">{row.pending}</MDTypography>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

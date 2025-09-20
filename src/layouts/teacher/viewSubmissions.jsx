@@ -130,7 +130,7 @@ function ViewSubmissions() {
           <Grid item xs={12}>
             <Card sx={{ p: 3, boxShadow: 0, borderRadius: 0 }}>
               <MDTypography variant="h4" fontWeight="bold" mb={2}>
-                📑 Student Submissions
+                Student Submissions
               </MDTypography>
 
               <TableContainer>
@@ -139,7 +139,7 @@ function ViewSubmissions() {
                     <TableRow>
                       <TableCell sx={{ borderBottom: "none", py: 1 }}>
                         <MDTypography variant="button" fontWeight="bold" color="text">
-                          Student ID
+                          Student Id
                         </MDTypography>
                       </TableCell>
                       <TableCell sx={{ borderBottom: "none", py: 1 }}>

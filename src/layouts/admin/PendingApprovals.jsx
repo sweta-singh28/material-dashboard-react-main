@@ -1,3 +1,4 @@
+// PendingApprovals.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -13,6 +14,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TablePagination from "@mui/material/TablePagination";
 
 import { useMaterialUIController } from "context";
 
@@ -27,6 +36,7 @@ const coursesJSON = [
     course_status: "Pending",
     course_description: "A comprehensive overview of data science...",
     course_thumbnail: "https://picsum.photos/seed/course1/240/140",
+    teachers_user_id: "t1",
   },
   {
     idCourses: "c2",
@@ -37,6 +47,7 @@ const coursesJSON = [
     course_status: "Pending",
     course_description: "In-depth study of advanced machine learning...",
     course_thumbnail: "https://picsum.photos/seed/course2/240/140",
+    teachers_user_id: "t2",
   },
 ];
 
@@ -74,6 +85,10 @@ const PendingApprovals = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [openDetails, setOpenDetails] = useState(false);
 
+  // Pagination state to match ActiveCourses UI
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
   // Load courses initially (can later replace with API call)
   useEffect(() => {
     setPendingCourses(coursesJSON);
@@ -103,6 +118,13 @@ const PendingApprovals = () => {
     setOpenDetails(false);
   };
 
+  // Pagination handlers
+  const handleChangePage = (event, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -120,65 +142,82 @@ const PendingApprovals = () => {
           </MDTypography>
         </MDBox>
 
-        {/* Courses Table */}
-        <MDBox mb={5} sx={{ overflowX: "auto" }}>
-          <MDBox
-            component="table"
-            width="100%"
-            border="1px solid #e0e0e0"
-            borderRadius="8px"
-            sx={{ borderCollapse: "collapse" }}
-          >
-            <MDBox
-              component="thead"
-              sx={{ borderBottom: "1px solid #e0e0e0", backgroundColor: "#f9f9f9" }}
-            >
-              <MDBox component="tr">
-                <MDTypography component="th" variant="button" fontWeight="bold" p={2}>
-                  COURSE NAME
-                </MDTypography>
-                <MDTypography component="th" variant="button" fontWeight="bold" p={2}>
-                  INSTRUCTOR
-                </MDTypography>
-                <MDTypography component="th" variant="button" fontWeight="bold" p={2}>
-                  DESCRIPTION
-                </MDTypography>
-              </MDBox>
-            </MDBox>
+        {/* Updated Table (matches ActiveCourses UI/design) */}
+        <MDBox mb={5}>
+          <Grid container>
+            <Grid item xs={12}>
+              <Card sx={{ p: 3, boxShadow: 0, borderRadius: 0 }}>
+                <TableContainer>
+                  <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ borderBottom: "none" }}>
+                          <MDTypography variant="button" fontWeight="bold" color="text">
+                            COURSE NAME
+                          </MDTypography>
+                        </TableCell>
+                        <TableCell sx={{ borderBottom: "none" }}>
+                          <MDTypography variant="button" fontWeight="bold" color="text">
+                            INSTRUCTOR
+                          </MDTypography>
+                        </TableCell>
+                        <TableCell sx={{ borderBottom: "none" }}>
+                          <MDTypography variant="button" fontWeight="bold" color="text">
+                            DESCRIPTION
+                          </MDTypography>
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
 
-            <MDBox component="tbody">
-              {filteredCourses.map((course) => (
-                <MDBox
-                  component="tr"
-                  key={course.idCourses}
-                  sx={{
-                    "&:not(:last-child)": { borderBottom: "1px solid #e0e0e0" },
-                    cursor: "pointer",
-                    "&:hover": { backgroundColor: "#fafafa" },
-                  }}
-                  onClick={() => {
-                    setSelectedCourse(course);
-                    setOpenDetails(true);
-                  }}
-                >
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.course_name}
-                  </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.teachers_user_id}
-                  </MDTypography>
-                  <MDTypography component="td" variant="body2" p={2}>
-                    {course.course_description}
-                  </MDTypography>
-                </MDBox>
-              ))}
-            </MDBox>
-          </MDBox>
+                    <TableBody>
+                      {filteredCourses
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((course) => (
+                          <TableRow
+                            key={course.idCourses}
+                            hover
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: "#f9f9f9",
+                              "&:hover": { backgroundColor: "#f0f0f0" },
+                            }}
+                            onClick={() => {
+                              setSelectedCourse(course);
+                              setOpenDetails(true);
+                            }}
+                          >
+                            <TableCell sx={{ borderBottom: "none" }}>
+                              {course.course_name}
+                            </TableCell>
+                            <TableCell sx={{ borderBottom: "none" }}>
+                              {course.teachers_user_id || "Unknown Instructor"}
+                            </TableCell>
+                            <TableCell sx={{ borderBottom: "none" }}>
+                              {course.course_description}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={filteredCourses.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Card>
+            </Grid>
+          </Grid>
         </MDBox>
       </MDBox>
       <Footer />
 
-      {/* Modal */}
+      {/* Modal (left unchanged as requested) */}
       <Dialog open={openDetails} onClose={() => setOpenDetails(false)} fullWidth maxWidth="sm">
         <DialogTitle>Course Details</DialogTitle>
         <DialogContent dividers>

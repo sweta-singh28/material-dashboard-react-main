@@ -31,24 +31,10 @@ export default function AssignmentsPage() {
   const { search } = useSearch();
   const createdUrlsRef = useRef([]);
 
-  // -----------------------------
-  // Mock DB (structure mirrors your schema)
-  // Replace this `db` object with API responses later.
-  // -----------------------------
   const db = {
     Users: [
-      {
-        user_id: "u1",
-        email: "student@example.com",
-        first_name: "Student",
-        last_name: "One",
-      },
-      {
-        user_id: "t1",
-        email: "teacher@example.com",
-        first_name: "Teacher",
-        last_name: "One",
-      },
+      { user_id: "u1", email: "student@example.com", first_name: "Student", last_name: "One" },
+      { user_id: "t1", email: "teacher@example.com", first_name: "Teacher", last_name: "One" },
     ],
     Courses: [
       { idCourses: "c1", course_name: "Mathematics I" },
@@ -83,7 +69,6 @@ export default function AssignmentsPage() {
         Users_user_id: "t1",
         Courses_idCourses: "c3",
       },
-      // an already-submitted + approved assignment
       {
         AN_id: "a4",
         AN_link: "Calculus_HW.pdf",
@@ -93,7 +78,6 @@ export default function AssignmentsPage() {
         Users_user_id: "t1",
         Courses_idCourses: "c1",
       },
-      // a "note" (should be filtered out because AssignmentOrNotes !== 1)
       {
         AN_id: "n1",
         AN_link: "extra_reading.pdf",
@@ -110,7 +94,7 @@ export default function AssignmentsPage() {
         submission_link: "Calculus_Submission.pdf",
         submission_time: "2025-08-30T10:00:00",
         approval: "approved",
-        Assignment_Notes_AN_id: "a4", // maps to AN_id
+        Assignment_Notes_AN_id: "a4",
         Users_user_id: "u1",
       },
     ],
@@ -118,7 +102,6 @@ export default function AssignmentsPage() {
       {
         UC_id: "uc1",
         Users_user_id: "u1",
-        // store arrays here (JSON in DB)
         active_courses: ["c1", "c2"],
         pending_courses: [],
         expired_courses: [],
@@ -126,29 +109,27 @@ export default function AssignmentsPage() {
     ],
   };
 
-  // Add extra dummy items for demo without changing original db literals
   db.Assignment_Notes.push(
-    ...[
-      {
-        AN_id: "a5",
-        AN_link: "Chemistry_Report.pdf",
-        AN_title: "Chemistry Report",
-        AssignmentOrNotes: 1,
-        AssignmentDeadline: "2025-09-18T00:00:00",
-        Users_user_id: "t1",
-        Courses_idCourses: "c2",
-      },
-      {
-        AN_id: "a6",
-        AN_link: "Env_Presentation.pdf",
-        AN_title: "Environmental Presentation",
-        AssignmentOrNotes: 1,
-        AssignmentDeadline: "2025-09-20T00:00:00",
-        Users_user_id: "t1",
-        Courses_idCourses: "c3",
-      },
-    ]
+    {
+      AN_id: "a5",
+      AN_link: "Chemistry_Report.pdf",
+      AN_title: "Chemistry Report",
+      AssignmentOrNotes: 1,
+      AssignmentDeadline: "2025-09-18T00:00:00",
+      Users_user_id: "t1",
+      Courses_idCourses: "c2",
+    },
+    {
+      AN_id: "a6",
+      AN_link: "Env_Presentation.pdf",
+      AN_title: "Environmental Presentation",
+      AssignmentOrNotes: 1,
+      AssignmentDeadline: "2025-09-20T00:00:00",
+      Users_user_id: "t1",
+      Courses_idCourses: "c3",
+    }
   );
+
   db.SubmittedAssignments.push({
     submission_id: "s2",
     submission_link: "Mechanics_Submission.pdf",
@@ -158,13 +139,9 @@ export default function AssignmentsPage() {
     Users_user_id: "u1",
   });
 
-  // Current user (in real app you will get this from auth)
   const currentUser = db.Users.find((u) => u.user_id === "u1");
   const currentUserId = currentUser?.user_id;
-
-  // Build the client-friendly `courses` array (used by UI & search)
   const courses = db.Courses.map((c) => ({ id: c.idCourses, title: c.course_name }));
-
   const userCoursesRow = db.UserCourses.find((uc) => uc.Users_user_id === currentUserId);
   const userActiveCourseIds =
     userCoursesRow && Array.isArray(userCoursesRow.active_courses)
@@ -184,7 +161,6 @@ export default function AssignmentsPage() {
       const due = note.AssignmentDeadline
         ? new Date(note.AssignmentDeadline).toISOString().split("T")[0]
         : "";
-
       const teacherFileUrl = createDummyPdfUrl(note.AN_link || `${note.AN_title} PDF content`);
       createdUrlsRef.current.push(teacherFileUrl);
 
@@ -250,9 +226,6 @@ export default function AssignmentsPage() {
         id: note.AN_id,
         courseId: note.Courses_idCourses,
         title: note.AN_title,
-        submitted: sub.submission_time
-          ? new Date(sub.submission_time).toISOString().split("T")[0]
-          : "",
         studentFileName: sub.submission_link
           ? sub.submission_link.split("/").pop()
           : "submission.pdf",
@@ -293,17 +266,7 @@ export default function AssignmentsPage() {
     ]);
   };
 
-  const handleApproveAssignment = (assignment) => {
-    setSubmittedAssignments((prev) => prev.filter((a) => a.id !== assignment.id));
-    setApprovedAssignments((prev) => [
-      ...prev,
-      { ...assignment, approved: new Date().toISOString().split("T")[0] },
-    ]);
-  };
-
-  // ------------ Search + filtering logic (unchanged)
   const q = (search || "").toString().trim().toLowerCase();
-
   const filterBySearch = (list) => {
     if (!q) return list;
     return list.filter((a) => {
@@ -325,11 +288,8 @@ export default function AssignmentsPage() {
   const filteredExpired = filterBySearch(expiredAssignments);
   const filteredSubmitted = filterBySearch(submittedAssignments);
   const filteredApproved = filterBySearch(approvedAssignments);
-
-  // unify card size
   const cardMinHeight = 140;
 
-  // ---------- UI (redesigned visuals only; logic untouched)
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -340,8 +300,7 @@ export default function AssignmentsPage() {
             <MDTypography variant="h5" gutterBottom sx={{ fontWeight: 700 }}>
               Assignments
             </MDTypography>
-
-            <MDTypography variant="subtitle2" gutterBottom sx={{ mb: 2 }}>
+            <MDTypography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Pending Assignments
             </MDTypography>
 
@@ -373,15 +332,12 @@ export default function AssignmentsPage() {
                             >
                               {course?.title}
                             </MDTypography>
-
                             <MDTypography variant="h6" sx={{ mt: 0.5, fontWeight: 800 }}>
                               {a.title}
                             </MDTypography>
-
                             <MDTypography variant="caption" sx={{ display: "block", mt: 1 }}>
                               Due: {a.due}
                             </MDTypography>
-
                             <MDBox mt={1} display="flex" gap={1} alignItems="center">
                               <Button
                                 variant="outlined"
@@ -400,11 +356,8 @@ export default function AssignmentsPage() {
                               >
                                 View PDF
                               </Button>
-
-                              {/* Download button removed as requested */}
                             </MDBox>
                           </Grid>
-
                           <Grid item xs={4}>
                             <Box
                               sx={{
@@ -440,7 +393,6 @@ export default function AssignmentsPage() {
                                     }}
                                   />
                                 </Button>
-
                                 <MDTypography variant="caption" sx={{ display: "block", mt: 1 }}>
                                   Only PDF allowed
                                 </MDTypography>
@@ -461,7 +413,6 @@ export default function AssignmentsPage() {
             <MDTypography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Expired Assignments
             </MDTypography>
-
             <Grid container spacing={3}>
               {filteredExpired.length === 0 ? (
                 <Grid item xs={12}>
@@ -488,14 +439,12 @@ export default function AssignmentsPage() {
                           >
                             {course?.title}
                           </MDTypography>
-
                           <MDTypography
                             variant="body2"
                             sx={{ mt: 1, fontWeight: 700, color: "#fff" }}
                           >
                             {a.title}
                           </MDTypography>
-
                           <MDTypography
                             variant="caption"
                             sx={{ color: "#ddd", display: "block", mt: 1 }}
@@ -503,8 +452,6 @@ export default function AssignmentsPage() {
                             Due: {a.due}
                           </MDTypography>
                         </Card>
-
-                        {/* EXPIRED Overlay */}
                         <Box
                           sx={{
                             position: "absolute",
@@ -530,12 +477,11 @@ export default function AssignmentsPage() {
             </Grid>
           </Grid>
 
-          {/* Submitted Assignments (Pending Approval) */}
+          {/* Submitted Assignments */}
           <Grid item xs={12} mt={4}>
             <MDTypography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Submitted (Pending Approval)
             </MDTypography>
-
             <Grid container spacing={3}>
               {filteredSubmitted.length === 0 ? (
                 <Grid item xs={12}>
@@ -556,11 +502,9 @@ export default function AssignmentsPage() {
                         >
                           {course?.title}
                         </MDTypography>
-
                         <MDTypography variant="h6" sx={{ mt: 0.5, fontWeight: 800 }}>
                           {a.title}
                         </MDTypography>
-
                         <MDTypography variant="caption" sx={{ display: "block", mt: 1 }}>
                           Submitted: {a.submitted}
                         </MDTypography>
@@ -568,27 +512,19 @@ export default function AssignmentsPage() {
                         {a.studentFileName && (
                           <MDBox mt={1}>
                             <Button
-                              variant="outlined"
+                              variant="contained"
                               component="a"
                               href={a.studentFileUrl}
                               target="_blank"
                               rel="noreferrer"
                               startIcon={<VisibilityIcon />}
                               size="small"
-                              sx={{
-                                borderColor: "#fff",
-                                backgroundColor: "#fff",
-                                color: "primary.main",
-                              }}
+                              sx={{ backgroundColor: "#007bff", color: "#fff" }}
                             >
                               View Submission
                             </Button>
-
-                            {/* Download button removed as requested */}
                           </MDBox>
                         )}
-
-                        {/* Approve button removed from UI as requested */}
                       </Card>
                     </Grid>
                   );
@@ -602,7 +538,6 @@ export default function AssignmentsPage() {
             <MDTypography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Approved Assignments
             </MDTypography>
-
             <Grid container spacing={3}>
               {filteredApproved.length === 0 ? (
                 <Grid item xs={12}>
@@ -611,28 +546,14 @@ export default function AssignmentsPage() {
               ) : (
                 filteredApproved.map((a) => {
                   const course = courses.find((c) => c.id === a.courseId);
-                  const canOpen = !!a.studentFileUrl;
                   return (
                     <Grid item xs={12} sm={6} md={4} key={a.id}>
                       <Card
-                        onClick={() => {
-                          if (canOpen) {
-                            window.open(a.studentFileUrl, "_blank", "noopener,noreferrer");
-                          }
-                        }}
-                        role={canOpen ? "button" : undefined}
-                        tabIndex={canOpen ? 0 : -1}
-                        onKeyDown={(e) => {
-                          if ((e.key === "Enter" || e.key === " ") && canOpen) {
-                            window.open(a.studentFileUrl, "_blank", "noopener,noreferrer");
-                          }
-                        }}
+                        elevation={1}
                         style={{
                           padding: 16,
                           borderRadius: 12,
                           background: "#f6fffa",
-                          cursor: canOpen ? "pointer" : "default",
-                          position: "relative",
                           minHeight: cardMinHeight,
                         }}
                       >
@@ -642,17 +563,32 @@ export default function AssignmentsPage() {
                         >
                           {course?.title}
                         </MDTypography>
-
                         <MDTypography variant="h6" sx={{ mt: 0.5, fontWeight: 800 }}>
                           {a.title}
                         </MDTypography>
-
                         <MDTypography
                           variant="caption"
                           sx={{ display: "block", mt: 1, color: "success.main" }}
                         >
-                          Approved: {a.approved || a.submitted}
+                          Approved: {a.approved}
                         </MDTypography>
+
+                        {a.studentFileUrl && (
+                          <MDBox mt={1}>
+                            <Button
+                              variant="contained"
+                              component="a"
+                              href={a.studentFileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              startIcon={<VisibilityIcon />}
+                              size="small"
+                              sx={{ backgroundColor: "#007bff", color: "#fff" }}
+                            >
+                              View Submission
+                            </Button>
+                          </MDBox>
+                        )}
 
                         <Box sx={{ position: "absolute", right: 12, bottom: 12 }}>
                           <Chip
@@ -662,14 +598,6 @@ export default function AssignmentsPage() {
                             sx={{ background: "#e6f8ee", color: "#007a3a", fontWeight: 700 }}
                           />
                         </Box>
-
-                        <MDBox mt={2} display="flex" justifyContent="center">
-                          <Typography variant="caption" color="textSecondary">
-                            {canOpen
-                              ? "Click anywhere on the card to view the submitted PDF"
-                              : "No submitted file URL available"}
-                          </Typography>
-                        </MDBox>
                       </Card>
                     </Grid>
                   );

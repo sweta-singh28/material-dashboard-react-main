@@ -82,7 +82,6 @@ function SubjectDetails() {
 
   const [updateText, setUpdateText] = React.useState("");
 
-  // ✅ Schema-based JSON (hardcoded, API-ready)
   const courses = [
     {
       course_id: 1,
@@ -164,7 +163,6 @@ function SubjectDetails() {
     e.preventDefault();
     console.log("Updated course info:", updateText);
     setUpdateText("");
-    // In a real app, you would likely show a success message here
   };
 
   const handleStudentClick = (userId) => {
@@ -179,6 +177,32 @@ function SubjectDetails() {
     navigate("/uploadMaterials", { state: { course, type: "notes" } });
   };
 
+  const matchedButtonSx = {
+    background: "linear-gradient(135deg,#1A73E8 0%, #1565C0 100%)",
+    color: "#fff",
+    borderRadius: "6px",
+    padding: "6px 16px",
+    minWidth: "180px",
+    height: "40px",
+    boxShadow: "0 6px 18px rgba(26,115,232,0.32)",
+    textTransform: "none",
+    fontWeight: 700,
+    fontSize: "13px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    "&:hover": {
+      boxShadow: "0 8px 24px rgba(26,115,232,0.38)",
+      background: "linear-gradient(135deg,#1765d8 0%, #0f55b0 100%)",
+    },
+    "& .MuiSvgIcon-root, & .MuiIcon-root": {
+      color: "#fff",
+      fontSize: "17px",
+      fontWeight: 700,
+    },
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -187,7 +211,7 @@ function SubjectDetails() {
         <MDBox mb={3}>
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item>
-              <MDTypography variant="h4" fontWeight="medium">
+              <MDTypography variant="h4" fontWeight="bold">
                 {course.course_name}
               </MDTypography>
               <MDTypography variant="body2" color="text">
@@ -195,9 +219,9 @@ function SubjectDetails() {
               </MDTypography>
             </Grid>
             <Grid item>
-              <MDButton variant="gradient" color="info" size="small" onClick={() => navigate(-1)}>
+              <MDButton onClick={() => navigate(-1)} sx={matchedButtonSx}>
                 <Icon sx={{ fontWeight: "bold" }}>arrow_back</Icon>
-                &nbsp;Back to Courses
+                Back to Courses
               </MDButton>
             </Grid>
           </Grid>
@@ -211,7 +235,9 @@ function SubjectDetails() {
               <Grid item xs={12}>
                 <Card>
                   <MDBox p={2}>
-                    <MDTypography variant="h6">Course Progress</MDTypography>
+                    <MDTypography variant="h6" fontWeight="medium">
+                      Course Progress
+                    </MDTypography>
                     <CourseProgressBar />
                   </MDBox>
                 </Card>
@@ -221,20 +247,22 @@ function SubjectDetails() {
               <Grid item xs={12}>
                 <Card>
                   <MDBox pt={2} px={2}>
-                    <MDTypography variant="h6">Enrolled Students</MDTypography>
+                    <MDTypography variant="h6" fontWeight="medium">
+                      Enrolled Students
+                    </MDTypography>
                   </MDBox>
                   <TableContainer>
                     <Table>
                       <TableHead sx={{ display: "table-header-group" }}>
                         <TableRow>
                           <TableCell sx={{ px: 2, width: "15%", borderBottom: "none" }}>
-                            <MDTypography variant="overline">ROLL NUMBER</MDTypography>
+                            <MDTypography variant="subtitle2">Roll Number</MDTypography>
                           </TableCell>
                           <TableCell sx={{ px: 2, borderBottom: "none" }}>
-                            <MDTypography variant="overline">STUDENT</MDTypography>
+                            <MDTypography variant="subtitle2">Student</MDTypography>
                           </TableCell>
                           <TableCell sx={{ px: 2, borderBottom: "none" }}>
-                            <MDTypography variant="overline">EMAIL ID</MDTypography>
+                            <MDTypography variant="subtitle2">Email Id</MDTypography>
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -262,7 +290,7 @@ function SubjectDetails() {
                                   alt={student.full_name}
                                   sx={{ width: 36, height: 36, mr: 2 }}
                                 />
-                                <MDTypography variant="button" fontWeight="medium">
+                                <MDTypography variant="body2" fontWeight="medium">
                                   {student.full_name}
                                 </MDTypography>
                               </MDBox>
@@ -284,7 +312,7 @@ function SubjectDetails() {
               <Grid item xs={12}>
                 <Card>
                   <MDBox p={3}>
-                    <MDTypography variant="h6" mb={2}>
+                    <MDTypography variant="h6" fontWeight="medium" mb={2}>
                       Course Management
                     </MDTypography>
                     <Grid container spacing={4}>
@@ -293,11 +321,16 @@ function SubjectDetails() {
                         <MDTypography variant="subtitle2" fontWeight="bold" color="text" mb={1}>
                           Actions
                         </MDTypography>
-                        <MDBox display="flex" gap={1.5}>
-                          <MDButton variant="gradient" color="info" onClick={handleAddAssignment}>
+                        <MDBox
+                          display="flex"
+                          flexDirection="column"
+                          gap={1.5}
+                          alignItems="flex-start"
+                        >
+                          <MDButton onClick={handleAddAssignment} sx={matchedButtonSx}>
                             Add Assignments
                           </MDButton>
-                          <MDButton variant="gradient" color="info" onClick={handleAddNotes}>
+                          <MDButton onClick={handleAddNotes} sx={matchedButtonSx}>
                             Add Notes
                           </MDButton>
                         </MDBox>
@@ -316,15 +349,13 @@ function SubjectDetails() {
                             fullWidth
                             value={updateText}
                             onChange={(e) => setUpdateText(e.target.value)}
-                            sx={{
-                              "& .MuiOutlinedInput-root": {
-                                padding: "8px 12px",
-                              },
-                            }}
+                            sx={{ "& .MuiOutlinedInput-root": { padding: "8px 12px" } }}
                           />
-                          <MDButton type="submit" variant="gradient" color="info" sx={{ mt: 1.5 }}>
-                            Update About Course
-                          </MDButton>
+                          <MDBox mt={1.5} display="flex" justifyContent="center">
+                            <MDButton type="submit" sx={matchedButtonSx}>
+                              Update About Course
+                            </MDButton>
+                          </MDBox>
                         </form>
                       </Grid>
                     </Grid>
@@ -341,12 +372,14 @@ function SubjectDetails() {
               <Grid item xs={12}>
                 <Card>
                   <MDBox p={2}>
-                    <MDTypography variant="h6">Course Completion %</MDTypography>
+                    <MDTypography variant="h6" fontWeight="medium">
+                      Course Completion %
+                    </MDTypography>
                     <MDTypography variant="body2" color="text">
                       Last 30 Days
                     </MDTypography>
                     <MDBox display="flex" alignItems="center" mt={2}>
-                      <MDTypography variant="h3" fontWeight="bold">
+                      <MDTypography variant="h4" fontWeight="bold">
                         78%
                       </MDTypography>
                       <MDTypography variant="body2" color="success" sx={{ ml: 1 }}>
@@ -361,7 +394,9 @@ function SubjectDetails() {
               <Grid item xs={12}>
                 <Card>
                   <MDBox pt={2} pb={1} px={2}>
-                    <MDTypography variant="h6">Course Syllabus Checklist</MDTypography>
+                    <MDTypography variant="h6" fontWeight="medium">
+                      Course Syllabus Checklist
+                    </MDTypography>
                   </MDBox>
                   <MDBox>
                     <List dense sx={{ p: 0 }}>
@@ -373,9 +408,7 @@ function SubjectDetails() {
                             cursor: "pointer",
                             px: 2,
                             py: 1,
-                            "&:hover": {
-                              backgroundColor: "rgba(0, 0, 0, 0.04)",
-                            },
+                            "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
                           }}
                         >
                           <ListItemIcon sx={{ minWidth: 0, mr: 1.5 }}>
@@ -385,7 +418,9 @@ function SubjectDetails() {
                               disableRipple
                             />
                           </ListItemIcon>
-                          <ListItemText primary={chapter} />
+                          <ListItemText
+                            primary={<MDTypography variant="body2">{chapter}</MDTypography>}
+                          />
                         </ListItem>
                       ))}
                     </List>

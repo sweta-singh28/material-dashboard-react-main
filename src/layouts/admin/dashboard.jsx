@@ -142,18 +142,21 @@ const AdminDashboard = () => {
   }));
 
   // Courses breakdown (derive a subject from the course_name first token, e.g., "Math 101" -> "Math")
-  const courseSubjectCounts = {};
+  const courseEnrollmentCounts = {};
   if (Array.isArray(dbJson.Courses)) {
     dbJson.Courses.forEach((c) => {
-      const name = c.course_name || "";
-      const subject = (name.split(" ")[0] || "Other").trim();
-      courseSubjectCounts[subject] = (courseSubjectCounts[subject] || 0) + 1;
+      const name = c.course_name || "Other";
+      const count = c.enrolled_students_count || 0; // Assuming you have this field
+      courseEnrollmentCounts[name] = count;
     });
   }
-  const coursesChartData = Object.keys(courseSubjectCounts).map((subject) => ({
-    subject,
-    count: courseSubjectCounts[subject],
-  }));
+
+  // Sort top 5 enrolled courses
+  const topCoursesData = Object.entries(courseEnrollmentCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([course_name, count]) => ({ course_name, count }));
+
   // ---------------------------------------------------------------------
 
   const userColors = ["#3f51b5", "#ff7043", "#4caf50", "#2196f3"];
@@ -162,7 +165,6 @@ const AdminDashboard = () => {
   const handleUserBarClick = (entryRole) => {
     const mapRole =
       entryRole === "Students" ? "Student" : entryRole === "Teachers" ? "Teacher" : entryRole;
-    // Keep navigation consistent with your existing routing patterns
     if (mapRole) {
       navigate("/admin/totalUsers", { state: { filterRole: mapRole } });
     } else {
@@ -170,7 +172,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Build a small object similar to your old `dashboardData` to reuse the UI without changing other code
   const dashboardData = {
     stats: {
       totalUsers,
@@ -178,8 +179,7 @@ const AdminDashboard = () => {
       pendingApprovals,
     },
     users: usersChartData,
-    courses: coursesChartData,
-    // Keep full payload available if some other page wants to inspect original tables
+    courses: topCoursesData,
     dbJson,
   };
 
@@ -226,7 +226,7 @@ const AdminDashboard = () => {
             />
           </Grid>
 
-          {/* User Enrollment Graph */}
+          {/* Charts */}
           <Grid item xs={12} lg={6}>
             <Card sx={{ height: "100%", boxShadow: 3 }}>
               <ChartCardHeader
@@ -254,6 +254,44 @@ const AdminDashboard = () => {
                           fill={userColors[index % userColors.length]}
                           cursor="pointer"
                           onClick={() => handleUserBarClick(entry.role)}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </MDBox>
+            </Card>
+          </Grid>
+
+          {/* Top Courses Chart */}
+          <Grid item xs={12} lg={6}>
+            <Card sx={{ height: "100%", boxShadow: 3 }}>
+              <ChartCardHeader
+                title="Top 5 Most Enrolled Courses"
+                description="By student Enrollment"
+              />
+              <MDBox p={2} height="350px">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    layout="vertical"
+                    data={dashboardData.courses}
+                    margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                    <XAxis type="number" tick={{ fontSize: 10 }} />
+                    <YAxis type="category" dataKey="course_name" tick={{ fontSize: 10 }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        borderRadius: "10px",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+                      }}
+                    />
+                    <Bar dataKey="count" radius={[0, 10, 10, 0]}>
+                      {dashboardData.courses.map((entry, index) => (
+                        <Cell
+                          key={`cell-course-${index}`}
+                          fill={courseColors[index % courseColors.length]}
                         />
                       ))}
                     </Bar>

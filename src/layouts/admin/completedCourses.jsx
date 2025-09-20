@@ -1,5 +1,4 @@
-// CompletedCourses.jsx
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Material Dashboard 2 React components
@@ -10,6 +9,17 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
+// Material UI
+import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TablePagination from "@mui/material/TablePagination";
+
 // Global search context
 import { useSearch } from "context";
 
@@ -17,6 +27,8 @@ const CompletedCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { search } = useSearch();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   // ✅ 1. Get dbJson (fallback if not passed)
   const dbJson = location.state?.dbJson || {
@@ -85,148 +97,123 @@ const CompletedCourses = () => {
     navigate("/courseDetails", { state: { course, dbJson } });
   };
 
+  const handleChangePage = (event, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
-        <MDBox mb={3}>
-          <MDTypography variant="h4" fontWeight="medium">
-            Completed Courses
-          </MDTypography>
-          <MDTypography variant="body2" color="text">
-            Manage all completed courses. There are{" "}
-            <MDTypography component="span" fontWeight="bold">
-              {filteredCourses.length}
-            </MDTypography>{" "}
-            completed courses.
-          </MDTypography>
-        </MDBox>
+        <Grid container>
+          <Grid item xs={12}>
+            <Card sx={{ p: 3, boxShadow: 0, borderRadius: 0 }}>
+              <MDTypography variant="h4" fontWeight="medium" mb={2}>
+                Completed Courses
+              </MDTypography>
 
-        {/* Courses Table */}
-        <MDBox mb={5} sx={{ overflowX: "auto" }}>
-          <MDBox
-            component="table"
-            width="100%"
-            border="1px solid #e0e0e0"
-            borderRadius="8px"
-            sx={{ borderCollapse: "collapse" }}
-          >
-            <MDBox
-              component="thead"
-              sx={{
-                borderBottom: "1px solid #e0e0e0",
-                backgroundColor: "#f9f9f9",
-              }}
-            >
-              <MDBox component="tr">
-                <MDTypography
-                  component="th"
-                  variant="button"
-                  fontWeight="bold"
-                  p={2}
-                  sx={{ textAlign: "left" }}
-                >
-                  COURSE TITLE
-                </MDTypography>
-                <MDTypography
-                  component="th"
-                  variant="button"
-                  fontWeight="bold"
-                  p={2}
-                  sx={{ textAlign: "left" }}
-                >
-                  INSTRUCTOR
-                </MDTypography>
-                <MDTypography
-                  component="th"
-                  variant="button"
-                  fontWeight="bold"
-                  p={2}
-                  sx={{ textAlign: "left" }}
-                >
-                  DESCRIPTION
-                </MDTypography>
-                <MDTypography
-                  component="th"
-                  variant="button"
-                  fontWeight="bold"
-                  p={2}
-                  sx={{ textAlign: "right" }}
-                >
-                  STATUS
-                </MDTypography>
-              </MDBox>
-            </MDBox>
+              <MDTypography variant="body2" color="text" mb={2}>
+                Manage all completed courses. There are{" "}
+                <MDTypography component="span" fontWeight="bold">
+                  {filteredCourses.length}
+                </MDTypography>{" "}
+                completed courses.
+              </MDTypography>
 
-            <MDBox component="tbody">
-              {filteredCourses.length > 0 ? (
-                filteredCourses.map((course) => (
-                  <MDBox
-                    component="tr"
-                    key={course.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleRowClick(course)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") handleRowClick(course);
-                    }}
-                    sx={{
-                      "&:not(:last-child)": { borderBottom: "1px solid #e0e0e0" },
-                      cursor: "pointer",
-                      transition: "background-color 120ms ease",
-                      "&:hover": { backgroundColor: "#f5f5f5" },
-                    }}
-                  >
-                    <MDTypography component="td" variant="body2" p={2}>
-                      {course.title}
-                    </MDTypography>
-                    <MDTypography component="td" variant="body2" p={2}>
-                      {course.instructor}
-                    </MDTypography>
-                    <MDTypography component="td" variant="body2" p={2}>
-                      {course.description}
-                    </MDTypography>
-                    <MDTypography component="td" variant="body2" p={2} sx={{ textAlign: "right" }}>
-                      <MDTypography
-                        variant="button"
-                        fontWeight="bold"
-                        sx={{
-                          color: course.status === "completed" ? "blue" : "grey",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {course.status}
-                      </MDTypography>
-                    </MDTypography>
-                  </MDBox>
-                ))
-              ) : (
-                <MDBox component="tr">
-                  <MDTypography
-                    component="td"
-                    colSpan={4}
-                    p={2}
-                    sx={{ textAlign: "center", fontStyle: "italic", color: "text.secondary" }}
-                  >
-                    No courses found
-                  </MDTypography>
-                </MDBox>
-              )}
-            </MDBox>
-          </MDBox>
+              {/* Courses Table (styled like ActiveCourses) */}
+              <TableContainer>
+                <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        <MDTypography component="div" variant="button" fontWeight="bold">
+                          COURSE TITLE
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        <MDTypography component="div" variant="button" fontWeight="bold">
+                          INSTRUCTOR
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        <MDTypography component="div" variant="button" fontWeight="bold">
+                          DESCRIPTION
+                        </MDTypography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none", textAlign: "right" }}>
+                        <MDTypography component="div" variant="button" fontWeight="bold">
+                          STATUS
+                        </MDTypography>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
 
-          <MDBox display="flex" justifyContent="flex-end" alignItems="center" mt={2} gap={1}>
-            <MDTypography variant="caption" color="text">
-              Showing 1 to {filteredCourses.length} of {filteredCourses.length} results
-            </MDTypography>
-            <MDButton size="small" variant="text" color="dark">
-              Previous
-            </MDButton>
-            <MDButton size="small" variant="text" color="dark">
-              Next
-            </MDButton>
-          </MDBox>
-        </MDBox>
+                  <TableBody>
+                    {filteredCourses.length > 0 ? (
+                      filteredCourses
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((course) => (
+                          <TableRow
+                            key={course.id}
+                            hover
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => handleRowClick(course)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") handleRowClick(course);
+                            }}
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: "#f9f9f9",
+                              "&:hover": { backgroundColor: "#f0f0f0" },
+                            }}
+                          >
+                            <TableCell sx={{ borderBottom: "none" }}>{course.title}</TableCell>
+                            <TableCell sx={{ borderBottom: "none" }}>{course.instructor}</TableCell>
+                            <TableCell sx={{ borderBottom: "none" }}>
+                              {course.description}
+                            </TableCell>
+                            <TableCell sx={{ borderBottom: "none", textAlign: "right" }}>
+                              <MDTypography
+                                variant="button"
+                                fontWeight="bold"
+                                sx={{
+                                  color: course.status === "completed" ? "blue" : "grey",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                {course.status}
+                              </MDTypography>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} sx={{ borderBottom: "none", textAlign: "center" }}>
+                          <MDTypography variant="body2" color="text">
+                            No courses found
+                          </MDTypography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredCourses.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Card>
+          </Grid>
+        </Grid>
       </MDBox>
       <Footer />
     </DashboardLayout>

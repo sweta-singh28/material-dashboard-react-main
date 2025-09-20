@@ -142,32 +142,42 @@ function Students() {
                       </TableCell>
                       <TableCell sx={{ borderBottom: "none" }}>
                         <MDTypography variant="button" fontWeight="bold" color="text">
-                          Email
+                          Email Id
                         </MDTypography>
                       </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredStudents
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((student) => (
-                        <TableRow
-                          key={student.user_id}
-                          hover
-                          sx={{
-                            cursor: "pointer",
-                            backgroundColor: "#f9f9f9",
-                            "&:hover": {
-                              backgroundColor: "#f0f0f0",
-                            },
-                          }}
-                          onClick={() => navigate(`/students/${student.user_id}`)}
-                        >
-                          <TableCell sx={{ borderBottom: "none" }}>{student.full_name}</TableCell>
-                          <TableCell sx={{ borderBottom: "none" }}>{student.roll_no}</TableCell>
-                          <TableCell sx={{ borderBottom: "none" }}>{student.email}</TableCell>
-                        </TableRow>
-                      ))}
+                    {filteredStudents.length > 0 ? (
+                      filteredStudents
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((student) => (
+                          <TableRow
+                            key={student.user_id}
+                            hover
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: "#f9f9f9",
+                              "&:hover": {
+                                backgroundColor: "#f0f0f0",
+                              },
+                            }}
+                            onClick={() => navigate(`/students/${student.user_id}`)}
+                          >
+                            <TableCell sx={{ borderBottom: "none" }}>{student.full_name}</TableCell>
+                            <TableCell sx={{ borderBottom: "none" }}>{student.roll_no}</TableCell>
+                            <TableCell sx={{ borderBottom: "none" }}>{student.email}</TableCell>
+                          </TableRow>
+                        ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} sx={{ textAlign: "center", py: 3 }}>
+                          <MDTypography variant="body2" color="text">
+                            No students available
+                          </MDTypography>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>

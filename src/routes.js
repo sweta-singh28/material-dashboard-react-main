@@ -61,7 +61,7 @@ const routes = [
   {
     type: "collapse",
     name: "New Course",
-    key: "AddNewCourse",
+    key: "addNewCourse",
     icon: <Icon fontSize="small">add</Icon>,
     route: "/addNewCourse",
     component: <AddNewCourse />,
@@ -69,7 +69,7 @@ const routes = [
   {
     type: "collapse",
     name: "Student Register",
-    key: "studentRegister",
+    key: "teacher/studentRegister",
     icon: <Icon fontSize="small">menu_book</Icon>,
     route: "teacher/studentRegister",
     component: <StudentRegister />,
