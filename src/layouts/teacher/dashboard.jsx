@@ -1,3 +1,7 @@
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTeacherCourses } from "../../redux/teacherDashboard/teacherDashboardThunks";
+import { teacherDashboardReducer } from "../../redux/teacherDashboard/teacherDashboardReducer";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
@@ -7,14 +11,18 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSearch } from "context";
 
 function TeacherDashboard() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { search } = useSearch();
 
+  // Select from Redux
+  const { courses, loading, error } = useSelector((state) => state.teacherDashboard);
+
+  // Local mock data (you can replace with API call later)
   const allCourses = [
     {
       idCourses: "c1",
@@ -55,23 +63,10 @@ function TeacherDashboard() {
 
   const teacherId = "teacher-123";
 
-  const courses = allCourses
-    .filter((c) => c.teachers_user_id === teacherId)
-    .map((c) => {
-      const activeCount = Array.isArray(c.course_active_students)
-        ? c.course_active_students.length
-        : 0;
-      const pendingCount = Array.isArray(c.course_pending_students)
-        ? c.course_pending_students.length
-        : 0;
-
-      return {
-        id: c.idCourses,
-        name: c.course_name,
-        students: activeCount,
-        pending: pendingCount,
-      };
-    });
+  // Fetch courses on mount
+  useEffect(() => {
+    dispatch(fetchTeacherCourses(allCourses, teacherId));
+  }, [dispatch]);
 
   const filteredCourses = courses.filter((course) =>
     course.name.toLowerCase().includes(search.toLowerCase())
@@ -120,13 +115,7 @@ function TeacherDashboard() {
 
           {/* Enrollment Chart */}
           <Grid item xs={12}>
-            <Card
-              sx={{
-                p: 3,
-                borderRadius: "12px",
-                boxShadow: "0px 2px 10px rgba(0,0,0,0.05)",
-              }}
-            >
+            <Card sx={{ p: 3, borderRadius: "12px", boxShadow: "0px 2px 10px rgba(0,0,0,0.05)" }}>
               <MDTypography variant="h6" fontWeight="medium" gutterBottom>
                 Student Enrollment
               </MDTypography>
@@ -157,56 +146,67 @@ function TeacherDashboard() {
               My Courses
             </MDTypography>
             <Grid container spacing={3}>
-              {filteredCourses.length > 0 ? (
-                filteredCourses.map((course) => (
-                  <Grid item xs={12} sm={6} md={4} key={course.id}>
-                    <Card
-                      sx={{
-                        p: 3,
-                        borderRadius: "12px",
-                        boxShadow: "0px 3px 12px rgba(0,0,0,0.08)",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          transform: "translateY(-2px)",
-                          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                        },
-                      }}
-                      onClick={() => navigate(`/teacher/subjectDetails/${course.id}`)}
-                    >
-                      <MDTypography variant="h6" fontWeight="medium" gutterBottom>
-                        {course.name}
-                      </MDTypography>
-                      <MDBox display="flex" justifyContent="space-between" mt={1}>
-                        <MDBox>
-                          <MDTypography variant="subtitle2" color="textSecondary">
-                            Pending Students
-                          </MDTypography>
-                          <MDTypography variant="body2" fontWeight="bold">
-                            {course.pending}
-                          </MDTypography>
-                        </MDBox>
-                        <MDBox>
-                          <MDTypography variant="subtitle2" color="textSecondary">
-                            Enrolled Students
-                          </MDTypography>
-                          <MDTypography variant="body2" fontWeight="bold">
-                            {course.students}
-                          </MDTypography>
-                        </MDBox>
-                      </MDBox>
-                    </Card>
-                  </Grid>
-                ))
-              ) : (
+              {loading && (
                 <Grid item xs={12}>
-                  <MDBox textAlign="center" py={5}>
-                    <MDTypography variant="body2" color="text">
-                      No courses available
-                    </MDTypography>
-                  </MDBox>
+                  <MDTypography>Loading...</MDTypography>
                 </Grid>
               )}
+              {error && (
+                <Grid item xs={12}>
+                  <MDTypography color="error">{error}</MDTypography>
+                </Grid>
+              )}
+              {!loading && !error && filteredCourses.length > 0
+                ? filteredCourses.map((course) => (
+                    <Grid item xs={12} sm={6} md={4} key={course.id}>
+                      <Card
+                        sx={{
+                          p: 3,
+                          borderRadius: "12px",
+                          boxShadow: "0px 3px 12px rgba(0,0,0,0.08)",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            transform: "translateY(-2px)",
+                            boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                          },
+                        }}
+                        onClick={() => navigate(`/teacher/subjectDetails/${course.id}`)}
+                      >
+                        <MDTypography variant="h6" fontWeight="medium" gutterBottom>
+                          {course.name}
+                        </MDTypography>
+                        <MDBox display="flex" justifyContent="space-between" mt={1}>
+                          <MDBox>
+                            <MDTypography variant="subtitle2" color="textSecondary">
+                              Pending Students
+                            </MDTypography>
+                            <MDTypography variant="body2" fontWeight="bold">
+                              {course.pending}
+                            </MDTypography>
+                          </MDBox>
+                          <MDBox>
+                            <MDTypography variant="subtitle2" color="textSecondary">
+                              Enrolled Students
+                            </MDTypography>
+                            <MDTypography variant="body2" fontWeight="bold">
+                              {course.students}
+                            </MDTypography>
+                          </MDBox>
+                        </MDBox>
+                      </Card>
+                    </Grid>
+                  ))
+                : !loading &&
+                  !error && (
+                    <Grid item xs={12}>
+                      <MDBox textAlign="center" py={5}>
+                        <MDTypography variant="body2" color="text">
+                          No courses available
+                        </MDTypography>
+                      </MDBox>
+                    </Grid>
+                  )}
             </Grid>
           </Grid>
         </Grid>

@@ -1,5 +1,6 @@
+// adminDashboardReducer.js
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchAdminStats } from "./adminThunks";
+import { fetchAdminStats } from "./adminDashboardThunks";
 
 const adminSlice = createSlice({
   name: "admin",

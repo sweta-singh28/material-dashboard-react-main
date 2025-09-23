@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -12,87 +12,30 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
-// ----- JSON Data -----
-const usersJSON = {
-  users: [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      role: "student",
-      profilePicture: "",
-      avatar: "",
-      qualifications: "B.Sc Computer Science",
-      contact: "1234567890",
-      joined: "2022-05-15T10:00:00Z",
-      currentlyEnrolled: [
-        {
-          id: 101,
-          title: "Mathematics 101",
-          code: "MATH101",
-          instructor: "Dr. Smith",
-          status: "ongoing",
-        },
-      ],
-      completedEnrolled: [
-        { id: 102, title: "Physics 101", code: "PHY101", grade: "A", status: "completed" },
-      ],
-      rejectedCourses: [
-        {
-          id: 103,
-          title: "Chemistry 101",
-          code: "CHEM101",
-          reason: "Failed prerequisite",
-          status: "rejected",
-        },
-      ],
-      courses: [],
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      role: "teacher",
-      profilePicture: "",
-      avatar: "",
-      qualifications: "M.Sc Physics",
-      contact: "9876543210",
-      joined: "2021-08-20T09:00:00Z",
-      currentlyTeaching: [
-        { id: 201, title: "Physics 101", code: "PHY101", studentsEnrolled: 30, status: "ongoing" },
-      ],
-      completedTeaching: [
-        { id: 202, title: "Mathematics 101", code: "MATH101", year: 2022, status: "completed" },
-      ],
-      rejectedTeaching: [
-        {
-          id: 203,
-          title: "Biology 101",
-          code: "BIO101",
-          reason: "Cancelled course",
-          status: "rejected",
-        },
-      ],
-      teachingCourses: [],
-    },
-  ],
-};
+// ----- Redux imports -----
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserDetails } from "../../redux/userDetails/userDetailsThunks";
+import { clearUserDetails } from "../../redux/userDetails/userDetailsReducer";
 
 const UserDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [user, setUser] = useState(location.state?.user || null);
+  const dispatch = useDispatch();
+  const { user: reduxUser } = useSelector((state) => state.userDetails);
+
+  // Use reduxUser first, fallback to location.state
+  const user = reduxUser || location.state?.user || null;
 
   useEffect(() => {
-    if (!user && id) {
-      const found = usersJSON.users.find(
-        (u) => String(u.id) === String(id) || Number(u.id) === Number(id)
-      );
-      if (found) setUser(found);
+    if (!reduxUser && id) {
+      dispatch(fetchUserDetails(id));
     }
-  }, [id, user]);
+    return () => {
+      dispatch(clearUserDetails());
+    };
+  }, [id, reduxUser, dispatch]);
 
   if (!user) {
     return (

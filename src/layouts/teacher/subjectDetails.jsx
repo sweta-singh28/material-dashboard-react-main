@@ -1,4 +1,5 @@
-import React from "react";
+// src/layouts/teacher/subjectDetails.jsx
+import React, { useEffect, useReducer } from "react";
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -29,6 +30,12 @@ import Footer from "examples/Footer";
 
 // React Router
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+
+// Local reducer & thunk (place both files at src/redux/subjectDetails/)
+import subjectDetailsReducer, {
+  initialState,
+} from "../../redux/subjectDetails/subjectDetailsReducer";
+import { fetchSubjectDetails } from "../../redux/subjectDetails/subjectDetailsThunks";
 
 // A simple static component to represent the bar chart from the image
 function CourseProgressBar() {
@@ -80,8 +87,13 @@ function SubjectDetails() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // local reducer to hold fetched state (so you don't need to modify global store)
+  const [state, localDispatch] = useReducer(subjectDetailsReducer, initialState);
+  const { course: fetchedCourse, students: fetchedStudents, loading, error } = state;
+
   const [updateText, setUpdateText] = React.useState("");
 
+  // Local fallback sample courses (kept exactly as your original)
   const courses = [
     {
       course_id: 1,
@@ -147,11 +159,31 @@ function SubjectDetails() {
       ? courses.find((c) => c.course_id === parsedId)
       : undefined;
 
-  const course = location.state?.course || courseFromParams || courses[0] || defaultCourse;
+  // Original selection logic preserved (location.state takes precedence)
+  const courseLocal = location.state?.course || courseFromParams || courses[0] || defaultCourse;
 
+  // If our fetched data exists, prefer it; otherwise keep original local logic.
+  const course = fetchedCourse ?? courseLocal;
+  const students = fetchedStudents?.length ? fetchedStudents : course.students ?? [];
+
+  // keep completed chapters state, sync when fetched course updates
   const [completedChapters, setCompletedChapters] = React.useState(
     course.course_current_completed || []
   );
+  useEffect(() => {
+    setCompletedChapters(course.course_current_completed || []);
+  }, [course.course_current_completed]);
+
+  // Fetch via thunk on mount (safe: thunk falls back to sample data if API fails)
+  useEffect(() => {
+    if (parsedId) {
+      // thunk is a function that returns an async function(dispatch)
+      // we call it with localDispatch to use the reducer above
+      fetchSubjectDetails(parsedId)(localDispatch);
+    } else {
+      // no id: optionally fetch nothing — keep local behavior
+    }
+  }, [parsedId]);
 
   const handleToggleChapter = (chapter) => {
     setCompletedChapters((prev) =>
@@ -267,7 +299,7 @@ function SubjectDetails() {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {course.students.map((student) => (
+                        {students.map((student) => (
                           <TableRow
                             key={student.user_id}
                             hover

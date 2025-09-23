@@ -1,5 +1,3 @@
-// StudentDetails.jsx
-
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
@@ -21,53 +19,24 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchStudentDetails } from "../../redux/studentDetails/studentDetailsThunks";
 
 function StudentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // Hardcoded JSON data
-  const studentsData = [
-    {
-      user_id: "S101",
-      full_name: "Sophia Clark",
-      email: "sophia.clark@email.com",
-      roll_no: "2023-SC-001",
-      profile_picture: "https://i.pravatar.cc/150?u=sophia@example.com",
-      courses_enrolled: ["Mathematics", "Physics", "Chemistry"],
-      pending_requests: 0,
-      assignments: [],
-    },
-    {
-      user_id: "S102",
-      full_name: "Liam Johnson",
-      email: "liam.johnson@email.com",
-      roll_no: "2023-LJ-002",
-      profile_picture: "https://i.pravatar.cc/150?u=liam@example.com",
-      courses_enrolled: ["Biology", "English", "History"],
-      pending_requests: 1,
-      assignments: [],
-    },
-  ];
-
-  const assignmentSummaryData = [
-    { subject: "Mathematics", completed: 10, expired: 2, pending: 3 },
-    { subject: "Physics", completed: 8, expired: 1, pending: 4 },
-    { subject: "Chemistry", completed: 12, expired: 0, pending: 1 },
-  ];
-
-  const student = studentsData.find((s) => s.user_id === id || s.roll_no === id) || {
-    full_name: "Unknown",
-    email: "-",
-    roll_no: "-",
-    profile_picture: null,
-    courses_enrolled: [],
-    pending_requests: 0,
-    assignments: [],
-  };
+  const { student, enrolledCourses, pendingCourses, subjects, loading } = useSelector(
+    (state) => state.studentDetails
+  );
 
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  useEffect(() => {
+    if (id) dispatch(fetchStudentDetails(id));
+  }, [id, dispatch]);
 
   const getStatusChip = (status) => {
     switch (status) {
@@ -84,7 +53,6 @@ function StudentDetails() {
     }
   };
 
-  // Unified Back Button style
   const backButtonSx = {
     background: "linear-gradient(135deg,#1A73E8 0%, #1565C0 100%)",
     color: "#fff",
@@ -98,6 +66,18 @@ function StudentDetails() {
     "&:hover": {
       background: "linear-gradient(135deg,#1765d8 0%, #0f55b0 100%)",
     },
+  };
+
+  if (loading) return <p>Loading...</p>;
+
+  const studentData = student || {
+    full_name: "Unknown",
+    email: "-",
+    rollNo: "-",
+    profile_picture: null,
+    enrolledCourses: [],
+    pendingCourses: [],
+    subjects: [],
   };
 
   return (
@@ -115,7 +95,6 @@ function StudentDetails() {
                   View and manage student information and assignment progress.
                 </MDTypography>
               </MDBox>
-
               <MDButton onClick={() => navigate("/teacher/studentRegister")} sx={backButtonSx}>
                 ← Back to Students
               </MDButton>
@@ -124,62 +103,60 @@ function StudentDetails() {
 
           {/* Left Column */}
           <Grid item xs={12} md={5}>
-            {/* Student Info Card */}
             <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
               <MDBox display="flex" flexDirection="column" alignItems="center">
                 <Avatar
-                  src={student.profile_picture || undefined}
-                  alt={student.full_name}
+                  src={studentData.picture || undefined}
+                  alt={studentData.full_name || studentData.name}
                   sx={{ width: 150, height: 150, mb: 2 }}
                 />
                 <MDTypography variant="h5" fontWeight="medium">
-                  {student.full_name}
+                  {studentData.full_name || studentData.name}
                 </MDTypography>
                 <MDTypography variant="body2" color="text">
-                  {student.email}
+                  {studentData.email}
                 </MDTypography>
                 <MDTypography variant="body2" color="text">
-                  Roll Number: {student.roll_no}
+                  Roll Number: {studentData.rollNo || studentData.roll_no}
                 </MDTypography>
               </MDBox>
             </Card>
 
-            {/* Courses Enrolled Card */}
             <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
               <MDTypography variant="h6" fontWeight="medium" mb={2}>
                 Courses Enrolled
               </MDTypography>
               <MDBox display="flex" flexWrap="wrap" gap={1}>
-                {student.courses_enrolled.map((course) => (
-                  <Chip
-                    key={course}
-                    label={course}
-                    sx={{
-                      fontWeight: "medium",
-                      bgcolor: "#e3f2fd",
-                      color: "#2196f3",
-                      border: "1px solid #2196f3",
-                      fontSize: "0.85rem",
-                    }}
-                  />
-                ))}
+                {(enrolledCourses.length ? enrolledCourses : studentData.enrolledCourses).map(
+                  (course) => (
+                    <Chip
+                      key={course}
+                      label={course}
+                      sx={{
+                        fontWeight: "medium",
+                        bgcolor: "#e3f2fd",
+                        color: "#2196f3",
+                        border: "1px solid #2196f3",
+                        fontSize: "0.85rem",
+                      }}
+                    />
+                  )
+                )}
               </MDBox>
             </Card>
 
-            {/* Pending Course Requests Card */}
             <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
               <MDTypography variant="h6" fontWeight="medium" mb={1}>
                 Pending Course Requests
               </MDTypography>
               <MDTypography variant="body2" color="text">
-                No pending course requests.
+                {pendingCourses.length ? pendingCourses.join(", ") : "No pending course requests."}
               </MDTypography>
             </Card>
           </Grid>
 
           {/* Right Column */}
           <Grid item xs={12} md={7}>
-            {/* Assignment Summary Card */}
             <Card sx={{ p: 3, mb: 3, borderRadius: "8px" }}>
               <MDTypography variant="h6" fontWeight="medium" mb={2}>
                 Assignment Summary
@@ -211,22 +188,30 @@ function StudentDetails() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {assignmentSummaryData.map((row, index) => (
+                    {(subjects.length ? subjects : studentData.subjects).map((row, index) => (
                       <TableRow
                         key={index}
                         sx={{ "&:nth-of-type(odd)": { backgroundColor: "#fafafa" } }}
                       >
                         <TableCell>
-                          <MDTypography variant="body2">{row.subject}</MDTypography>
+                          <MDTypography variant="body2">
+                            {row.subjectName || row.subject}
+                          </MDTypography>
                         </TableCell>
                         <TableCell align="center">
-                          <MDTypography variant="body2">{row.completed}</MDTypography>
+                          <MDTypography variant="body2">
+                            {row.completedAssignments || row.completed}
+                          </MDTypography>
                         </TableCell>
                         <TableCell align="center">
-                          <MDTypography variant="body2">{row.expired}</MDTypography>
+                          <MDTypography variant="body2">
+                            {row.expiredAssignments || row.expired}
+                          </MDTypography>
                         </TableCell>
                         <TableCell align="center">
-                          <MDTypography variant="body2">{row.pending}</MDTypography>
+                          <MDTypography variant="body2">
+                            {row.pendingAssignments || row.pending}
+                          </MDTypography>
                         </TableCell>
                       </TableRow>
                     ))}

@@ -1,5 +1,6 @@
 // TotalUsers.jsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
@@ -21,43 +22,59 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useMaterialUIController } from "context";
 
+// Redux imports
+import { fetchUsers } from "../../redux/totalUsers/totalUsersThunks";
+
 const TotalUsers = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
+  const dispatch = useDispatch();
+  const { users: fetchedUsers } = useSelector((state) => state.totalUsers);
+
+  // Fetch users from Redux on mount
+  useEffect(() => {
+    if (!fetchedUsers.length) {
+      dispatch(fetchUsers());
+    }
+  }, [dispatch, fetchedUsers.length]);
+
+  // Use Redux users if available, fallback to location state
   const dbJson = location.state?.dbJson || {
-    Users: [
-      {
-        user_id: "u_1",
-        first_name: "Sophia",
-        last_name: "Clark",
-        email: "sophia.clark@email.com",
-        user_role: "Teacher",
-      },
-      {
-        user_id: "u_2",
-        first_name: "Ethan",
-        last_name: "Bennett",
-        email: "ethan.bennett@email.com",
-        user_role: "Student",
-      },
-      {
-        user_id: "u_3",
-        first_name: "Olivia",
-        last_name: "Carter",
-        email: "olivia.carter@email.com",
-        user_role: "Teacher",
-      },
-      {
-        user_id: "u_4",
-        first_name: "Liam",
-        last_name: "Davis",
-        email: "liam.davis@email.com",
-        user_role: "Student",
-      },
-    ],
+    Users: fetchedUsers.length
+      ? fetchedUsers
+      : [
+          {
+            user_id: "u_1",
+            first_name: "Sophia",
+            last_name: "Clark",
+            email: "sophia.clark@email.com",
+            user_role: "Teacher",
+          },
+          {
+            user_id: "u_2",
+            first_name: "Ethan",
+            last_name: "Bennett",
+            email: "ethan.bennett@email.com",
+            user_role: "Student",
+          },
+          {
+            user_id: "u_3",
+            first_name: "Olivia",
+            last_name: "Carter",
+            email: "olivia.carter@email.com",
+            user_role: "Teacher",
+          },
+          {
+            user_id: "u_4",
+            first_name: "Liam",
+            last_name: "Davis",
+            email: "liam.davis@email.com",
+            user_role: "Student",
+          },
+        ],
   };
 
   const allUsers = useMemo(
@@ -83,7 +100,7 @@ const TotalUsers = () => {
       );
   }, [allUsers, filterRole, search]);
 
-  // Pagination state (UI only, mirrors PendingStudentApprovals look)
+  // Pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -124,7 +141,6 @@ const TotalUsers = () => {
       <MDBox pt={6} pb={3}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            {/* Heading changed to match PendingStudentApprovals style */}
             <MDTypography variant="h4" fontWeight="bold" mb={2}>
               Total Users
             </MDTypography>
@@ -155,14 +171,12 @@ const TotalUsers = () => {
                       px: 2.5,
                       py: 0.5,
                       minWidth: "90px",
-                      /* ensure active button text is clearly white and overrides MUI defaults */
                       color: isActive ? "#ffffff !important" : "#344054",
                       backgroundColor: isActive ? "#1D4ED8" : "transparent",
                       "&:hover": {
                         backgroundColor: isActive ? "#1E40AF" : "rgba(0,0,0,0.04)",
                         color: isActive ? "#ffffff !important" : "#344054",
                       },
-                      /* keep focus/active states white too */
                       "&.Mui-focusVisible, &:focus": {
                         color: isActive ? "#ffffff !important" : undefined,
                       },
@@ -175,7 +189,7 @@ const TotalUsers = () => {
             </Box>
           </Grid>
 
-          {/* Table UI updated to match PendingStudentApprovals look */}
+          {/* Table */}
           <Grid item xs={12}>
             <Card sx={{ p: 3, boxShadow: 0, borderRadius: 0 }}>
               <TableContainer>
@@ -257,7 +271,6 @@ const TotalUsers = () => {
                 </Table>
               </TableContainer>
 
-              {/* Pagination UI to match PendingStudentApprovals */}
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"

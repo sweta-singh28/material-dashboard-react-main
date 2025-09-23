@@ -1,4 +1,9 @@
-// @mui material components
+// studentRegister.jsx
+
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+// MUI & project components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Table from "@mui/material/Table";
@@ -9,103 +14,55 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TablePagination from "@mui/material/TablePagination";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-// React Router
-import { useNavigate } from "react-router-dom";
-
 // Context for search
 import { useMaterialUIController } from "context";
-import { useState } from "react";
+
+// Redux
+import { useDispatch, useSelector } from "react-redux";
+import { fetchStudents } from "../../redux/studentRegister/studentRegisterThunks";
+import {
+  selectStudents,
+  selectStudentsLoading,
+  selectStudentsError,
+} from "../../redux/studentRegister/studentRegisterReducer";
 
 function Students() {
   const navigate = useNavigate();
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
-  // State for pagination
+  const dispatch = useDispatch();
+
+  // pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Hardcoded JSON data (later replace with API call)
-  const studentsData = [
-    {
-      user_id: "S101",
-      full_name: "Liam Harper",
-      email: "liam.harper@example.com",
-      roll_no: "2023-001",
-    },
-    {
-      user_id: "S102",
-      full_name: "Olivia Bennett",
-      email: "olivia.bennett@example.com",
-      roll_no: "2023-002",
-    },
-    {
-      user_id: "S103",
-      full_name: "Noah Carter",
-      email: "noah.carter@example.com",
-      roll_no: "2023-003",
-    },
-    {
-      user_id: "S104",
-      full_name: "Ava Davis",
-      email: "ava.davis@example.com",
-      roll_no: "2023-004",
-    },
-    {
-      user_id: "S105",
-      full_name: "Jackson Evans",
-      email: "jackson.evans@example.com",
-      roll_no: "2023-005",
-    },
-    {
-      user_id: "S106",
-      full_name: "Sophia Foster",
-      email: "sophia.foster@example.com",
-      roll_no: "2023-006",
-    },
-    {
-      user_id: "S107",
-      full_name: "Aiden Green",
-      email: "aiden.green@example.com",
-      roll_no: "2023-007",
-    },
-    {
-      user_id: "S108",
-      full_name: "Chloe Hayes",
-      email: "chloe.hayes@example.com",
-      roll_no: "2023-008",
-    },
-    {
-      user_id: "S109",
-      full_name: "Lucas Ingram",
-      email: "lucas.ingram@example.com",
-      roll_no: "2023-009",
-    },
-    {
-      user_id: "S110",
-      full_name: "Mia Jenkins",
-      email: "mia.jenkins@example.com",
-      roll_no: "2023-010",
-    },
-  ];
+  // Redux state
+  const studentsData = useSelector(selectStudents) || [];
+  const loading = useSelector(selectStudentsLoading);
+  const error = useSelector(selectStudentsError);
+
+  // load students on mount
+  useEffect(() => {
+    dispatch(fetchStudents());
+  }, [dispatch]);
 
   // Apply search filter
   const filteredStudents = studentsData.filter((student) =>
     Object.values(student).some((value) =>
-      String(value).toLowerCase().includes(search.toLowerCase())
+      String(value)
+        .toLowerCase()
+        .includes((search || "").toLowerCase())
     )
   );
 
-  // Pagination change handlers
+  // Pagination handlers
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -125,6 +82,16 @@ function Students() {
               <MDTypography variant="h4" fontWeight="bold" gutterBottom>
                 Student Register
               </MDTypography>
+
+              {loading ? (
+                <MDTypography variant="body2" color="text">
+                  Loading students...
+                </MDTypography>
+              ) : error ? (
+                <MDTypography variant="body2" color="error">
+                  {String(error)}
+                </MDTypography>
+              ) : null}
 
               <TableContainer>
                 <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>

@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addNewCourse } from "../../redux/addNewCourse/addNewCourseThunks";
+import { resetCourseState } from "../../redux/addNewCourse/addNewCourseReducer";
+
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Table from "@mui/material/Table";
@@ -29,7 +33,11 @@ import Footer from "examples/Footer";
 import { useSearch } from "context";
 
 function AddNewCourse() {
+  const dispatch = useDispatch();
   const { search } = useSearch();
+
+  // Redux state
+  const { success, loading, error } = useSelector((state) => state.addNewCourse);
 
   // JSON object matching DB schema
   const [data, setData] = useState({
@@ -72,10 +80,22 @@ function AddNewCourse() {
     if (!courseName.trim() || !description.trim() || !teacherInfo.trim()) return;
 
     const newCourse = {
+      courseName,
+      description,
+      teacherId: teacherInfo,
+      syllabus: syllabus ? syllabus.split(",").map((t) => t.trim()) : [],
+      prerequisites: prerequisites ? prerequisites.split(",").map((t) => t.trim()) : [],
+      expectations,
+    };
+
+    // dispatch thunk
+    dispatch(addNewCourse(newCourse));
+
+    const formattedCourse = {
       idCourses: `c${data.Courses.length + 1}`,
       course_name: courseName,
       course_pre_requisites: prerequisites,
-      course_syllabus: JSON.stringify(syllabus ? syllabus.split(",").map((t) => t.trim()) : []),
+      course_syllabus: JSON.stringify(newCourse.syllabus),
       course_code: `${courseName.toUpperCase().replace(/\s+/g, "")}-${data.Courses.length + 1}`,
       course_status: "Pending",
       course_description: description,
@@ -83,12 +103,12 @@ function AddNewCourse() {
       course_current_completed: 0,
       course_active_students: JSON.stringify([]),
       course_pending_students: JSON.stringify([]),
-      teachers_user_id: teacherInfo, // You can later map this to actual Users table
+      teachers_user_id: teacherInfo,
     };
 
     setData((prev) => ({
       ...prev,
-      Courses: [...prev.Courses, newCourse],
+      Courses: [...prev.Courses, formattedCourse],
     }));
 
     // reset form
@@ -110,6 +130,16 @@ function AddNewCourse() {
     setPrerequisites("");
     setSyllabus("");
   };
+
+  useEffect(() => {
+    if (success) {
+      console.log("✅ Course added successfully");
+      dispatch(resetCourseState());
+    }
+    if (error) {
+      console.error("❌ Error adding course:", error);
+    }
+  }, [success, error, dispatch]);
 
   const chipColor = (status) =>
     status === "Approved" ? "success" : status === "Rejected" ? "error" : "warning";
@@ -140,6 +170,8 @@ function AddNewCourse() {
               <MDTypography variant="h4" gutterBottom>
                 Add a New Course
               </MDTypography>
+              {loading && <MDTypography color="info">Saving...</MDTypography>}
+              {error && <MDTypography color="error">{error}</MDTypography>}
               <MDTypography variant="body2" color="text" mb={3}>
                 Fill out the form below to create a new course.
               </MDTypography>

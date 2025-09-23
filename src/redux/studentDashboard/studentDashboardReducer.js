@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchStudentDashboard } from "./studentThunks";
+import { fetchStudentDashboard } from "./studentDashboardThunks";
 
 const studentSlice = createSlice({
   name: "student",

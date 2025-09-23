@@ -1,7 +1,9 @@
 // AdminDashboard.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -32,7 +34,9 @@ import {
 // Global search context
 import { useSearch } from "context";
 
-// ---------------- StatCard Component ----------------
+// Redux: reducer & thunk
+import { fetchAdminStats } from "../../redux/adminDashboard/adminDashboardThunks";
+
 const StatCard = ({ icon, color, title, value, onClick }) => (
   <Card
     onClick={onClick}
@@ -85,7 +89,6 @@ StatCard.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-// ---------------- ChartCardHeader Component ----------------
 const ChartCardHeader = ({ title, description }) => (
   <MDBox p={2}>
     <MDTypography variant="body1" fontWeight="medium" sx={{ fontSize: "1rem" }} mb={0.5}>
@@ -102,62 +105,33 @@ ChartCardHeader.propTypes = {
   description: PropTypes.string.isRequired,
 };
 
-// ---------------- AdminDashboard Component ----------------
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { search } = useSearch(); // Global search (can be used later for filtering)
 
-  // ---------------- Dynamic JSON (matches your DB schema) ----------------
-  // Replace `dbJson` later with an API response matching the same schema
-  const dbJson = {
-    total_users_count: 5,
-    active_courses_count: 0,
-    pending_approvals_count: 0,
-  };
-  // -----------------------------------------------------------------------
+  const dispatch = useDispatch();
+  const { stats = {}, loading, error } = useSelector((state) => state.adminDashboard || {});
 
-  // ---------- derive dashboard-friendly aggregates from dbJson ----------
-  const totalUsers = Array.isArray(dbJson.Users) ? dbJson.Users.length : 0;
+  useEffect(() => {
+    dispatch(fetchAdminStats());
+  }, [dispatch]);
 
-  const activeCourses = Array.isArray(dbJson.Courses)
-    ? dbJson.Courses.filter((c) => c.course_status === "active").length
-    : 0;
-
-  const pendingApprovals = Array.isArray(dbJson.SubmittedAssignments)
-    ? dbJson.SubmittedAssignments.filter((s) => String(s.approval).toLowerCase() === "pending")
-        .length
-    : 0;
+  const totalUsers = stats.total_users_count || 0;
+  const activeCourses = stats.active_courses_count || 0;
+  const pendingApprovals = stats.pending_approvals_count || 0;
 
   // Users breakdown for chart (Students vs Teachers)
-  const userRoleCounts = {};
-  if (Array.isArray(dbJson.Users)) {
-    dbJson.Users.forEach((u) => {
-      const role = u.user_role || "Unknown";
-      userRoleCounts[role] = (userRoleCounts[role] || 0) + 1;
-    });
-  }
+  const userRoleCounts = stats.userRoleCounts || [];
   const usersChartData = Object.keys(userRoleCounts).map((role) => ({
     role,
     count: userRoleCounts[role],
   }));
 
-  // Courses breakdown (derive a subject from the course_name first token, e.g., "Math 101" -> "Math")
-  const courseEnrollmentCounts = {};
-  if (Array.isArray(dbJson.Courses)) {
-    dbJson.Courses.forEach((c) => {
-      const name = c.course_name || "Other";
-      const count = c.enrolled_students_count || 0; // Assuming you have this field
-      courseEnrollmentCounts[name] = count;
-    });
-  }
-
-  // Sort top 5 enrolled courses
+  const courseEnrollmentCounts = stats.courseEnrollmentCounts || [];
   const topCoursesData = Object.entries(courseEnrollmentCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([course_name, count]) => ({ course_name, count }));
-
-  // ---------------------------------------------------------------------
 
   const userColors = ["#3f51b5", "#ff7043", "#4caf50", "#2196f3"];
   const courseColors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336"];
@@ -172,36 +146,23 @@ const AdminDashboard = () => {
     }
   };
 
-  const dashboardData = {
-    stats: {
-      totalUsers,
-      activeCourses,
-      pendingApprovals,
-    },
-    users: usersChartData,
-    courses: topCoursesData,
-    dbJson,
-  };
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox mt={6} mb={3}>
         <Grid container spacing={3}>
-          {/* Title */}
           <Grid item xs={12}>
             <MDTypography variant="h4" fontWeight="bold" color="dark">
               Dashboard Overview
             </MDTypography>
           </Grid>
 
-          {/* Stats */}
           <Grid item xs={12} md={4}>
             <StatCard
               icon={<PeopleAltIcon />}
               color="#3f51b5"
               title="Total Users"
-              value={dashboardData.stats.totalUsers}
+              value={totalUsers}
               onClick={() => navigate("/admin/totalUsers")}
             />
           </Grid>
@@ -211,7 +172,7 @@ const AdminDashboard = () => {
               icon={<MenuBookIcon />}
               color="#4caf50"
               title="Active Courses"
-              value={dashboardData.stats.activeCourses}
+              value={activeCourses}
               onClick={() => navigate("/admin/activeCourses")}
             />
           </Grid>
@@ -221,12 +182,11 @@ const AdminDashboard = () => {
               icon={<AssignmentTurnedInIcon />}
               color="#ffc107"
               title="Pending Approvals"
-              value={dashboardData.stats.pendingApprovals}
+              value={pendingApprovals}
               onClick={() => navigate("/admin/pendingApprovals")}
             />
           </Grid>
 
-          {/* Charts */}
           <Grid item xs={12} lg={6}>
             <Card sx={{ height: "100%", boxShadow: 3 }}>
               <ChartCardHeader
@@ -235,7 +195,7 @@ const AdminDashboard = () => {
               />
               <MDBox p={2} height="350px">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={dashboardData.users} barSize={50}>
+                  <BarChart data={usersChartData} barSize={50}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                     <XAxis dataKey="role" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} />
@@ -248,7 +208,7 @@ const AdminDashboard = () => {
                     />
                     <Legend />
                     <Bar dataKey="count" radius={[10, 10, 0, 0]}>
-                      {dashboardData.users.map((entry, index) => (
+                      {usersChartData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={userColors[index % userColors.length]}
@@ -263,7 +223,6 @@ const AdminDashboard = () => {
             </Card>
           </Grid>
 
-          {/* Top Courses Chart */}
           <Grid item xs={12} lg={6}>
             <Card sx={{ height: "100%", boxShadow: 3 }}>
               <ChartCardHeader
@@ -274,7 +233,7 @@ const AdminDashboard = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     layout="vertical"
-                    data={dashboardData.courses}
+                    data={topCoursesData}
                     margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -288,7 +247,7 @@ const AdminDashboard = () => {
                       }}
                     />
                     <Bar dataKey="count" radius={[0, 10, 10, 0]}>
-                      {dashboardData.courses.map((entry, index) => (
+                      {topCoursesData.map((entry, index) => (
                         <Cell
                           key={`cell-course-${index}`}
                           fill={courseColors[index % courseColors.length]}

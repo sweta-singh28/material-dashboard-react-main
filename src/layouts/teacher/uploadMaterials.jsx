@@ -1,6 +1,11 @@
 // React
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+// Redux
+import { uploadAssignment, uploadNotes } from "../../redux/uploadMaterials/uploadMaterialsThunks";
+import { resetUploadState } from "../../redux/uploadMaterials/uploadMaterialsReducer";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -20,12 +25,17 @@ import Footer from "examples/Footer";
 function UploadMaterials() {
   const location = useLocation();
   const { course, type } = location.state || {};
+  const dispatch = useDispatch();
+  const { uploading, success, error } = useSelector((state) => state.uploadMaterials);
 
   const [activeTab, setActiveTab] = useState(null);
   const [selectedAssignmentSubject, setSelectedAssignmentSubject] = useState("");
   const [selectedNotesSubject, setSelectedNotesSubject] = useState("");
+  const [assignmentTitle, setAssignmentTitle] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [assignmentFile, setAssignmentFile] = useState(null);
+  const [notesFile, setNotesFile] = useState(null);
 
-  // Hardcoded JSON (replace later with API response)
   const courses = [
     { course_name: "Mathematics" },
     { course_name: "Physics" },
@@ -37,23 +47,36 @@ function UploadMaterials() {
   useEffect(() => {
     if (course && type) {
       setActiveTab(type);
-      if (type === "assignment") {
-        setSelectedAssignmentSubject(course.name);
-      } else if (type === "notes") {
-        setSelectedNotesSubject(course.name);
-      }
+      if (type === "assignment") setSelectedAssignmentSubject(course.name);
+      if (type === "notes") setSelectedNotesSubject(course.name);
     }
   }, [course, type]);
 
   const handleAssignmentSubmit = (e) => {
     e.preventDefault();
-    console.log("Assignment submitted");
+    if (!assignmentFile) return alert("Select a file!");
+    const formData = new FormData();
+    formData.append("subject", selectedAssignmentSubject);
+    formData.append("title", assignmentTitle);
+    formData.append("file", assignmentFile);
+    formData.append("deadline", deadline);
+    dispatch(uploadAssignment(formData));
   };
 
   const handleNotesSubmit = (e) => {
     e.preventDefault();
-    console.log("Notes submitted");
+    if (!notesFile) return alert("Select a file!");
+    const formData = new FormData();
+    formData.append("subject", selectedNotesSubject);
+    formData.append("file", notesFile);
+    dispatch(uploadNotes(formData));
   };
+
+  useEffect(() => {
+    if (success || error) {
+      setTimeout(() => dispatch(resetUploadState()), 3000);
+    }
+  }, [success, error, dispatch]);
 
   return (
     <DashboardLayout>
@@ -66,7 +89,6 @@ function UploadMaterials() {
                 📤 Upload Materials
               </MDTypography>
 
-              {/* Toggle Buttons */}
               <MDBox display="flex" gap={2} mb={3}>
                 <MDButton
                   variant={activeTab === "assignment" ? "gradient" : "outlined"}
@@ -84,14 +106,12 @@ function UploadMaterials() {
                 </MDButton>
               </MDBox>
 
-              {/* Helper text */}
               {!activeTab && (
                 <MDTypography variant="button" color="text">
                   Select <strong>Assignment</strong> or <strong>Notes</strong> to continue.
                 </MDTypography>
               )}
 
-              {/* Assignment Form */}
               {activeTab === "assignment" && (
                 <MDBox mt={1} component="form" role="form" onSubmit={handleAssignmentSubmit}>
                   <MDBox mb={2}>
@@ -117,7 +137,13 @@ function UploadMaterials() {
                     <MDTypography variant="button" fontWeight="medium">
                       Assignment Title
                     </MDTypography>
-                    <MDInput fullWidth placeholder="Enter assignment title" required />
+                    <MDInput
+                      fullWidth
+                      placeholder="Enter assignment title"
+                      value={assignmentTitle}
+                      onChange={(e) => setAssignmentTitle(e.target.value)}
+                      required
+                    />
                   </MDBox>
 
                   <MDBox mb={2}>
@@ -128,6 +154,7 @@ function UploadMaterials() {
                       type="file"
                       accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
                       style={{ display: "block", marginTop: 8 }}
+                      onChange={(e) => setAssignmentFile(e.target.files[0])}
                       required
                     />
                   </MDBox>
@@ -136,8 +163,19 @@ function UploadMaterials() {
                     <MDTypography variant="button" fontWeight="medium">
                       Deadline
                     </MDTypography>
-                    <MDInput fullWidth type="date" InputLabelProps={{ shrink: true }} required />
+                    <MDInput
+                      fullWidth
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={deadline}
+                      onChange={(e) => setDeadline(e.target.value)}
+                      required
+                    />
                   </MDBox>
+
+                  {uploading && <MDTypography color="info">Uploading...</MDTypography>}
+                  {success && <MDTypography color="success">Uploaded successfully!</MDTypography>}
+                  {error && <MDTypography color="error">{error}</MDTypography>}
 
                   <MDBox mt={3} display="flex" justifyContent="flex-end" gap={2}>
                     <MDButton
@@ -155,7 +193,6 @@ function UploadMaterials() {
                 </MDBox>
               )}
 
-              {/* Notes Form */}
               {activeTab === "notes" && (
                 <MDBox mt={1} component="form" role="form" onSubmit={handleNotesSubmit}>
                   <MDBox mb={2}>
@@ -185,9 +222,14 @@ function UploadMaterials() {
                       type="file"
                       accept=".pdf,.doc,.docx,.ppt,.pptx"
                       style={{ display: "block", marginTop: 8 }}
+                      onChange={(e) => setNotesFile(e.target.files[0])}
                       required
                     />
                   </MDBox>
+
+                  {uploading && <MDTypography color="info">Uploading...</MDTypography>}
+                  {success && <MDTypography color="success">Uploaded successfully!</MDTypography>}
+                  {error && <MDTypography color="error">{error}</MDTypography>}
 
                   <MDBox mt={3} display="flex" justifyContent="flex-end" gap={2}>
                     <MDButton
