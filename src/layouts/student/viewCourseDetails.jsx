@@ -1,3 +1,10 @@
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+// Redux
+import { fetchCourseDetails } from "../../redux/viewCourseDetails/viewCourseDetailsThunks";
+
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -18,7 +25,6 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-import { useLocation } from "react-router-dom";
 import { useMaterialUIController } from "context";
 
 function ViewCourseDetails() {
@@ -26,7 +32,31 @@ function ViewCourseDetails() {
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
-  // ✅ Static JSON (Mimicking Database Schema)
+  const dispatch = useDispatch();
+  const {
+    course: displayedCourse,
+    teacher: displayedTeacher,
+    notes: displayedNotes,
+  } = useSelector((state) => state.viewCourseDetails);
+
+  useEffect(() => {
+    dispatch(fetchCourseDetails());
+  }, [dispatch]);
+
+  const handleNoteClick = (url) => {
+    window.open(url, "_blank");
+  };
+
+  const filteredSyllabus = (displayedCourse?.course_syllabus || []).filter((topic) =>
+    topic.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredNotes = (displayedNotes || []).filter((note) =>
+    note.AN_title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // ------------------ Commented Dummy JSON ------------------
+  /*
   const dummyData = {
     Courses: {
       idCourses: "course-123",
@@ -42,8 +72,7 @@ function ViewCourseDetails() {
       ],
       course_code: "CS101",
       course_status: "Active",
-      course_description:
-        "This foundational course provides a comprehensive introduction to the principles of computer science. Students will learn about programming fundamentals, data structures, algorithms, and computational thinking.",
+      course_description: "This foundational course provides a comprehensive introduction to the principles of computer science...",
       course_thumbnail: "https://picsum.photos/800/200?random=123",
       course_current_completed: 95,
       course_active_students: ["user-001", "user-002"],
@@ -58,75 +87,30 @@ function ViewCourseDetails() {
       user_role: "teacher",
     },
     Assignment_Notes: [
-      {
-        AN_id: "note-001",
-        AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        AN_title: "Lecture 1 - Introduction.pdf",
-        AssignmentOrNotes: 0,
-        AssignmentDeadline: null,
-        creation_date: "2025-09-10T08:00:00Z",
-        Users_user_id: "teacher-123",
-        Courses_idCourses: "course-123",
-      },
-      {
-        AN_id: "note-002",
-        AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        AN_title: "Lecture 2 - Advanced Concepts.pdf",
-        AssignmentOrNotes: 0,
-        AssignmentDeadline: null,
-        creation_date: "2025-09-11T08:00:00Z",
-        Users_user_id: "teacher-123",
-        Courses_idCourses: "course-123",
-      },
-      {
-        AN_id: "note-003",
-        AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        AN_title: "Practice Questions.pdf",
-        AssignmentOrNotes: 0,
-        AssignmentDeadline: null,
-        creation_date: "2025-09-12T08:00:00Z",
-        Users_user_id: "teacher-123",
-        Courses_idCourses: "course-123",
-      },
+      { AN_id: "note-001", AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", AN_title: "Lecture 1 - Introduction.pdf" },
+      { AN_id: "note-002", AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", AN_title: "Lecture 2 - Advanced Concepts.pdf" },
+      { AN_id: "note-003", AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", AN_title: "Practice Questions.pdf" }
     ],
   };
-
-  // If course data comes from navigation, override dummy JSON
-  const displayedCourse = location.state?.course || dummyData.Courses;
-  const displayedTeacher = dummyData.Users;
-  const displayedNotes = dummyData.Assignment_Notes;
-
-  const handleNoteClick = (url) => {
-    window.open(url, "_blank");
-  };
-
-  // 🔍 Apply search filter
-  const filteredSyllabus = (displayedCourse.course_syllabus || []).filter((topic) =>
-    topic.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const filteredNotes = (displayedNotes || []).filter((note) =>
-    note.AN_title.toLowerCase().includes(search.toLowerCase())
-  );
+  */
+  // ----------------------------------------------------------
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>
         <Grid container spacing={3}>
-          {/* Main Content Area */}
           <Grid item xs={12} md={8}>
-            {/* Course Details */}
             <Card style={{ padding: "16px", marginBottom: "24px" }}>
               <MDTypography variant="h4" fontWeight="bold" gutterBottom>
-                {displayedCourse.course_name}
+                {displayedCourse?.course_name}
               </MDTypography>
               <MDTypography variant="subtitle2" color="textSecondary" gutterBottom>
                 Instructor:{" "}
-                <strong>{`${displayedTeacher.first_name} ${displayedTeacher.last_name}`}</strong>
+                <strong>{`${displayedTeacher?.first_name} ${displayedTeacher?.last_name}`}</strong>
               </MDTypography>
               <img
-                src={displayedCourse.course_thumbnail}
+                src={displayedCourse?.course_thumbnail}
                 alt="Course Thumbnail"
                 style={{
                   width: "100%",
@@ -135,11 +119,10 @@ function ViewCourseDetails() {
                 }}
               />
               <MDTypography variant="body1" color="textPrimary">
-                {displayedCourse.course_description}
+                {displayedCourse?.course_description}
               </MDTypography>
             </Card>
 
-            {/* Course Expectations & Prerequisites */}
             <Card style={{ padding: "16px", marginBottom: "24px" }}>
               <MDTypography variant="h6" fontWeight="bold" gutterBottom>
                 Course Expectations & Prerequisites
@@ -150,11 +133,10 @@ function ViewCourseDetails() {
                 discussions.
               </MDTypography>
               <MDTypography variant="body2" color="textSecondary" mt={1}>
-                <strong>Prerequisites:</strong> {displayedCourse.course_pre_requisites}
+                <strong>Prerequisites:</strong> {displayedCourse?.course_pre_requisites}
               </MDTypography>
             </Card>
 
-            {/* Course Syllabus */}
             <Card style={{ padding: "16px", marginBottom: "24px" }}>
               <MDTypography variant="h6" fontWeight="bold" gutterBottom>
                 Course Syllabus
@@ -170,26 +152,23 @@ function ViewCourseDetails() {
             </Card>
           </Grid>
 
-          {/* Side Content Area */}
           <Grid item xs={12} md={4}>
-            {/* Progress Card */}
             <Card style={{ padding: "16px", marginBottom: "24px" }}>
               <MDTypography variant="h6" fontWeight="bold" gutterBottom>
                 Course Progress
               </MDTypography>
               <LinearProgress
                 variant="determinate"
-                value={displayedCourse.course_current_completed}
+                value={displayedCourse?.course_current_completed || 0}
                 sx={{ height: 8, borderRadius: 5 }}
               />
               <MDBox display="flex" justifyContent="flex-end" mt={1}>
                 <MDTypography variant="caption" color="textSecondary" fontWeight="bold">
-                  {displayedCourse.course_current_completed}% completed
+                  {displayedCourse?.course_current_completed || 0}% completed
                 </MDTypography>
               </MDBox>
             </Card>
 
-            {/* Uploaded Notes Card */}
             <Card style={{ padding: "16px" }}>
               <MDTypography variant="h6" fontWeight="bold" gutterBottom>
                 Uploaded Notes

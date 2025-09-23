@@ -1,4 +1,9 @@
-// @mui material components
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useMaterialUIController } from "context";
+
+// Material UI & Dashboard components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
@@ -11,94 +16,54 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
-
-// icons
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { useMaterialUIController } from "context";
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
+
+import { fetchStudentDashboard } from "../../redux/studentDashboard/studentDashboardThunks";
+
+// -------------------- Sample JSON (Commented) --------------------
+/*
+const db = useMemo(() => ({
+  courses: [
+    {
+      user_id: "user-001",
+      activeCourses: [
+        { idCourses: "c1", course_name: "Introduction to CS", course_description: "Basics", course_thumbnail: "/thumb1.png", course_active_students: ["user-001"], course_pending_students: ["user-009"], teachers_user_id: "Prof A" },
+        { idCourses: "c2", course_name: "Calculus I", course_description: "Math basics", course_thumbnail: "/thumb2.png", course_active_students: ["user-001"], course_pending_students: [], teachers_user_id: "Prof B" },
+      ],
+      pendingCourses: [
+        { idCourses: "c3", course_name: "Physics", course_description: "Physics course", course_thumbnail: "/thumb3.png", course_active_students: [], course_pending_students: ["user-001"], teachers_user_id: "Prof C" },
+      ],
+      expiredCourses: [],
+    },
+  ],
+}), []);
+*/
+// -----------------------------------------------------------------
 
 function StudentDashboard() {
   const navigate = useNavigate();
   const [controller] = useMaterialUIController();
   const { search } = controller;
+  const dispatch = useDispatch();
 
-  // ---------- Sample DB object (replace with API) ----------
-  const db = useMemo(
-    () => ({
-      courses: [
-        {
-          user_id: "user-001",
-          activeCourses: [
-            {
-              idCourses: "c1",
-              course_name: "Introduction to Computer Science",
-              course_description: "Learn the fundamentals of relational databases and SQL.",
-              course_thumbnail: "/thumbnails/cs101.png",
-              course_active_students: ["user-001", "user-005"],
-              course_pending_students: ["user-009"],
-              teachers_user_id: "Professor Eleanor Bennett",
-            },
-            {
-              idCourses: "c2",
-              course_name: "Calculus I",
-              course_description: "Build modern, full-stack web applications.",
-              course_thumbnail: "/thumbnails/cs205.png",
-              course_active_students: ["user-001", "user-008"],
-              course_pending_students: [],
-              teachers_user_id: "Professor Charles Harris",
-            },
-            {
-              idCourses: "c3",
-              course_name: "History of Art",
-              course_description: "An introduction to the core concepts of machine learning.",
-              course_thumbnail: "/thumbnails/ai300.png",
-              course_active_students: ["user-001"],
-              course_pending_students: [],
-              teachers_user_id: "Professor Olivia Carter",
-            },
-          ],
-          pendingCourses: [
-            {
-              idCourses: "c4",
-              course_name: "Advanced Physics",
-              course_description: "An introduction to the core concepts of machine learning.",
-              course_thumbnail: "/thumbnails/ai300.png",
-              course_active_students: ["user-110"],
-              course_pending_students: ["user-001", "user-112"],
-              teachers_user_id: "Professor Amelia Hayes",
-            },
-            {
-              idCourses: "c5",
-              course_name: "Creative Writing Workshop",
-              course_description: "An introduction to the core concepts of machine learning.",
-              course_thumbnail: "/thumbnails/ai300.png",
-              course_active_students: ["user-110"],
-              course_pending_students: ["user-001", "user-112"],
-              teachers_user_id: "Professor Owen Mitchell",
-            },
-          ],
-          expiredCourses: [],
-        },
-      ],
-    }),
-    []
-  );
-  // ---------- End sample DB ----------
+  // Fetch data from Redux
+  const dashboardData = useSelector((state) => state.studentDashboard.data);
 
-  const currentUser = db.courses.find((c) => c.user_id === "user-001");
+  useEffect(() => {
+    dispatch(fetchStudentDashboard());
+  }, [dispatch]);
+
+  const db = dashboardData.length ? dashboardData : undefined;
+
+  const currentUser = db?.courses?.find((c) => c.user_id === "user-001");
 
   const allCourses = useMemo(() => {
     if (!currentUser) return [];
@@ -136,12 +101,10 @@ function StudentDashboard() {
     const course = allCourses.find((c) => c.id === courseId);
     setShowCourseDetails(course || null);
   };
-
   const handleCloseDetails = () => {
     setShowCourseDetails(null);
     setSelected("");
   };
-
   const handleRequestCourse = () => {
     if (!showCourseDetails) return;
     if (enrolledCourses.length + pendingRequests.length >= 5) {
@@ -195,7 +158,6 @@ function StudentDashboard() {
     <DashboardLayout>
       <DashboardNavbar />
 
-      {/* background and padding to mimic the design */}
       <MDBox py={4} px={3} sx={{ backgroundColor: "#f7f9fb", minHeight: "100vh" }}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -203,19 +165,16 @@ function StudentDashboard() {
               Student Dashboard
             </MDTypography>
           </Grid>
-          {/* Section 1: Enrolled Courses header */}
+
+          {/* Enrolled Courses */}
           <Grid item xs={12}>
-            <MDTypography variant="h6" gutterBottom sx={{ color: "#2e3b55", fontWeight: 700 }}>
+            <MDTypography variant="h6" sx={{ color: "#2e3b55", fontWeight: 700, mb: 2 }}>
               Enrolled Courses
             </MDTypography>
-
-            {/* Enrolled course list: horizontally laid out cards */}
             <Grid container spacing={2}>
               {filteredEnrolled.length === 0 ? (
                 <Grid item xs={12}>
-                  <MDTypography variant="body2" color="textSecondary">
-                    No courses enrolled yet.
-                  </MDTypography>
+                  <MDTypography>No courses enrolled yet.</MDTypography>
                 </Grid>
               ) : (
                 filteredEnrolled.map((course) => (
@@ -233,30 +192,18 @@ function StudentDashboard() {
                         background: "#fff",
                         border: "1px solid #eef1f5",
                         boxShadow: "0 6px 18px rgba(26, 34, 54, 0.04)",
-                        transition: "transform 0.18s ease, box-shadow 0.18s ease",
-                        "&:hover": { transform: "translateY(-6px)" },
+                        "&:hover": { transform: "translateY(-4px)" },
                       }}
                     >
-                      <Box display="flex" flexDirection="column">
-                        <Typography variant="subtitle1" sx={{ color: "#182033", fontWeight: 700 }}>
-                          {course.title}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
-                          {course.teacher}
-                        </Typography>
-                        <Box mt={1}>
-                          <Chip
-                            label="Enrolled"
-                            size="small"
-                            icon={<CheckCircleIcon style={{ fontSize: 16 }} />}
-                            sx={{
-                              height: 26,
-                              fontWeight: 600,
-                              "& .MuiChip-icon": { marginRight: 0.5 },
-                            }}
-                            color="success"
-                          />
-                        </Box>
+                      <Typography variant="subtitle1">{course.title}</Typography>
+                      <Typography variant="caption">{course.teacher}</Typography>
+                      <Box mt={1}>
+                        <Chip
+                          label="Enrolled"
+                          size="small"
+                          icon={<CheckCircleIcon style={{ fontSize: 16 }} />}
+                          color="success"
+                        />
                       </Box>
                     </Card>
                   </Grid>
@@ -264,19 +211,14 @@ function StudentDashboard() {
               )}
             </Grid>
           </Grid>
-          {/* Section 2: Choose a Course */}
+
+          {/* Choose a Course */}
           <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#2e3b55", mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: "#2e3b55", mb: 2 }}>
               Choose a Course
             </Typography>
             <Card
-              sx={{
-                padding: 2,
-                borderRadius: 2,
-                background: "#fff",
-                border: "1px solid #eef1f5",
-                boxShadow: "0 6px 18px rgba(26, 34, 54, 0.03)",
-              }}
+              sx={{ padding: 2, borderRadius: 2, background: "#fff", border: "1px solid #eef1f5" }}
             >
               <Box display="flex" alignItems="center" gap={2}>
                 <Select
@@ -295,7 +237,6 @@ function StudentDashboard() {
                     </MenuItem>
                   ))}
                 </Select>
-
                 <Button
                   variant="contained"
                   onClick={() => selected && handleOpenDetails(selected)}
@@ -304,25 +245,21 @@ function StudentDashboard() {
                   Enroll Now
                 </Button>
               </Box>
-
-              <Typography variant="caption" sx={{ color: "#6c757d", display: "block", mt: 1 }}>
+              <Typography variant="caption">
                 Slots left: {5 - (enrolledCourses.length + pendingRequests.length)}
               </Typography>
             </Card>
           </Grid>
-          <Grid item xs={12}></Grid> {/* Adds a clear separation */}
-          {/* Section 3: Pending Requests */}
+
+          {/* Pending Requests */}
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom sx={{ color: "#2e3b55", fontWeight: 700 }}>
+            <Typography variant="h6" sx={{ color: "#2e3b55", fontWeight: 700, mb: 2 }}>
               Pending Approval
             </Typography>
-
             <Grid container spacing={2}>
               {filteredPending.length === 0 ? (
                 <Grid item xs={12}>
-                  <Typography variant="body2" color="textSecondary">
-                    No pending requests.
-                  </Typography>
+                  <Typography>No pending requests.</Typography>
                 </Grid>
               ) : (
                 filteredPending.map((course) => (
@@ -334,32 +271,17 @@ function StudentDashboard() {
                         textAlign: "left",
                         background: "#fff",
                         border: "1px solid #eef1f5",
-                        boxShadow: "0 6px 18px rgba(26, 34, 54, 0.03)",
                       }}
                     >
-                      <Box display="flex" flexDirection="column">
-                        <Typography variant="subtitle1" sx={{ color: "#182033", fontWeight: 700 }}>
-                          {course.title}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: "#6c757d", mt: 0.6 }}>
-                          {course.teacher}
-                        </Typography>
-
-                        <Box mt={2}>
-                          <Chip
-                            label="Pending"
-                            size="small"
-                            icon={<AccessTimeIcon style={{ fontSize: 16 }} />}
-                            sx={{
-                              height: 26,
-                              fontWeight: 700,
-                              backgroundColor: "#fff4d6",
-                              color: "#8a6d00",
-                              borderRadius: "10px",
-                              "& .MuiChip-icon": { marginRight: 0.5 },
-                            }}
-                          />
-                        </Box>
+                      <Typography variant="subtitle1">{course.title}</Typography>
+                      <Typography variant="caption">{course.teacher}</Typography>
+                      <Box mt={2}>
+                        <Chip
+                          label="Pending"
+                          size="small"
+                          icon={<AccessTimeIcon style={{ fontSize: 16 }} />}
+                          sx={{ backgroundColor: "#fff4d6", color: "#8a6d00" }}
+                        />
                       </Box>
                     </Card>
                   </Grid>
@@ -370,7 +292,6 @@ function StudentDashboard() {
         </Grid>
       </MDBox>
 
-      {/* Course Details Dialog */}
       <Dialog open={!!showCourseDetails} onClose={handleCloseDetails} fullWidth maxWidth="sm">
         <DialogTitle sx={{ background: "#2e3b55", color: "#fff", fontWeight: 600 }}>
           Course Details

@@ -168,3 +168,67 @@ function Students() {
 }
 
 export default Students;
+
+// ✅ Hardcoded JSON data (later replace with API call)
+// const studentsData = [
+//   {
+//     user_id: "S101",
+//     full_name: "Liam Harper",
+//     email: "liam.harper@example.com",
+//     roll_no: "2023-001",
+//   },
+//   {
+//     user_id: "S102",
+//     full_name: "Olivia Bennett",
+//     email: "olivia.bennett@example.com",
+//     roll_no: "2023-002",
+//   },
+//   {
+//     user_id: "S103",
+//     full_name: "Noah Carter",
+//     email: "noah.carter@example.com",
+//     roll_no: "2023-003",
+//   },
+//   {
+//     user_id: "S104",
+//     full_name: "Ava Davis",
+//     email: "ava.davis@example.com",
+//     roll_no: "2023-004",
+//   },
+//   {
+//     user_id: "S105",
+//     full_name: "Jackson Evans",
+//     email: "jackson.evans@example.com",
+//     roll_no: "2023-005",
+//   },
+//   {
+//     user_id: "S106",
+//     full_name: "Sophia Foster",
+//     email: "sophia.foster@example.com",
+//     roll_no: "2023-006",
+//   },
+//   {
+//     user_id: "S107",
+//     full_name: "Aiden Green",
+//     email: "aiden.green@example.com",
+//     roll_no: "2023-007",
+//   },
+//   {
+//     user_id: "S108",
+//     full_name: "Chloe Hayes",
+//     email: "chloe.hayes@example.com",
+//     roll_no: "2023-008",
+//   },
+//   {
+//     user_id: "S109",
+//     full_name: "Lucas Ingram",
+//     email: "lucas.ingram@example.com",
+//     roll_no: "2023-009",
+//   },
+//   {
+//     user_id: "S110",
+//     full_name: "Mia Jenkins",
+//     email: "mia.jenkins@example.com",
+//     roll_no: "2023-010",
+//   },
+// ];

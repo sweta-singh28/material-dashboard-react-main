@@ -1,8 +1,7 @@
-// ActiveCourses.jsx
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-// Material Dashboard 2 React components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -20,58 +19,57 @@ import TableRow from "@mui/material/TableRow";
 import TablePagination from "@mui/material/TablePagination";
 import { useSearch } from "context";
 
+import { fetchActiveCourses } from "../../redux/activeCourses/activeCoursesThunks";
+
+// Sample JSON (commented, stays in component)
+/*
+const dbJson = {
+  Courses: [
+    { idCourses: "c_1", course_name: "Math 101", course_status: "active", course_description: "Basic mathematics", teachers_user_id: "u_3" },
+    { idCourses: "c_2", course_name: "Science Basics", course_status: "active", course_description: "Intro to science", teachers_user_id: "u_4" },
+    { idCourses: "c_3", course_name: "English Literature", course_status: "inactive", course_description: "English studies", teachers_user_id: "u_4" },
+  ],
+  Users: [
+    { user_id: "u_3", first_name: "Charlie", last_name: "Khan", user_role: "Teacher" },
+    { user_id: "u_4", first_name: "Diana", last_name: "Verma", user_role: "Teacher" },
+  ],
+};
+*/
+
 const ActiveCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const { search } = useSearch();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const dbJson = location.state?.dbJson || {
-    Courses: [
-      {
-        idCourses: "c_1",
-        course_name: "Math 101",
-        course_status: "active",
-        course_description: "Basic mathematics",
-        teachers_user_id: "u_3",
-      },
-      {
-        idCourses: "c_2",
-        course_name: "Science Basics",
-        course_status: "active",
-        course_description: "Intro to science",
-        teachers_user_id: "u_4",
-      },
-      {
-        idCourses: "c_3",
-        course_name: "English Literature",
-        course_status: "inactive",
-        course_description: "English studies",
-        teachers_user_id: "u_4",
-      },
-    ],
-    Users: [
-      { user_id: "u_3", first_name: "Charlie", last_name: "Khan", user_role: "Teacher" },
-      { user_id: "u_4", first_name: "Diana", last_name: "Verma", user_role: "Teacher" },
-    ],
-  };
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const coursesFromRedux = useSelector((state) => state.activeCourses?.courses);
+
+  // If using API or thunk to fetch courses, uncomment this
+  useEffect(() => {
+    dispatch(fetchActiveCourses());
+  }, [dispatch]);
+
+  const dbJson = location.state?.dbJson || coursesFromRedux || { Courses: [], Users: [] };
 
   const activeCourses = useMemo(() => {
-    return dbJson.Courses.filter((c) => c.course_status === "active").map((course) => {
-      const instructor = dbJson.Users.find((u) => u.user_id === course.teachers_user_id);
-      const instructorName = instructor
-        ? `${instructor.first_name} ${instructor.last_name}`
-        : "Unknown Instructor";
-
-      return {
-        id: course.idCourses,
-        title: course.course_name,
-        instructor: instructorName,
-        description: course.course_description,
-        status: course.course_status,
-      };
-    });
+    return (dbJson.Courses || [])
+      .filter((c) => c.course_status === "active")
+      .map((course) => {
+        const instructor = (dbJson.Users || []).find((u) => u.user_id === course.teachers_user_id);
+        const instructorName = instructor
+          ? `${instructor.first_name} ${instructor.last_name}`
+          : "Unknown Instructor";
+        return {
+          id: course.idCourses,
+          title: course.course_name,
+          instructor: instructorName,
+          description: course.course_description,
+          status: course.course_status,
+        };
+      });
   }, [dbJson]);
 
   const filteredCourses = useMemo(() => {

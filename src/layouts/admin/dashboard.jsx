@@ -267,3 +267,11 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+//JSON
+// const dashboardData = {
+//   stats: { totalUsers, activeCourses, pendingApprovals },
+//   users: usersChartData,
+//   courses: topCoursesData,
+//   dbJson,
+// };

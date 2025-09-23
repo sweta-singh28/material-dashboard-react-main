@@ -246,3 +246,72 @@ function ViewSubmissions() {
 }
 
 export default ViewSubmissions;
+
+// const [submissions, setSubmissions] = useState([
+//   {
+//     submission_id: "subm-101",
+//     submission_link: "https://files.example.com/submissions/subm-101.pdf",
+//     submission_time: "2025-09-10T15:30:00Z",
+//     approval: "pending",
+//     student_id: "user-789",
+//     assignment: {
+//       AN_id: "assign-001",
+//       AN_title: "ER Diagram Assignment",
+//       AN_link: "https://files.example.com/assignments/er_assignment.pdf",
+//     },
+//     course: {
+//       idCourses: "course-123",
+//       course_name: "Database Systems",
+//     },
+//   },
+//   {
+//     submission_id: "subm-102",
+//     submission_link: "https://files.example.com/submissions/subm-102.pdf",
+//     submission_time: "2025-09-11T18:45:00Z",
+//     approval: "approved",
+//     student_id: "user-456",
+//     assignment: {
+//       AN_id: "assign-001",
+//       AN_title: "ER Diagram Assignment",
+//       AN_link: "https://files.example.com/assignments/er_assignment.pdf",
+//     },
+//     course: {
+//       idCourses: "course-123",
+//       course_name: "Database Systems",
+//     },
+//   },
+//   {
+//     submission_id: "subm-201",
+//     submission_link: "https://files.example.com/submissions/subm-201.pdf",
+//     submission_time: "2025-09-12T09:20:00Z",
+//     approval: "pending",
+//     student_id: "user-222",
+//     assignment: {
+//       AN_id: "assign-002",
+//       AN_title: "SQL Queries Assignment",
+//       AN_link: "https://files.example.com/assignments/sql_assignment.pdf",
+//     },
+//     course: {
+//       idCourses: "course-456",
+//       course_name: "Advanced SQL",
+//     },
+//   },
+// ]);
+
+// // ✅ Approve handler
+// const handleApprove = (id) => {
+//   setSubmissions((prev) =>
+//     prev.map((sub) => (sub.submission_id === id ? { ...sub, approval: "approved" } : sub))
+//   );
+// };
+
+// // ✅ Mark handler (toggle between "marked" and "pending")
+// const handleMark = (id) => {
+//   setSubmissions((prev) =>
+//     prev.map((sub) =>
+//       sub.submission_id === id
+//         ? { ...sub, approval: sub.approval === "marked" ? "pending" : "marked" }
+//         : sub
+//     )
+//   );
+// };

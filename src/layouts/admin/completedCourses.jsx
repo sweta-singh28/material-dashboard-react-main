@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-// Material Dashboard 2 React components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -9,7 +9,6 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
-// Material UI
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Table from "@mui/material/Table";
@@ -20,70 +19,60 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TablePagination from "@mui/material/TablePagination";
 
-// Global search context
 import { useSearch } from "context";
+import { fetchCompletedCourses } from "../../redux/completedCourses/completedCoursesThunks";
+
+// Sample JSON (commented)
+/*
+const dbJson = {
+  Courses: [
+    { idCourses: "c_1", course_name: "Math 101", course_pre_requisites: "[]", course_status: "completed", course_description: "Basic mathematics", teachers_user_id: "u_3" },
+    { idCourses: "c_2", course_name: "Science Basics", course_code: "SCI101", course_status: "completed", course_description: "Intro to science", teachers_user_id: "u_4" },
+    { idCourses: "c_3", course_name: "English Literature", course_code: "ENG101", course_status: "completed", course_description: "English studies", teachers_user_id: "u_4" },
+  ],
+  Users: [
+    { user_id: "u_3", first_name: "Charlie", last_name: "Khan", user_role: "Teacher" },
+    { user_id: "u_4", first_name: "Diana", last_name: "Verma", user_role: "Teacher" },
+  ],
+};
+*/
 
 const CompletedCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const { search } = useSearch();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // ✅ 1. Get dbJson (fallback if not passed)
-  const dbJson = location.state?.dbJson || {
-    Courses: [
-      {
-        idCourses: "c_1",
-        course_name: "Math 101",
-        course_pre_requisites: "[]",
-        course_status: "completed",
-        course_description: "Basic mathematics",
-        teachers_user_id: "u_3",
-      },
-      {
-        idCourses: "c_2",
-        course_name: "Science Basics",
-        course_code: "SCI101",
-        course_status: "completed",
-        course_description: "Intro to science",
-        teachers_user_id: "u_4",
-      },
-      {
-        idCourses: "c_3",
-        course_name: "English Literature",
-        course_code: "ENG101",
-        course_status: "completed",
-        course_description: "English studies",
-        teachers_user_id: "u_4",
-      },
-    ],
-    Users: [
-      { user_id: "u_3", first_name: "Charlie", last_name: "Khan", user_role: "Teacher" },
-      { user_id: "u_4", first_name: "Diana", last_name: "Verma", user_role: "Teacher" },
-    ],
-  };
+  const coursesFromRedux = useSelector((state) => state.completedCourses?.courses);
 
-  // ✅ 2. Derive only completed courses
+  useEffect(() => {
+    dispatch(fetchCompletedCourses());
+  }, [dispatch]);
+
+  const dbJson = location.state?.dbJson || coursesFromRedux || { Courses: [], Users: [] };
+
   const completedCourses = useMemo(() => {
-    return dbJson.Courses.filter((c) => c.course_status === "completed").map((course) => {
-      const instructor = dbJson.Users.find((u) => u.user_id === course.teachers_user_id);
-      const instructorName = instructor
-        ? `${instructor.first_name} ${instructor.last_name}`
-        : "Unknown Instructor";
+    return (dbJson.Courses || [])
+      .filter((c) => c.course_status === "completed")
+      .map((course) => {
+        const instructor = (dbJson.Users || []).find((u) => u.user_id === course.teachers_user_id);
+        const instructorName = instructor
+          ? `${instructor.first_name} ${instructor.last_name}`
+          : "Unknown Instructor";
 
-      return {
-        id: course.idCourses,
-        title: course.course_name,
-        instructor: instructorName,
-        started: course.create_time || "N/A",
-        description: course.course_description,
-        status: course.course_status,
-      };
-    });
+        return {
+          id: course.idCourses,
+          title: course.course_name,
+          instructor: instructorName,
+          started: course.create_time || "N/A",
+          description: course.course_description,
+          status: course.course_status,
+        };
+      });
   }, [dbJson]);
 
-  // ✅ 3. Filtered results by global search
   const filteredCourses = useMemo(() => {
     return completedCourses.filter(
       (course) =>
@@ -92,7 +81,6 @@ const CompletedCourses = () => {
     );
   }, [completedCourses, search]);
 
-  // ✅ 4. Navigate with state
   const handleRowClick = (course) => {
     navigate("/courseDetails", { state: { course, dbJson } });
   };
@@ -122,7 +110,6 @@ const CompletedCourses = () => {
                 completed courses.
               </MDTypography>
 
-              {/* Courses Table (styled like ActiveCourses) */}
               <TableContainer>
                 <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
                   <TableHead>

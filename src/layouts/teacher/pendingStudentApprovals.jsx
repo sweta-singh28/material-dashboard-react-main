@@ -205,3 +205,87 @@ const PendingStudentApprovals = () => {
 };
 
 export default PendingStudentApprovals;
+
+// ✅ JSON STRUCTURE for Student Join Requests with Qualification
+// const joinRequestsJSON = [
+//   {
+//     student_id: "s1",
+//     student_name: "Sophia Clark",
+//     qualification: "Bachelor's in Computer Science",
+//     course_id: "c1",
+//     course_name: "Introduction to Programming",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s2",
+//     student_name: "Ethan Miller",
+//     qualification: "Master's in Mathematics",
+//     course_id: "c2",
+//     course_name: "Advanced Calculus",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s3",
+//     student_name: "Olivia Davis",
+//     qualification: "Bachelor's in English Literature",
+//     course_id: "c3",
+//     course_name: "Creative Writing Workshop",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s4",
+//     student_name: "Noah Wilson",
+//     qualification: "Bachelor's in Business Administration",
+//     course_id: "c4",
+//     course_name: "Digital Marketing Fundamentals",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s5",
+//     student_name: "Ava Thompson",
+//     qualification: "Master's in Statistics",
+//     course_id: "c5",
+//     course_name: "Data Science Essentials",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s6",
+//     student_name: "Sophia Rodriguez",
+//     qualification: "Ph.D. in Physics",
+//     course_id: "c6",
+//     course_name: "Quantum Mechanics",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s7",
+//     student_name: "Liam White",
+//     qualification: "B.A. in History",
+//     course_id: "c7",
+//     course_name: "World History II",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s8",
+//     student_name: "Emily Chen",
+//     qualification: "B.Sc. in Biology",
+//     course_id: "c8",
+//     course_name: "Cellular Biology",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s9",
+//     student_name: "Jacob Lee",
+//     qualification: "M.S. in Civil Engineering",
+//     course_id: "c9",
+//     course_name: "Structural Analysis",
+//     request_status: "Pending",
+//   },
+//   {
+//     student_id: "s10",
+//     student_name: "Chloe Foster",
+//     qualification: "B.Sc. in Psychology",
+//     course_id: "c10",
+//     course_name: "Developmental Psychology",
+//     request_status: "Pending",
+//   },
+// ];

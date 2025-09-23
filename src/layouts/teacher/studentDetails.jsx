@@ -228,3 +228,33 @@ function StudentDetails() {
 }
 
 export default StudentDetails;
+// ✅ Hardcoded JSON data
+// const studentsData = [
+//   {
+//     user_id: "S101",
+//     full_name: "Sophia Clark",
+//     email: "sophia.clark@email.com",
+//     roll_no: "2023-SC-001",
+//     profile_picture: "https://i.pravatar.cc/150?u=sophia@example.com",
+//     courses_enrolled: ["Mathematics", "Physics", "Chemistry"],
+//     pending_requests: 0,
+//     assignments: [],
+//   },
+//   {
+//     user_id: "S102",
+//     full_name: "Liam Johnson",
+//     email: "liam.johnson@email.com",
+//     roll_no: "2023-LJ-002",
+//     profile_picture: "https://i.pravatar.cc/150?u=liam@example.com",
+//     courses_enrolled: ["Biology", "English", "History"],
+//     pending_requests: 1,
+//     assignments: [],
+//   },
+// ];
+
+// // ✅ Assignment summary data
+// const assignmentSummaryData = [
+//   { subject: "Mathematics", completed: 10, expired: 2, pending: 3 },
+//   { subject: "Physics", completed: 8, expired: 1, pending: 4 },
+//   { subject: "Chemistry", completed: 12, expired: 0, pending: 1 },
+//];

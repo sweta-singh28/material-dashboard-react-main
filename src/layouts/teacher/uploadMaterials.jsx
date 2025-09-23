@@ -256,3 +256,11 @@ function UploadMaterials() {
 }
 
 export default UploadMaterials;
+// ✅ Hardcoded JSON (replace later with API response)
+// const courses = [
+//   { course_name: "Mathematics" },
+//   { course_name: "Physics" },
+//   { course_name: "Chemistry" },
+//   { course_name: "Computer Science" },
+//   { course_name: "Biology" },
+// ];

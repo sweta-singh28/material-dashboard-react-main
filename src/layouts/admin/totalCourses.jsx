@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -16,73 +17,70 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import TablePagination from "@mui/material/TablePagination";
 
 import { useMaterialUIController } from "context";
 
-// --- SAMPLE DATA ---
-const coursesJSON = [
-  {
-    idCourses: 1,
-    course_name: "React Basics",
-    course_code: "RB101",
-    course_status: "Active",
-    course_description: "Introductory React course covering components, props, state and hooks.",
-    student_count: 45,
-    teacher: { idUsers: "t1", first_name: "Bob", last_name: "Martin", role: "teacher" },
-  },
-  {
-    idCourses: 2,
-    course_name: "NodeJS Advanced",
-    course_code: "NJS201",
-    course_status: "Completed",
-    course_description:
-      "Deep dive into NodeJS internals, streams, clustering and performance tuning.",
-    student_count: 30,
-    teacher: { idUsers: "t2", first_name: "Alice", last_name: "Johnson", role: "teacher" },
-  },
-  {
-    idCourses: 3,
-    course_name: "CSS for Beginners",
-    course_code: "CSS101",
-    course_status: "Active",
-    course_description: "Learn modern CSS: Flexbox, Grid, responsive layouts and animations.",
-    student_count: 60,
-    teacher: { idUsers: "t3", first_name: "Charlie", last_name: "Gupta", role: "teacher" },
-  },
-];
+// Redux
+import { fetchCourses } from "../../redux/totalCourses/totalCoursesThunks";
+
+// --- SAMPLE DATA (Commented out) ---
+// const coursesJSON = [
+//   {
+//     idCourses: 1,
+//     course_name: "React Basics",
+//     course_code: "RB101",
+//     course_status: "Active",
+//     course_description: "Introductory React course covering components, props, state and hooks.",
+//     student_count: 45,
+//     teacher: { idUsers: "t1", first_name: "Bob", last_name: "Martin", role: "teacher" },
+//   },
+//   {
+//     idCourses: 2,
+//     course_name: "NodeJS Advanced",
+//     course_code: "NJS201",
+//     course_status: "Completed",
+//     course_description: "Deep dive into NodeJS internals, streams, clustering and performance tuning.",
+//     student_count: 30,
+//     teacher: { idUsers: "t2", first_name: "Alice", last_name: "Johnson", role: "teacher" },
+//   },
+//   {
+//     idCourses: 3,
+//     course_name: "CSS for Beginners",
+//     course_code: "CSS101",
+//     course_status: "Active",
+//     course_description: "Learn modern CSS: Flexbox, Grid, responsive layouts and animations.",
+//     student_count: 60,
+//     teacher: { idUsers: "t3", first_name: "Charlie", last_name: "Gupta", role: "teacher" },
+//   },
+// ];
 
 const AllCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
-  const [courses, setCourses] = useState(coursesJSON);
+  // Safe useSelector with default empty array
+  const courses = useSelector((state) => state.allCourses?.courses || []);
+
   const [snackbar, setSnackbar] = useState({ open: false, message: "", color: "success" });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
+    dispatch(fetchCourses());
+  }, [dispatch]);
+
+  useEffect(() => {
     const updatedCourse = location.state?.updatedCourse;
     if (updatedCourse) {
-      setCourses((prev) =>
-        prev.map((c) =>
-          c.idCourses === updatedCourse.idCourses
-            ? { ...c, course_status: updatedCourse.course_status }
-            : c
-        )
-      );
-
       setSnackbar({
         open: true,
         message: location.state?.message || "Course updated",
         color: location.state?.color || "success",
       });
-
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, location.pathname, navigate]);
@@ -100,10 +98,6 @@ const AllCourses = () => {
         : String(value).toLowerCase().includes(search.toLowerCase())
     )
   );
-
-  const showingFrom = filteredCourses.length > 0 ? 1 : 0;
-  const showingTo = filteredCourses.length;
-  const totalResults = courses.length;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -127,37 +121,14 @@ const AllCourses = () => {
 
         <Card sx={{ p: 3, boxShadow: 0, borderRadius: 0 }}>
           <TableContainer>
-            <Table
-              sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}
-              aria-label="all courses table"
-            >
+            <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <MDTypography variant="button" fontWeight="bold" color="text">
-                      Course Name
-                    </MDTypography>
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <MDTypography variant="button" fontWeight="bold" color="text">
-                      Instructor
-                    </MDTypography>
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <MDTypography variant="button" fontWeight="bold" color="text">
-                      Course Code
-                    </MDTypography>
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <MDTypography variant="button" fontWeight="bold" color="text">
-                      Students
-                    </MDTypography>
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <MDTypography variant="button" fontWeight="bold" color="text">
-                      Status
-                    </MDTypography>
-                  </TableCell>
+                  <TableCell sx={{ borderBottom: "none" }}>Course Name</TableCell>
+                  <TableCell sx={{ borderBottom: "none" }}>Instructor</TableCell>
+                  <TableCell sx={{ borderBottom: "none" }}>Course Code</TableCell>
+                  <TableCell sx={{ borderBottom: "none" }}>Students</TableCell>
+                  <TableCell sx={{ borderBottom: "none" }}>Status</TableCell>
                 </TableRow>
               </TableHead>
 

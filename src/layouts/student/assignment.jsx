@@ -10,6 +10,10 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 
+// react-redux (added)
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAssignments } from "../../redux/assignment/assignmentThunks"; // adjust path if your project uses relative imports
+
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -31,6 +35,18 @@ export default function AssignmentsPage() {
   const { search } = useSearch();
   const createdUrlsRef = useRef([]);
 
+  // --- redux wiring added (does not replace your logic) ---
+  const dispatch = useDispatch();
+  // you can read from redux if you want; currently the thunk returns placeholders.
+  const assignmentsState = useSelector((state) => state.assignments || {});
+  useEffect(() => {
+    // dispatch the thunk so it runs (thunk contains no JSON per your request)
+    dispatch(fetchAssignments());
+  }, [dispatch]);
+  // --------------------------------------------------------
+
+  // ---------- ORIGINAL LOCAL JSON (kept active for immediate UI) ----------
+  // If you prefer, you can comment-out the active `db` and rely on redux state later.
   const db = {
     Users: [
       { user_id: "u1", email: "student@example.com", first_name: "Student", last_name: "One" },
@@ -108,6 +124,18 @@ export default function AssignmentsPage() {
       },
     ],
   };
+
+  // ---------- commented copy of the JSON you asked to keep in the file ----------
+  /*
+  const db = {
+    Users: [ ... ],
+    Courses: [ ... ],
+    Assignment_Notes: [ ... ],
+    SubmittedAssignments: [ ... ],
+    UserCourses: [ ... ],
+  };
+  */
+  // ---------------------------------------------------------------------------
 
   db.Assignment_Notes.push(
     {

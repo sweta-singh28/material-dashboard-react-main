@@ -1,6 +1,8 @@
 // PendingApprovals.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -24,8 +26,10 @@ import TableRow from "@mui/material/TableRow";
 import TablePagination from "@mui/material/TablePagination";
 
 import { useMaterialUIController } from "context";
+import { fetchPendingCourses } from "../../redux/pendingApprovals/pendingApprovalsThunks";
 
-// ✅ JSON STRUCTURE Matching DB Schema
+// ✅ JSON STRUCTURE (Commented out here, kept in component as requested)
+/*
 const coursesJSON = [
   {
     idCourses: "c1",
@@ -52,47 +56,33 @@ const coursesJSON = [
 ];
 
 const usersJSON = [
-  {
-    idUsers: "t1",
-    first_name: "Eleanor",
-    last_name: "Vance",
-  },
-  {
-    idUsers: "t2",
-    first_name: "Samuel",
-    last_name: "Harper",
-  },
-  {
-    idUsers: "a1",
-    first_name: "Admin",
-    last_name: "User",
-  },
-  {
-    idUsers: "s1",
-    first_name: "Grace",
-    last_name: "Hopper",
-  },
+  { idUsers: "t1", first_name: "Eleanor", last_name: "Vance" },
+  { idUsers: "t2", first_name: "Samuel", last_name: "Harper" },
+  { idUsers: "a1", first_name: "Admin", last_name: "User" },
+  { idUsers: "s1", first_name: "Grace", last_name: "Hopper" },
 ];
+*/
 
 const PendingApprovals = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
-  const [pendingCourses, setPendingCourses] = useState([]);
+  // Redux state
+  const pendingCourses = useSelector((state) => state.pendingApprovals?.pendingCourses || []);
+
   const [rejectionReason, setRejectionReason] = useState("");
   const [courseCode, setCourseCode] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [openDetails, setOpenDetails] = useState(false);
 
-  // Pagination state to match ActiveCourses UI
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Load courses initially (can later replace with API call)
   useEffect(() => {
-    setPendingCourses(coursesJSON);
-  }, []);
+    dispatch(fetchPendingCourses());
+  }, [dispatch]);
 
   const filteredCourses = pendingCourses.filter(
     (c) =>
@@ -101,24 +91,12 @@ const PendingApprovals = () => {
   );
 
   const handleAction = (idCourses, action) => {
-    setPendingCourses((prev) =>
-      prev.map((c) =>
-        c.idCourses === idCourses
-          ? {
-              ...c,
-              course_status: action === "approve" ? "Approved" : "Rejected",
-              course_code: courseCode,
-            }
-          : c
-      )
-    );
     console.log(`Course ${idCourses} ${action === "approve" ? "approved" : "rejected"}`);
     setCourseCode("");
     setRejectionReason("");
     setOpenDetails(false);
   };
 
-  // Pagination handlers
   const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -142,7 +120,6 @@ const PendingApprovals = () => {
           </MDTypography>
         </MDBox>
 
-        {/* Updated Table (matches ActiveCourses UI/design) */}
         <MDBox mb={5}>
           <Grid container>
             <Grid item xs={12}>
@@ -151,24 +128,11 @@ const PendingApprovals = () => {
                   <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ borderBottom: "none" }}>
-                          <MDTypography variant="button" fontWeight="bold" color="text">
-                            COURSE NAME
-                          </MDTypography>
-                        </TableCell>
-                        <TableCell sx={{ borderBottom: "none" }}>
-                          <MDTypography variant="button" fontWeight="bold" color="text">
-                            INSTRUCTOR
-                          </MDTypography>
-                        </TableCell>
-                        <TableCell sx={{ borderBottom: "none" }}>
-                          <MDTypography variant="button" fontWeight="bold" color="text">
-                            DESCRIPTION
-                          </MDTypography>
-                        </TableCell>
+                        <TableCell>COURSE NAME</TableCell>
+                        <TableCell>INSTRUCTOR</TableCell>
+                        <TableCell>DESCRIPTION</TableCell>
                       </TableRow>
                     </TableHead>
-
                     <TableBody>
                       {filteredCourses
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -186,15 +150,9 @@ const PendingApprovals = () => {
                               setOpenDetails(true);
                             }}
                           >
-                            <TableCell sx={{ borderBottom: "none" }}>
-                              {course.course_name}
-                            </TableCell>
-                            <TableCell sx={{ borderBottom: "none" }}>
-                              {course.teachers_user_id || "Unknown Instructor"}
-                            </TableCell>
-                            <TableCell sx={{ borderBottom: "none" }}>
-                              {course.course_description}
-                            </TableCell>
+                            <TableCell>{course.course_name}</TableCell>
+                            <TableCell>{course.teachers_user_id || "Unknown Instructor"}</TableCell>
+                            <TableCell>{course.course_description}</TableCell>
                           </TableRow>
                         ))}
                     </TableBody>
@@ -217,7 +175,6 @@ const PendingApprovals = () => {
       </MDBox>
       <Footer />
 
-      {/* Modal (left unchanged as requested) */}
       <Dialog open={openDetails} onClose={() => setOpenDetails(false)} fullWidth maxWidth="sm">
         <DialogTitle>Course Details</DialogTitle>
         <DialogContent dividers>
