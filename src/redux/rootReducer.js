@@ -25,6 +25,10 @@ import totalCoursesReducer from "./totalCourses/totalCoursesReducer";
 import totalUsersReducer from "./totalUsers/totalUsersReducer";
 import userDetailsReducer from "./userDetails/userDetailsReducer";
 
+//Auth
+import signupReducer from "./sign-up/signupReducer";
+import signinReducer from "./sign-in/signinReducer";
+
 const rootReducer = combineReducers({
   // student
   studentDashboard: studentDashboardReducer,
@@ -50,6 +54,10 @@ const rootReducer = combineReducers({
   totalCourses: totalCoursesReducer,
   totalUsers: totalUsersReducer,
   userDetails: userDetailsReducer,
+
+  //auth
+  signup: signupReducer,
+  signin: signinReducer,
 });
 
 export default rootReducer;
