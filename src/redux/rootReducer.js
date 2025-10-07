@@ -26,8 +26,8 @@ import totalUsersReducer from "./totalUsers/totalUsersReducer";
 import userDetailsReducer from "./userDetails/userDetailsReducer";
 
 //Auth
-import signupReducer from "./sign-up/signupReducer";
-import signinReducer from "./sign-in/signinReducer";
+import signupReducer from "./authentication/signup/signupReducer";
+import signinReducer from "./authentication/signin/signinReducer";
 
 const rootReducer = combineReducers({
   // student

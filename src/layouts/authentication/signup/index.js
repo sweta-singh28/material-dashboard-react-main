@@ -1,7 +1,7 @@
 // react-router-dom components
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import CircularProgress from "@mui/material/CircularProgress";
 // @mui material components
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
@@ -18,33 +18,70 @@ import MDButton from "components/MDButton";
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
-import { signupUser } from "../../../redux/sign-up/signupThunks";
+import { signupUser } from "../../../redux/authentication/signup/signupThunks";
 
 // Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
-import bgImage from "assets/images/bg-sign-up-cover.jpeg";
+import bgImage from "assets/images/bg-signup-cover.jpeg";
 
 function Cover() {
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector((state) => state.signup);
-
-  const [user_role, setuser_role] = useState("");
+  const [errors, setErrors] = useState({ password: "" });
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
     email: "",
     password: "",
+    user_role: "",
+    qualifications: "",
   });
+  console.log(error);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
 
-  const handleChange = (event) => setuser_role(event.target.value);
+    setFormData({ ...formData, [name]: value });
 
-  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
+    // Password validation logic
+    if (name === "password") {
+      if (value.length < 8) {
+        setErrors({ ...errors, password: "Password must be at least 8 characters long" });
+      } else if (!/[A-Z]/.test(value)) {
+        setErrors({ ...errors, password: "Password must contain at least one uppercase letter" });
+      } else if (!/[a-z]/.test(value)) {
+        setErrors({ ...errors, password: "Password must contain at least one lowercase letter" });
+      } else if (!/[0-9]/.test(value)) {
+        setErrors({ ...errors, password: "Password must contain at least one number" });
+      } else if (!/[@$!%*?&#]/.test(value)) {
+        setErrors({
+          ...errors,
+          password: "Password must contain at least one special character (@, $, !, %, *, ?, &, #)",
+        });
+      } else {
+        setErrors({ ...errors, password: "" });
+      }
+    }
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(signupUser({ ...formData, user_role }));
+    // Check if any field is empty
+    const { first_name, last_name, email, password, user_role, qualifications } = formData;
+
+    if (!first_name || !last_name || !email || !password || !user_role || !qualifications) {
+      alert("Please fill out all fields before submitting."); // You can replace alert with a Snackbar or toast
+      return;
+    }
+
+    // ✅ Optional: Add basic email & password validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    dispatch(signupUser({ ...formData }));
   };
 
   return (
@@ -104,6 +141,17 @@ function Cover() {
             </MDBox>
             <MDBox mb={2}>
               <MDInput
+                type="text"
+                label="Maximum Qualifications"
+                variant="standard"
+                fullWidth
+                name="qualifications"
+                value={formData.qualifications}
+                onChange={handleInputChange}
+              />
+            </MDBox>
+            <MDBox mb={2}>
+              <MDInput
                 type="email"
                 label="Email"
                 variant="standard"
@@ -122,18 +170,28 @@ function Cover() {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
+                error={!!errors.password}
               />
+              {errors.password && (
+                <MDTypography variant="caption" color="error">
+                  {errors.password}
+                </MDTypography>
+              )}
             </MDBox>
             <MDBox mb={2}>
               <FormControl variant="standard" fullWidth>
                 <InputLabel>Login as</InputLabel>
-                <Select value={user_role} onChange={handleChange}>
+                <Select name="user_role" value={formData.user_role} onChange={handleInputChange}>
                   <MenuItem value="student">Student</MenuItem>
                   <MenuItem value="teacher">Teacher</MenuItem>
                 </Select>
               </FormControl>
             </MDBox>
-
+            {loading && (
+              <MDBox display="flex" justifyContent="center" mb={2}>
+                <CircularProgress size={24} color="info" />
+              </MDBox>
+            )}
             {error && (
               <MDTypography variant="button" color="error" mb={2}>
                 {error}
@@ -177,7 +235,7 @@ function Cover() {
                 Already have an account?{" "}
                 <MDTypography
                   component={Link}
-                  to="/authentication/sign-in"
+                  to="/authentication/signin"
                   variant="button"
                   color="info"
                   fontWeight="medium"

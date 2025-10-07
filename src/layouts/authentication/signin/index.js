@@ -14,13 +14,13 @@ import MDButton from "components/MDButton";
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../../redux/sign-in/signinThunks";
+import { loginUser } from "../../../redux/authentication/signin/signinThunks";
 
 // Authentication layout components
 import BasicLayout from "layouts/authentication/components/BasicLayout";
 
 // Images
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import bgImage from "assets/images/bg-signin-basic.jpeg";
 
 function Basic() {
   const dispatch = useDispatch();
@@ -40,6 +40,11 @@ function Basic() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { email, password } = formData;
+    if (!email || !password) {
+      alert("Please fill all the fields");
+      return;
+    }
     dispatch(loginUser(formData));
   };
 
@@ -115,7 +120,7 @@ function Basic() {
                 Don&apos;t have an account?{" "}
                 <MDTypography
                   component={Link}
-                  to="/authentication/sign-up"
+                  to="/authentication/signup"
                   variant="button"
                   color="info"
                   fontWeight="medium"
