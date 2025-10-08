@@ -1,5 +1,5 @@
 // react-router-dom components
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 // @mui material components
@@ -83,6 +83,20 @@ function Cover() {
 
     dispatch(signupUser({ ...formData }));
   };
+  useEffect(() => {
+    if (success) {
+      const user_role = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")).role
+        : null;
+      if (user_role === "teacher") {
+        window.location.href = "/teacher/dashboard";
+      } else if (user_role === "student") {
+        window.location.href = "/student/dashboard";
+      } else {
+        window.location.href = "/authentication/signin";
+      }
+    }
+  }, [success]);
 
   return (
     <CoverLayout
@@ -194,7 +208,7 @@ function Cover() {
             )}
             {error && (
               <MDTypography variant="button" color="error" mb={2}>
-                {error}
+                {error.msg}
               </MDTypography>
             )}
             {success && (

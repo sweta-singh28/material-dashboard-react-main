@@ -40,14 +40,15 @@ import Admin from "layouts/admin/dashboard";
 import ViewCourseDetails from "layouts/student/viewCourseDetails";
 import { FaBookOpen } from "react-icons/fa";
 import { Subject } from "@mui/icons-material";
+let routes = [];
 
-const routes = [
+routes = [
   {
     type: "collapse",
-    name: "Teacher",
+    name: "Dashboard",
     key: "teacher",
     icon: <Icon fontSize="small">school</Icon>,
-    route: "/teacher",
+    route: "/teacher/dashboard",
     component: <Teacher />,
   },
   {
@@ -108,10 +109,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Student",
+    name: "Dashboard",
     key: "student",
     icon: <Icon fontSize="small">menu_book</Icon>,
-    route: "/student",
+    route: "/student/dashboard",
     component: <Student />,
   },
   {
@@ -164,10 +165,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Admin",
+    name: "Dashboard",
     key: "admin",
     icon: <Icon fontSize="small">manage_accounts</Icon>,
-    route: "/admin",
+    route: "/admin/dashboard",
     component: <Admin />,
   },
   {

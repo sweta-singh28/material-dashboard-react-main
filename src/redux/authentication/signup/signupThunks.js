@@ -10,6 +10,15 @@ export const signupUser = createAsyncThunk(
       console.log("Signing up user with data:", userData);
       const response = await axios.post("http://localhost:5000/api/auth/signup", userData);
       // dispatch(loginUser({ email: userData.email, password: userData.password }));
+      console.log(response.data);
+      localStorage.setItem("token", response.data.token);
+      const user = {
+        email: response.data.email,
+        first_name: response.data.first_name,
+        last_name: response.data.last_name,
+        role: response.data.role,
+      };
+      localStorage.setItem("user", JSON.stringify(user));
       return response.data;
     } catch (err) {
       console.log(err);

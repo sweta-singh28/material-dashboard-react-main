@@ -46,6 +46,22 @@ function Basic() {
       return;
     }
     dispatch(loginUser(formData));
+    useEffect(() => {
+      if (success) {
+        const user_role = localStorage.getItem("user")
+          ? JSON.parse(localStorage.getItem("user")).role
+          : null;
+        if (user_role === "teacher") {
+          window.location.href = "/teacher/dashboard";
+        } else if (user_role === "student") {
+          window.location.href = "/student/dashboard";
+        } else if (user_role === "admin") {
+          window.location.href = "/admin/dashboard";
+        } else {
+          window.location.href = "/authentication/signin";
+        }
+      }
+    }, [success]);
   };
 
   return (
@@ -90,7 +106,7 @@ function Basic() {
             </MDBox>
             {error && (
               <MDTypography variant="button" color="error" mb={2}>
-                {error}
+                {error.msg}
               </MDTypography>
             )}
             {success && (
