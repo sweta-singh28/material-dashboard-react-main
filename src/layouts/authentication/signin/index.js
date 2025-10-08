@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 // react-router-dom components
 import { Link } from "react-router-dom";
 
@@ -37,7 +38,22 @@ function Basic() {
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  useEffect(() => {
+    if (success) {
+      const user_role = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")).role
+        : null;
+      if (user_role === "teacher") {
+        window.location.href = "/teacher/dashboard";
+      } else if (user_role === "student") {
+        window.location.href = "/student/dashboard";
+      } else if (user_role === "admin") {
+        window.location.href = "/admin/dashboard";
+      } else {
+        window.location.href = "/authentication/signin";
+      }
+    }
+  }, [success]);
   const handleSubmit = (e) => {
     e.preventDefault();
     const { email, password } = formData;
@@ -46,22 +62,6 @@ function Basic() {
       return;
     }
     dispatch(loginUser(formData));
-    useEffect(() => {
-      if (success) {
-        const user_role = localStorage.getItem("user")
-          ? JSON.parse(localStorage.getItem("user")).role
-          : null;
-        if (user_role === "teacher") {
-          window.location.href = "/teacher/dashboard";
-        } else if (user_role === "student") {
-          window.location.href = "/student/dashboard";
-        } else if (user_role === "admin") {
-          window.location.href = "/admin/dashboard";
-        } else {
-          window.location.href = "/authentication/signin";
-        }
-      }
-    }, [success]);
   };
 
   return (
