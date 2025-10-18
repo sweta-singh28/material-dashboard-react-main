@@ -40,273 +40,244 @@ import Admin from "layouts/admin/dashboard";
 import ViewCourseDetails from "layouts/student/viewCourseDetails";
 import { FaBookOpen } from "react-icons/fa";
 import { Subject } from "@mui/icons-material";
-let routes = [];
-const user = localStorage.getItem("user");
-if (!user) {
-  routes = [
-    {
-      type: "collapse",
-      name: "Sign In",
-      key: "signin",
-      icon: <Icon fontSize="small">login</Icon>,
-      route: "/authentication/signin",
-      component: <SignIn />,
-    },
-    {
-      type: "collapse",
-      name: "Sign Up",
-      key: "signup",
-      icon: <Icon fontSize="small">signup</Icon>,
-      route: "/authentication/signup",
-      component: <SignUp />,
-    },
-  ];
-} else {
-  user = JSON.parse(user);
-}
 
-if (user.user_role === "teacher") {
-  routes = [
-    {
-      type: "collapse",
-      name: "Dashboard",
-      key: "teacher",
-      icon: <Icon fontSize="small">school</Icon>,
-      route: "/teacher/dashboard",
-      component: <Teacher />,
-    },
-    {
-      type: "collapse",
-      name: "Course Details",
-      key: "SubjectDetails",
-      icon: <Icon fontSize="small">subject</Icon>,
-      route: "/teacher/subjectDetails/:id",
-      component: <SubjectDetails />,
-    },
-    {
-      type: "collapse",
-      name: "New Course",
-      key: "addNewCourse",
-      icon: <Icon fontSize="small">add</Icon>,
-      route: "/teacher/addNewCourse",
-      component: <AddNewCourse />,
-    },
-    {
-      type: "collapse",
-      name: "Student Register",
-      key: "teacher/studentRegister",
-      icon: <Icon fontSize="small">menu_book</Icon>,
-      route: "/teacher/studentRegister",
-      component: <StudentRegister />,
-    },
-    {
-      type: "collapse",
-      name: "Student Details",
-      key: "studentDetails",
-      icon: <Icon fontSize="small">Details</Icon>,
-      route: "/students/:id",
-      component: <StudentDetails />,
-    },
-    {
-      type: "collapse",
-      name: "Upload Materials",
-      key: "uploadMaterials",
-      icon: <Icon fontSize="small">upload</Icon>,
-      route: "/uploadMaterials",
-      component: <UploadMaterials />,
-    },
-    {
-      type: "collapse",
-      name: "Approve Students",
-      key: "pendingStudentApprovals",
-      icon: <Icon fontSize="small">check</Icon>,
-      route: "/pendingStudentApprovals",
-      component: <PendingStudentApprovals />,
-    },
-    {
-      type: "collapse",
-      name: "Submissions",
-      key: "viewSubmissions",
-      icon: <Icon fontSize="small">assignment</Icon>,
-      route: "/viewSubmissions",
-      component: <ViewSubmissions />,
-    },
-    {
-      type: "collapse",
-      name: "Notifications",
-      key: "notifications",
-      icon: <Icon fontSize="small">notifications</Icon>,
-      route: "/notifications",
-      component: <Notifications />,
-    },
-    {
-      type: "collapse",
-      name: "Profile",
-      key: "profile",
-      icon: <Icon fontSize="small">person</Icon>,
-      route: "/profile",
-      component: <Profile />,
-    },
-    {
-      type: "collapse",
-      name: "Sign In",
-      key: "signin",
-      icon: <Icon fontSize="small">login</Icon>,
-      route: "/authentication/signin",
-      component: <SignIn />,
-    },
-    {
-      type: "collapse",
-      name: "Sign Up",
-      key: "signup",
-      icon: <Icon fontSize="small">assignment</Icon>,
-      route: "/authentication/signup",
-      component: <SignUp />,
-    },
-  ];
-} else if (user.user_role === "student") {
-  routes = [
-    {
-      type: "collapse",
-      name: "Dashboard",
-      key: "student",
-      icon: <Icon fontSize="small">menu_book</Icon>,
-      route: "/student/dashboard",
-      component: <Student />,
-    },
-    {
-      type: "collapse",
-      name: "Course Details",
-      key: "viewCourseDetails",
-      icon: <Icon fontSize="small">subject</Icon>,
-      route: "/student/viewCourseDetails",
-      component: <ViewCourseDetails />,
-    },
-    {
-      type: "collapse",
-      name: "Assignment",
-      key: "assignment",
-      icon: <Icon fontSize="small">task</Icon>,
-      route: "/assignment",
-      component: <Assignment />,
-    },
-    {
-      type: "collapse",
-      name: "Notifications",
-      key: "notifications",
-      icon: <Icon fontSize="small">notifications</Icon>,
-      route: "/notifications",
-      component: <Notifications />,
-    },
-    {
-      type: "collapse",
-      name: "Profile",
-      key: "profile",
-      icon: <Icon fontSize="small">person</Icon>,
-      route: "/profile",
-      component: <Profile />,
-    },
-  ];
-} else if (user.user_role === "admin") {
-  routes = [
-    {
-      type: "collapse",
-      name: "Dashboard",
-      key: "admin",
-      icon: <Icon fontSize="small">manage_accounts</Icon>,
-      route: "/admin/dashboard",
-      component: <Admin />,
-    },
-    {
-      type: "collapse",
-      name: "Total Users",
-      key: "totalUsers",
-      icon: <Icon fontSize="small">people</Icon>,
-      route: "/admin/totalUsers",
-      component: <TotalUsers />,
-    },
-    {
-      type: "collapse",
-      name: "User Details",
-      key: "userDetails",
-      icon: <Icon fontSize="small">ID</Icon>,
-      route: "/userDetails/:id",
-      component: <UserDetails />,
-    },
-    {
-      type: "collapse",
-      name: " All Courses",
-      key: "totalCourses",
-      icon: <Icon fontSize="small">school</Icon>,
-      route: "/admin/totalCourses",
-      component: <TotalCourses />,
-    },
-    {
-      type: "collapse",
-      name: "Approvals",
-      key: "pendingApprovals",
-      icon: <Icon fontSize="small">check</Icon>,
-      route: "/admin/pendingApprovals",
-      component: <PendingApprovals />,
-    },
-    {
-      type: "collapse",
-      name: "Course Details",
-      key: "courseDetails",
-      icon: <Icon fontSize="small">Description</Icon>,
-      route: "/courseDetails",
-      component: <CourseDetails />,
-    },
+const commonLoggedInRoutes = [
+  {
+    type: "collapse",
+    name: "Notifications",
+    key: "notifications",
+    icon: <Icon fontSize="small">notifications</Icon>,
+    route: "/notifications",
+    component: <Notifications />,
+    inNav: true,
+  },
+  {
+    type: "collapse",
+    name: "Profile",
+    key: "profile",
+    icon: <Icon fontSize="small">person</Icon>,
+    route: "/profile",
+    component: <Profile />,
+    inNav: true,
+  },
+];
 
-    {
-      type: "collapse",
-      name: "Active Courses",
-      key: "activeCourses",
-      icon: <FaBookOpen size={18} />,
-      route: "/admin/activeCourses",
-      component: <ActiveCourses />,
-    },
-    {
-      type: "collapse",
-      name: "Completed Courses",
-      key: "completedCourses",
-      icon: <Icon fontSize="small">check</Icon>,
-      route: "/admin/completedCourses",
-      component: <CompletedCourses />,
-    },
-    {
-      type: "collapse",
-      name: "Notifications",
-      key: "notifications",
-      icon: <Icon fontSize="small">notifications</Icon>,
-      route: "/notifications",
-      component: <Notifications />,
-    },
-    {
-      type: "collapse",
-      name: "Profile",
-      key: "profile",
-      icon: <Icon fontSize="small">person</Icon>,
-      route: "/profile",
-      component: <Profile />,
-    },
-    {
-      type: "collapse",
-      name: "Sign In",
-      key: "signin",
-      icon: <Icon fontSize="small">login</Icon>,
-      route: "/authentication/signin",
-      component: <SignIn />,
-    },
-    {
-      type: "collapse",
-      name: "Sign Up",
-      key: "signup",
-      icon: <Icon fontSize="small">assignment</Icon>,
-      route: "/authentication/signup",
-      component: <SignUp />,
-    },
-  ];
-}
+const dynamicRoutes = [
+  {
+    type: "collapse",
+    name: "Student Details",
+    key: "studentDetails",
+    icon: <Icon fontSize="small">Details</Icon>,
+    route: "/students/:id",
+    component: <StudentDetails />,
+  },
+  {
+    type: "collapse",
+    name: "Course Details",
+    key: "SubjectDetails",
+    icon: <Icon fontSize="small">subject</Icon>,
+    route: "/teacher/subjectDetails/:id",
+    component: <SubjectDetails />,
+  },
+  {
+    type: "collapse",
+    name: "User Details",
+    key: "userDetails",
+    icon: <Icon fontSize="small">ID</Icon>,
+    route: "/userDetails/:id",
+    component: <UserDetails />,
+  },
+];
 
-export default routes;
+// Convert to a function that gets called each time
+const getRoutes = () => {
+  let routes = [];
+  let user = localStorage.getItem("user");
+
+  if (!user) {
+    // --- Routes for logged-out users ---
+    routes = [
+      {
+        type: "collapse",
+        name: "Sign In",
+        key: "signin",
+        icon: <Icon fontSize="small">login</Icon>,
+        route: "/authentication/signin",
+        component: <SignIn />,
+        inNav: true,
+      },
+      {
+        type: "collapse",
+        name: "Sign Up",
+        key: "signup",
+        icon: <Icon fontSize="small">signup</Icon>,
+        route: "/authentication/signup",
+        component: <SignUp />,
+        inNav: true,
+      },
+    ];
+  } else {
+    user = JSON.parse(user);
+    let roleSpecificRoutes = [];
+
+    if (user.role === "teacher") {
+      roleSpecificRoutes = [
+        {
+          type: "collapse",
+          name: "Dashboard",
+          key: "teacher",
+          icon: <Icon fontSize="small">school</Icon>,
+          route: "/teacher/dashboard",
+          component: <Teacher />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "New Course",
+          key: "addNewCourse",
+          icon: <Icon fontSize="small">add</Icon>,
+          route: "/teacher/addNewCourse",
+          component: <AddNewCourse />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Student Register",
+          key: "teacher/studentRegister",
+          icon: <Icon fontSize="small">menu_book</Icon>,
+          route: "/teacher/studentRegister",
+          component: <StudentRegister />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Upload Materials",
+          key: "uploadMaterials",
+          icon: <Icon fontSize="small">upload</Icon>,
+          route: "/uploadMaterials",
+          component: <UploadMaterials />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Approve Students",
+          key: "pendingStudentApprovals",
+          icon: <Icon fontSize="small">check</Icon>,
+          route: "/pendingStudentApprovals",
+          component: <PendingStudentApprovals />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Submissions",
+          key: "viewSubmissions",
+          icon: <Icon fontSize="small">assignment</Icon>,
+          route: "/viewSubmissions",
+          component: <ViewSubmissions />,
+          inNav: true,
+        },
+      ];
+    } else if (user.role === "student") {
+      roleSpecificRoutes = [
+        {
+          type: "collapse",
+          name: "Dashboard",
+          key: "student",
+          icon: <Icon fontSize="small">menu_book</Icon>,
+          route: "/student/dashboard",
+          component: <Student />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Course Details",
+          key: "viewCourseDetails",
+          icon: <Icon fontSize="small">subject</Icon>,
+          route: "/student/viewCourseDetails",
+          component: <ViewCourseDetails />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Assignment",
+          key: "assignment",
+          icon: <Icon fontSize="small">task</Icon>,
+          route: "/assignment",
+          component: <Assignment />,
+          inNav: true,
+        },
+      ];
+    } else if (user.role === "admin") {
+      roleSpecificRoutes = [
+        {
+          type: "collapse",
+          name: "Dashboard",
+          key: "admin",
+          icon: <Icon fontSize="small">manage_accounts</Icon>,
+          route: "/admin/dashboard",
+          component: <Admin />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Total Users",
+          key: "totalUsers",
+          icon: <Icon fontSize="small">people</Icon>,
+          route: "/admin/totalUsers",
+          component: <TotalUsers />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: " All Courses",
+          key: "totalCourses",
+          icon: <Icon fontSize="small">school</Icon>,
+          route: "/admin/totalCourses",
+          component: <TotalCourses />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Approvals",
+          key: "pendingApprovals",
+          icon: <Icon fontSize="small">check</Icon>,
+          route: "/admin/pendingApprovals",
+          component: <PendingApprovals />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Course Details",
+          key: "courseDetails",
+          icon: <Icon fontSize="small">Description</Icon>,
+          route: "/courseDetails",
+          component: <CourseDetails />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Active Courses",
+          key: "activeCourses",
+          icon: <FaBookOpen size={18} />,
+          route: "/admin/activeCourses",
+          component: <ActiveCourses />,
+          inNav: true,
+        },
+        {
+          type: "collapse",
+          name: "Completed Courses",
+          key: "completedCourses",
+          icon: <Icon fontSize="small">check</Icon>,
+          route: "/admin/completedCourses",
+          component: <CompletedCourses />,
+          inNav: true,
+        },
+      ];
+    }
+    routes = [...roleSpecificRoutes, ...commonLoggedInRoutes, ...dynamicRoutes];
+  }
+
+  return routes;
+};
+
+export default getRoutes;

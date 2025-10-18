@@ -20,7 +20,7 @@ import MDInput from "components/MDInput";
 // Material Dashboard 2 React example components
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
-
+import ProfileMenu from "examples/Navbars/DashboardNavbar/profileMenu";
 // Custom styles for DashboardNavbar
 import {
   navbar,
@@ -125,11 +125,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
             </MDBox>
 
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/signin/basic">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
+              <ProfileMenu iconStyles={iconsStyle} buttonStyles={navbarIconButton} />
               <IconButton
                 size="small"
                 disableRipple
