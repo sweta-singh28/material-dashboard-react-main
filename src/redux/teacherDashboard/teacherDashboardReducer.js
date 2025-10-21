@@ -1,20 +1,36 @@
-// redux/teacherDashboard/teacherDashboardReducer.js
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchTeacherCourses } from "./teacherDashboardThunks";
 
-export const initialState = {
-  courses: [],
+const initialState = {
+  teacherData: null, // store the whole object from backend
   loading: false,
   error: null,
 };
 
-export default function teacherDashboardReducer(state = initialState, action) {
-  switch (action.type) {
-    case "TD_FETCH_START":
-      return { ...state, loading: true, error: null };
-    case "TD_FETCH_SUCCESS":
-      return { ...state, loading: false, courses: action.payload };
-    case "TD_FETCH_FAILURE":
-      return { ...state, loading: false, error: action.payload };
-    default:
-      return state;
-  }
-}
+const teacherDashboardSlice = createSlice({
+  name: "teacherDashboard",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTeacherCourses.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTeacherCourses.fulfilled, (state, action) => {
+        state.loading = false;
+        state.teacherData = action.payload; // store whole object
+      })
+      .addCase(fetchTeacherCourses.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error?.message || "Failed to fetch teacher data";
+      });
+  },
+});
+
+export default teacherDashboardSlice.reducer;
+
+// Selectors
+export const selectTeacherData = (state) => state.teacherDashboard?.teacherData || null;
+export const selectTeacherLoading = (state) => state.teacherDashboard?.loading || false;
+export const selectTeacherError = (state) => state.teacherDashboard?.error || null;

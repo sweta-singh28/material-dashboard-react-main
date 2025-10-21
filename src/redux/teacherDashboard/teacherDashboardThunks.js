@@ -1,35 +1,26 @@
-// redux/teacherDashboard/teacherDashboardThunks.js
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-export const fetchTeacherCourses = (allCourses, teacherId) => async (dispatch) => {
-  dispatch({ type: "TD_FETCH_START" });
+// Async thunk to fetch teacher data (including courses) with Bearer token
+export const fetchTeacherCourses = createAsyncThunk(
+  "teacherDashboard/fetchTeacherCourses",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem("token"); // replace "token" with your key if different
 
-  try {
-    // Simulate async operation (replace with real API later)
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    const courses = (Array.isArray(allCourses) ? allCourses : [])
-      .filter((c) => c.teachers_user_id === teacherId)
-      .map((c) => {
-        const activeCount = Array.isArray(c.course_active_students)
-          ? c.course_active_students.length
-          : 0;
-        const pendingCount = Array.isArray(c.course_pending_students)
-          ? c.course_pending_students.length
-          : 0;
-
-        return {
-          id: c.idCourses,
-          name: c.course_name,
-          students: activeCount,
-          pending: pendingCount,
-        };
+      const response = await axios.get(`http://localhost:5000/api/teacher/Dashboard/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      console.log("Fetched teacher data:", response.data);
 
-    dispatch({ type: "TD_FETCH_SUCCESS", payload: courses });
-  } catch (err) {
-    dispatch({
-      type: "TD_FETCH_FAILURE",
-      payload: err?.message ?? String(err),
-    });
+      // Store the whole object from backend
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || "Failed to fetch teacher data";
+      return rejectWithValue(message);
+    }
   }
-};
+);

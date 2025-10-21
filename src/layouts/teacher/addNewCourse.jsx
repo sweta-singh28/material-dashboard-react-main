@@ -80,15 +80,19 @@ function AddNewCourse() {
     if (!courseName.trim() || !description.trim() || !teacherInfo.trim()) return;
 
     const newCourse = {
-      courseName,
-      description,
-      teacherId: teacherInfo,
-      syllabus: syllabus ? syllabus.split(",").map((t) => t.trim()) : [],
-      prerequisites: prerequisites ? prerequisites.split(",").map((t) => t.trim()) : [],
-      expectations,
+      course_name: courseName,
+      course_pre_requisites: prerequisites || "",
+      course_syllabus: syllabus ? syllabus.split(",").map((s) => s.trim()) : [],
+      course_code: `${courseName.toUpperCase().replace(/\s+/g, "_")}_${Date.now()}`, // auto-generated unique code
+      course_status: "Pending", // default
+      course_description: description,
+      course_thumbnail: thumbnail ? thumbnail.name : "default-thumbnail.png",
+      course_current_completed: {}, // empty JSON object
+      course_active_students: {}, // empty JSON object
+      course_pending_students: {}, // empty JSON object
     };
 
-    // dispatch thunk
+    // dispatch the thunk (which calls backend API)
     dispatch(addNewCourse(newCourse));
 
     const formattedCourse = {

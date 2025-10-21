@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTeacherCourses } from "../../redux/teacherDashboard/teacherDashboardThunks";
-import { teacherDashboardReducer } from "../../redux/teacherDashboard/teacherDashboardReducer";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
@@ -19,62 +18,25 @@ function TeacherDashboard() {
   const navigate = useNavigate();
   const { search } = useSearch();
 
-  // Select from Redux
-  const { courses, loading, error } = useSelector((state) => state.teacherDashboard);
+  const { teacherData, loading, error } = useSelector((state) => state.teacherDashboard);
 
-  // Local mock data (you can replace with API call later)
-  const allCourses = [
-    {
-      idCourses: "c1",
-      course_name: "Math 101",
-      course_active_students: ["u1", "u2", "u3", "u4", "u5"],
-      course_pending_students: ["u21", "u22"],
-      teachers_user_id: "teacher-123",
-    },
-    {
-      idCourses: "c2",
-      course_name: "History 202",
-      course_active_students: ["u6", "u7", "u8"],
-      course_pending_students: ["u23"],
-      teachers_user_id: "teacher-123",
-    },
-    {
-      idCourses: "c3",
-      course_name: "English 101",
-      course_active_students: ["u9", "u10", "u11", "u12"],
-      course_pending_students: ["u24", "u25", "u26"],
-      teachers_user_id: "teacher-456",
-    },
-    {
-      idCourses: "c4",
-      course_name: "Science 101",
-      course_active_students: ["u13", "u14"],
-      course_pending_students: [],
-      teachers_user_id: "teacher-123",
-    },
-    {
-      idCourses: "c5",
-      course_name: "Art History",
-      course_active_students: ["u15"],
-      course_pending_students: ["u27"],
-      teachers_user_id: "teacher-789",
-    },
-  ];
-
-  const teacherId = "teacher-123";
-
-  // Fetch courses on mount
   useEffect(() => {
-    dispatch(fetchTeacherCourses(allCourses, teacherId));
+    dispatch(fetchTeacherCourses());
   }, [dispatch]);
 
+  // Backend returns: [ { _id, course_name, course_status, ... } ]
+  const courses = teacherData?.courses || [];
+
+  console.log("Courses in dashboard:", courses);
+
   const filteredCourses = courses.filter((course) =>
-    course.name.toLowerCase().includes(search.toLowerCase())
+    course.course_name?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Chart Data (use placeholders since backend doesn’t yet send student counts)
   const chartData = courses.map((c) => ({
-    course: c.name,
-    students: c.students,
+    course: c.course_name,
+    students: c.course_active_students ? Object.keys(c.course_active_students).length : 0,
   }));
 
   return (
@@ -89,7 +51,7 @@ function TeacherDashboard() {
                 Dashboard
               </MDTypography>
               <MDTypography variant="body2" color="textSecondary">
-                Welcome back, Ms. Johnson! Here’s an overview of your courses.
+                Welcome back! Here’s an overview of your courses.
               </MDTypography>
             </MDBox>
             <Button
@@ -102,9 +64,6 @@ function TeacherDashboard() {
                 textTransform: "none",
                 px: 3,
                 py: 1,
-                "& .MuiButton-label": {
-                  color: "#ffffff",
-                },
                 "&:hover": { backgroundColor: "#1565c0" },
               }}
               onClick={() => navigate("/addNewCourse")}
@@ -115,7 +74,13 @@ function TeacherDashboard() {
 
           {/* Enrollment Chart */}
           <Grid item xs={12}>
-            <Card sx={{ p: 3, borderRadius: "12px", boxShadow: "0px 2px 10px rgba(0,0,0,0.05)" }}>
+            <Card
+              sx={{
+                p: 3,
+                borderRadius: "12px",
+                boxShadow: "0px 2px 10px rgba(0,0,0,0.05)",
+              }}
+            >
               <MDTypography variant="h6" fontWeight="medium" gutterBottom>
                 Student Enrollment
               </MDTypography>
@@ -156,9 +121,10 @@ function TeacherDashboard() {
                   <MDTypography color="error">{error}</MDTypography>
                 </Grid>
               )}
+
               {!loading && !error && filteredCourses.length > 0
                 ? filteredCourses.map((course) => (
-                    <Grid item xs={12} sm={6} md={4} key={course.id}>
+                    <Grid item xs={12} sm={6} md={4} key={course._id}>
                       <Card
                         sx={{
                           p: 3,
@@ -171,26 +137,30 @@ function TeacherDashboard() {
                             boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
                           },
                         }}
-                        onClick={() => navigate(`/teacher/subjectDetails/${course.id}`)}
+                        onClick={() => navigate(`/teacher/subjectDetails/${course._id}`)}
                       >
                         <MDTypography variant="h6" fontWeight="medium" gutterBottom>
-                          {course.name}
+                          {course.course_name}
+                        </MDTypography>
+                        <MDTypography variant="body2" color="textSecondary" gutterBottom>
+                          {course.course_description}
                         </MDTypography>
                         <MDBox display="flex" justifyContent="space-between" mt={1}>
                           <MDBox>
                             <MDTypography variant="subtitle2" color="textSecondary">
-                              Pending Students
+                              Status
                             </MDTypography>
                             <MDTypography variant="body2" fontWeight="bold">
-                              {course.pending}
+                              {course.course_status}
                             </MDTypography>
                           </MDBox>
                           <MDBox>
                             <MDTypography variant="subtitle2" color="textSecondary">
-                              Enrolled Students
+                              Students
                             </MDTypography>
                             <MDTypography variant="body2" fontWeight="bold">
-                              {course.students}
+                              {chartData.find((c) => c.course === course.course_name)?.students ||
+                                0}
                             </MDTypography>
                           </MDBox>
                         </MDBox>
