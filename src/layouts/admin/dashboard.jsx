@@ -110,15 +110,15 @@ const AdminDashboard = () => {
   const { search } = useSearch(); // Global search (can be used later for filtering)
 
   const dispatch = useDispatch();
-  const { stats = {}, loading, error } = useSelector((state) => state.adminDashboard || {});
+  const { stats, loading, error } = useSelector((state) => state.adminDashboard || {});
 
   useEffect(() => {
     dispatch(fetchAdminStats());
   }, [dispatch]);
-
-  const totalUsers = stats.total_users_count || 0;
-  const activeCourses = stats.active_courses_count || 0;
-  const pendingApprovals = stats.pending_approvals_count || 0;
+  console.log("Admin Dashboard Stats:", stats);
+  const totalUsers = stats.totalUsers || 0;
+  const activeCourses = stats.activeCourses || 0;
+  const pendingApprovals = stats.pendingCourses || 0;
 
   // Users breakdown for chart (Students vs Teachers)
   const userRoleCounts = stats.userRoleCounts || [];

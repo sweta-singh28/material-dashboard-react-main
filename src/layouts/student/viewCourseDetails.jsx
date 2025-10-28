@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom"; // ✅ useParams instead of useLocation
 import { useDispatch, useSelector } from "react-redux";
 
 // Redux
@@ -28,7 +28,7 @@ import Footer from "examples/Footer";
 import { useMaterialUIController } from "context";
 
 function ViewCourseDetails() {
-  const location = useLocation();
+  const { id } = useParams(); // ✅ capture the course ID from URL
   const [controller] = useMaterialUIController();
   const { search } = controller;
 
@@ -40,9 +40,15 @@ function ViewCourseDetails() {
   } = useSelector((state) => state.viewCourseDetails);
 
   useEffect(() => {
-    dispatch(fetchCourseDetails());
-  }, [dispatch]);
-
+    if (id) {
+      dispatch(fetchCourseDetails(id)); // ✅ pass ID to thunk
+    }
+  }, [dispatch, id]);
+  useEffect(() => {
+    console.log("Displayed Course:", displayedCourse);
+    console.log("Displayed Teacher:", displayedTeacher);
+    console.log("Displayed Notes:", displayedNotes);
+  }, [displayedCourse, displayedTeacher, displayedNotes]);
   const handleNoteClick = (url) => {
     window.open(url, "_blank");
   };
@@ -55,51 +61,12 @@ function ViewCourseDetails() {
     note.AN_title.toLowerCase().includes(search.toLowerCase())
   );
 
-  // ------------------ Commented Dummy JSON ------------------
-  /*
-  const dummyData = {
-    Courses: {
-      idCourses: "course-123",
-      course_name: "Introduction to Computer Science",
-      course_pre_requisites: "Basic knowledge of mathematics and logic is recommended",
-      course_syllabus: [
-        "Week 1: Introduction to Programming",
-        "Week 2: Data Types and Variables",
-        "Week 3: Control Structures (if/else, loops)",
-        "Week 4: Functions and Modules",
-        "Week 5: Introduction to Data Structures (Arrays, Lists)",
-        "Week 6: Algorithms and Complexity",
-      ],
-      course_code: "CS101",
-      course_status: "Active",
-      course_description: "This foundational course provides a comprehensive introduction to the principles of computer science...",
-      course_thumbnail: "https://picsum.photos/800/200?random=123",
-      course_current_completed: 95,
-      course_active_students: ["user-001", "user-002"],
-      course_pending_students: ["user-003"],
-      teachers_user_id: "teacher-123",
-    },
-    Users: {
-      user_id: "teacher-123",
-      first_name: "Alan",
-      last_name: "Turing",
-      email: "alan.turing@example.com",
-      user_role: "teacher",
-    },
-    Assignment_Notes: [
-      { AN_id: "note-001", AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", AN_title: "Lecture 1 - Introduction.pdf" },
-      { AN_id: "note-002", AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", AN_title: "Lecture 2 - Advanced Concepts.pdf" },
-      { AN_id: "note-003", AN_link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", AN_title: "Practice Questions.pdf" }
-    ],
-  };
-  */
-  // ----------------------------------------------------------
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>
         <Grid container spacing={3}>
+          {/* Left Section: Course Info */}
           <Grid item xs={12} md={8}>
             <Card style={{ padding: "16px", marginBottom: "24px" }}>
               <MDTypography variant="h4" fontWeight="bold" gutterBottom>
@@ -107,7 +74,9 @@ function ViewCourseDetails() {
               </MDTypography>
               <MDTypography variant="subtitle2" color="textSecondary" gutterBottom>
                 Instructor:{" "}
-                <strong>{`${displayedTeacher?.first_name} ${displayedTeacher?.last_name}`}</strong>
+                <strong>{`${displayedTeacher?.first_name || ""} ${
+                  displayedTeacher?.last_name || ""
+                }`}</strong>
               </MDTypography>
               <img
                 src={displayedCourse?.course_thumbnail}
@@ -152,6 +121,7 @@ function ViewCourseDetails() {
             </Card>
           </Grid>
 
+          {/* Right Section: Progress & Notes */}
           <Grid item xs={12} md={4}>
             <Card style={{ padding: "16px", marginBottom: "24px" }}>
               <MDTypography variant="h6" fontWeight="bold" gutterBottom>

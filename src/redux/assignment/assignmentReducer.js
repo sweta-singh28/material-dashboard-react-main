@@ -3,11 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { fetchAssignments } from "./assignmentThunks";
 
 const initialState = {
-  users: [],
-  courses: [],
-  assignmentNotes: [],
-  submittedAssignments: [],
-  userCourses: [],
+  assignments: [], // <-- single array for fetched assignments
   loading: false,
   error: null,
 };
@@ -16,7 +12,7 @@ const assignmentsSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
-    // you can add reducers here later if needed
+    // You can add local reducers here if needed (e.g., for filtering, sorting, etc.)
   },
   extraReducers: (builder) => {
     builder
@@ -26,12 +22,8 @@ const assignmentsSlice = createSlice({
       })
       .addCase(fetchAssignments.fulfilled, (state, action) => {
         state.loading = false;
-        const payload = action.payload || {};
-        state.users = payload.users || [];
-        state.courses = payload.courses || [];
-        state.assignmentNotes = payload.assignmentNotes || [];
-        state.submittedAssignments = payload.submittedAssignments || [];
-        state.userCourses = payload.userCourses || [];
+        // Since backend returns a plain array of assignment objects
+        state.assignments = action.payload || [];
       })
       .addCase(fetchAssignments.rejected, (state, action) => {
         state.loading = false;

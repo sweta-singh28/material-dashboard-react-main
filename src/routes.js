@@ -193,7 +193,7 @@ const getRoutes = () => {
           name: "Course Details",
           key: "viewCourseDetails",
           icon: <Icon fontSize="small">subject</Icon>,
-          route: "/student/viewCourseDetails",
+          route: "/student/viewCourseDetails/:id",
           component: <ViewCourseDetails />,
           inNav: true,
         },

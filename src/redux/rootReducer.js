@@ -4,6 +4,7 @@ import { combineReducers } from "@reduxjs/toolkit";
 import studentDashboardReducer from "./studentDashboard/studentDashboardReducer";
 import assignmentReducer from "./assignment/assignmentReducer";
 import viewCourseDetailsReducer from "./viewCourseDetails/viewCourseDetailsReducer";
+import availableCoursesReducer from "./availableCourses/availableCourseReducer";
 
 // teacher
 import teacherDashboardReducer from "./teacherDashboard/teacherDashboardReducer";
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   studentDashboard: studentDashboardReducer,
   assignment: assignmentReducer,
   viewCourseDetails: viewCourseDetailsReducer,
+  availableCourses: availableCoursesReducer,
 
   // teacher
   teacherDashboard: teacherDashboardReducer,

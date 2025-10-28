@@ -1,29 +1,30 @@
-// src/redux/assignments/assignmentsThunks.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-/**
- * fetchAssignments
- * - Simulates an API call.
- * - IMPORTANT: per your request, there is NO JSON/data inside this thunk.
- * - Returns placeholder/empty arrays. Your real API should replace this.
- */
+// Fetch assignments for the logged-in student
 export const fetchAssignments = createAsyncThunk(
   "assignments/fetchAssignments",
-  async (_, thunkAPI) => {
+  async (_, { rejectWithValue }) => {
     try {
-      // simulate small network delay
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      // Get token from localStorage (or sessionStorage)
+      const token = localStorage.getItem("token");
 
-      // Return empty placeholders (component still has the sample JSON commented for reference)
-      return {
-        users: [],
-        courses: [],
-        assignmentNotes: [],
-        submittedAssignments: [],
-        userCourses: [],
-      };
+      if (!token) {
+        return rejectWithValue("No authentication token found");
+      }
+
+      // Make API request with Authorization header
+      const response = await axios.get("http://localhost:5000/api/student/assignments", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Backend returns an array of assignments
+      return response.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.message || "Failed to fetch assignments");
+      // Gracefully handle error cases
+      return rejectWithValue(err.response?.data?.error || "Failed to fetch assignments");
     }
   }
 );
