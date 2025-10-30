@@ -44,15 +44,17 @@ function Students() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   // Redux state
-  const studentsData = useSelector(selectStudents) || [];
-  const loading = useSelector(selectStudentsLoading);
-  const error = useSelector(selectStudentsError);
+  const studentsData = useSelector((state) => state.studentRegister.students) || [];
+  const loading = useSelector((state) => state.studentRegister.loading);
+  const error = useSelector((state) => state.studentRegister.error);
 
   // load students on mount
   useEffect(() => {
     dispatch(fetchStudents());
   }, [dispatch]);
-
+  useEffect(() => {
+    console.log(studentsData);
+  }, [studentsData]);
   // Apply search filter
   const filteredStudents = studentsData.filter((student) =>
     Object.values(student).some((value) =>
@@ -93,27 +95,40 @@ function Students() {
                 </MDTypography>
               ) : null}
 
-              <TableContainer>
-                <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
+              <TableContainer sx={{ width: "100%" }}>
+                <Table
+                  sx={{
+                    borderCollapse: "separate",
+                    borderSpacing: "0 8px",
+                    width: "100%",
+                  }}
+                >
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ borderBottom: "none" }}>
+                      <TableCell
+                        sx={{ borderBottom: "none", width: "33%", textAlign: "left", pl: 3 }}
+                      >
                         <MDTypography variant="button" fontWeight="bold" color="text">
                           Name
                         </MDTypography>
                       </TableCell>
-                      <TableCell sx={{ borderBottom: "none" }}>
+                      <TableCell
+                        sx={{ borderBottom: "none", width: "33%", textAlign: "left", pl: 3 }}
+                      >
                         <MDTypography variant="button" fontWeight="bold" color="text">
-                          Roll No.
+                          Student Id
                         </MDTypography>
                       </TableCell>
-                      <TableCell sx={{ borderBottom: "none" }}>
+                      <TableCell
+                        sx={{ borderBottom: "none", width: "34%", textAlign: "left", pl: 3 }}
+                      >
                         <MDTypography variant="button" fontWeight="bold" color="text">
                           Email Id
                         </MDTypography>
                       </TableCell>
                     </TableRow>
                   </TableHead>
+
                   <TableBody>
                     {filteredStudents.length > 0 ? (
                       filteredStudents
@@ -124,16 +139,21 @@ function Students() {
                             hover
                             sx={{
                               cursor: "pointer",
-                              backgroundColor: "#f9f9f9",
-                              "&:hover": {
-                                backgroundColor: "#f0f0f0",
-                              },
+                              backgroundColor: "#fff",
+                              "&:hover": { backgroundColor: "#f5f5f5" },
+                              boxShadow: "0px 2px 4px rgba(0,0,0,0.05)",
                             }}
                             onClick={() => navigate(`/students/${student.user_id}`)}
                           >
-                            <TableCell sx={{ borderBottom: "none" }}>{student.full_name}</TableCell>
-                            <TableCell sx={{ borderBottom: "none" }}>{student.roll_no}</TableCell>
-                            <TableCell sx={{ borderBottom: "none" }}>{student.email}</TableCell>
+                            <TableCell sx={{ borderBottom: "none", width: "33%", pl: 3 }}>
+                              {student.first_name + " " + student.last_name}
+                            </TableCell>
+                            <TableCell sx={{ borderBottom: "none", width: "33%", pl: 3 }}>
+                              {student._id}
+                            </TableCell>
+                            <TableCell sx={{ borderBottom: "none", width: "34%", pl: 3 }}>
+                              {student.email}
+                            </TableCell>
                           </TableRow>
                         ))
                     ) : (

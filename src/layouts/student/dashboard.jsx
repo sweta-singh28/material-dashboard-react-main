@@ -35,30 +35,51 @@ function StudentDashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const dashboardData = useSelector((state) => state.studentDashboard.data || {});
-  let allCoursesFromBackend = useSelector((state) => state.availableCourses.courses || {});
   // all available courses
   // const allCoursesFromBackend = []; // Placeholder until thunk is implemented
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
-  const [pendingCourses, setPendingCourses] = useState([]);
+
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [showCourseDetails, setShowCourseDetails] = useState(null);
 
+  const allCoursesData = useSelector((state) => state.availableCourses.courses || []);
+  const dashboardData = useSelector((state) => state.studentDashboard.data || {});
+
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [pendingCourses, setPendingCourses] = useState([]);
+  const [availableCourses, setAvailableCourses] = useState([]);
+
+  // Fetch data once
   useEffect(() => {
     dispatch(fetchCourses());
     dispatch(fetchStudentDashboard());
-    // dispatch(fetchAllCourses()); // fetch all courses for dropdown
   }, [dispatch]);
-  useEffect(() => {
-    allCoursesFromBackend = allCoursesFromBackend.data || [];
-  }, [allCoursesFromBackend, dispatch]);
+
+  // Update enrolled and pending when dashboard changes
   useEffect(() => {
     if (dashboardData.enrolledCourses) setEnrolledCourses(dashboardData.enrolledCourses);
     if (dashboardData.pendingCourses) setPendingCourses(dashboardData.pendingCourses);
   }, [dashboardData]);
 
+  // Compute availableCourses dynamically
+  useEffect(() => {
+    const allCoursesArray = Array.isArray(allCoursesData.data)
+      ? allCoursesData.data
+      : Array.isArray(allCoursesData)
+      ? allCoursesData
+      : [];
+
+    const filtered = allCoursesArray.filter(
+      (c) =>
+        !enrolledCourses.some((e) => e._id === c._id) &&
+        !pendingCourses.some((p) => p._id === c._id)
+    );
+
+    setAvailableCourses(filtered);
+    console.log("✅ Available Courses:", filtered);
+  }, [allCoursesData, enrolledCourses, pendingCourses]);
+
   const handleOpenDetails = (courseId) => {
-    const course = [...enrolledCourses, ...pendingCourses, ...allCoursesFromBackend].find(
+    const course = [...enrolledCourses, ...pendingCourses, ...allCoursesData.data].find(
       (c) => c._id === courseId
     );
     setShowCourseDetails(course || null);
@@ -84,13 +105,6 @@ function StudentDashboard() {
   };
 
   // Filter courses that are neither enrolled nor pending
-  const availableCourses = Array.isArray(allCoursesFromBackend)
-    ? allCoursesFromBackend.filter(
-        (c) =>
-          !enrolledCourses.some((e) => e._id === c._id) &&
-          !pendingCourses.some((p) => p._id === c._id)
-      )
-    : [];
 
   // const availableCourses = [];
   return (

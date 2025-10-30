@@ -34,10 +34,12 @@ function TeacherDashboard() {
   );
 
   // Chart Data (use placeholders since backend doesn’t yet send student counts)
-  const chartData = courses.map((c) => ({
-    course: c.course_name,
-    students: c.course_active_students ? Object.keys(c.course_active_students).length : 0,
-  }));
+  const chartData = courses
+    .filter((c) => c.course_status === "Active")
+    .map((c) => ({
+      course: c.course_name,
+      students: c.course_active_students ? Object.keys(c.course_active_students).length : 0,
+    }));
 
   return (
     <DashboardLayout>

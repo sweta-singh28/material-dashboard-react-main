@@ -16,7 +16,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
-
+import { fetchTeacherCourses } from "../../redux/teacherDashboard/teacherDashboardThunks";
 // Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -36,13 +36,19 @@ function UploadMaterials() {
   const [assignmentFile, setAssignmentFile] = useState(null);
   const [notesFile, setNotesFile] = useState(null);
 
-  const courses = [
-    { course_name: "Mathematics" },
-    { course_name: "Physics" },
-    { course_name: "Chemistry" },
-    { course_name: "Computer Science" },
-    { course_name: "Biology" },
-  ];
+  const { teacherData, loading, teachererror } = useSelector((state) => state.teacherDashboard);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    dispatch(fetchTeacherCourses());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (teacherData?.courses) {
+      setCourses(teacherData.courses);
+      console.log("Courses in uploadMaterials:", teacherData.courses);
+    }
+  }, [teacherData]);
 
   useEffect(() => {
     if (course && type) {
