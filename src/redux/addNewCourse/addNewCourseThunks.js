@@ -1,7 +1,6 @@
 // src/redux/addNewCourse/thunk.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
 // POST /api/course/add
 export const addNewCourse = createAsyncThunk(
   "addNewCourse/add",
@@ -9,7 +8,7 @@ export const addNewCourse = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5000/api/teacher/addnewcourse",
+        "https://coursifyserver.onrender.com/api/teacher/addnewcourse",
         courseData,
         {
           headers: {

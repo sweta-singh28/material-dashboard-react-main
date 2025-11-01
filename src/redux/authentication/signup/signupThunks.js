@@ -6,6 +6,7 @@ export const signupUser = createAsyncThunk(
   "signup/signupUser",
   async (userData, { rejectWithValue }) => {
     // const dispatch = useDispatch();
+
     try {
       console.log("Signing up user with data:", userData);
       const response = await axios.post(

@@ -14,11 +14,14 @@ export const fetchAssignments = createAsyncThunk(
       }
 
       // Make API request with Authorization header
-      const response = await axios.get("http://localhost:5000/api/student/assignments", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://coursifyserver.onrender.com/api/student/assignments",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       // Backend returns an array of assignments
       return response.data;

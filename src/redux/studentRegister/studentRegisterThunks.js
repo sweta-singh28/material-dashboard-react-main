@@ -25,7 +25,10 @@ export const fetchStudents = createAsyncThunk(
       };
 
       // 4. Make the request with the new URL and the config
-      const res = await axios.get("http://localhost:5000/api/teacher/getStudents", config);
+      const res = await axios.get(
+        "https://coursifyserver.onrender.com/teacher/getStudents",
+        config
+      );
 
       // expect an array of student objects
       return res.data;

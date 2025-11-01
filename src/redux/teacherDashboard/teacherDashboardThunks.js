@@ -9,11 +9,14 @@ export const fetchTeacherCourses = createAsyncThunk(
       // Get token from localStorage
       const token = localStorage.getItem("token"); // replace "token" with your key if different
 
-      const response = await axios.get(`http://localhost:5000/api/teacher/Dashboard/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `https://coursifyserver.onrender.com/api/teacher/Dashboard/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log("Fetched teacher data:", response.data);
 
       // Store the whole object from backend

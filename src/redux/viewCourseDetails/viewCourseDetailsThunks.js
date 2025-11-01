@@ -24,7 +24,7 @@ export const fetchCourseDetails = createAsyncThunk(
 
       // ✅ API call to backend
       const response = await axios.get(
-        `http://localhost:5000/api/student/coursedetails/${courseId}`,
+        `https://coursifyserver.onrender.com/api/student/coursedetails/${courseId}`,
         config
       );
 

@@ -10,7 +10,7 @@ export const fetchCourses = createAsyncThunk(
       const token = getState()?.auth?.token || localStorage.getItem("token");
 
       // ✅ Axios automatically throws for non-2xx responses — no need for `response.ok`
-      const response = await axios.get("http://localhost:5000/api/student/courses/", {
+      const response = await axios.get("https://coursifyserver.onrender.com/api/student/courses/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

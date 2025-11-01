@@ -10,11 +10,14 @@ export const fetchStudentDashboard = createAsyncThunk(
       const token = localStorage.getItem("token");
 
       // Make authenticated request
-      const response = await axios.get("http://localhost:5000/api/student/dashboard", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://coursifyserver.onrender.com/api/student/dashboard",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       // console.log(response);
       return response.data; // Matches reducer's 'action.payload'
     } catch (err) {
