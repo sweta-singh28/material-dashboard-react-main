@@ -5,7 +5,10 @@ export const loginUser = createAsyncThunk(
   "signin/loginUser",
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/signin", credentials);
+      const response = await axios.post(
+        "https://coursifyserver.onrender.com//api/auth/signin",
+        credentials
+      );
       console.log("Login response:", response.data, response);
       localStorage.setItem("token", response.data.token);
       const user = {

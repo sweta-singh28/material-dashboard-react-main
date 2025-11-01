@@ -8,7 +8,10 @@ export const signupUser = createAsyncThunk(
     // const dispatch = useDispatch();
     try {
       console.log("Signing up user with data:", userData);
-      const response = await axios.post("http://localhost:5000/api/auth/signup", userData);
+      const response = await axios.post(
+        "https://coursifyserver.onrender.com/api/auth/signup",
+        userData
+      );
       // dispatch(loginUser({ email: userData.email, password: userData.password }));
       console.log(response.data);
       localStorage.setItem("token", response.data.token);
